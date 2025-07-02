@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Button from '../../components/ui/Button';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
-import Button from '../../components/ui/Button';
 import ProjectCard from './ProjectCard';
-import ProfileStats from './ProfileStats';
 
-const ProfileDashboard = () => {
-  // Mock data for supported projects
+const Profile = () => {
   const supportedProjects = [
     {
       id: 1,
@@ -45,120 +43,101 @@ const ProfileDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-global-3 shadow-[-24px_-28px_140px_#00000019]">
+    <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      
-      <main className="relative">
-        {/* Hero Background Section */}
-        <div className="relative w-full h-[422px]">
-          {/* Background Image */}
-          <div 
-            className="absolute top-0 left-0 w-full h-[349px] bg-cover bg-center"
-            style={{ backgroundImage: `url('/images/img__1.png')` }}
-          >
-            {/* Image Icon Overlay */}
-            <div className="absolute top-[316px] right-[40px]">
-              <img 
-                src="/images/img_24_user_interface_image.svg" 
-                alt="Edit Background" 
-                className="w-6 h-6 rounded-[5px] cursor-pointer"
-              />
-            </div>
-          </div>
 
-          {/* Profile Section */}
-          <div className="absolute top-[306px] left-[140px]">
-            {/* Profile Avatar */}
-            <div className="relative">
-              <img 
-                src="/images/img_ellipse_43.png" 
-                alt="Profile Avatar" 
-                className="w-[95px] h-[95px] rounded-[47px]"
-              />
-              <img 
-                src="/images/img_24_user_interface_logout_white_a700.svg" 
-                alt="Edit Profile" 
-                className="absolute bottom-0 right-0 w-6 h-6 rounded-[12px] cursor-pointer"
-              />
-            </div>
-          </div>
+      {/* Cover Image */}
+      <div className="w-full">
+        <img
+          src="/images/img__1.png"
+          alt="Cover"
+          className="w-full h-[300px] object-cover"
+        />
+      </div>
 
-          {/* Profile Info Section */}
-          <div className="absolute top-[353px] left-[243px] w-[674px] h-[69px]">
-            <div 
-              className="w-full h-full bg-cover bg-center flex items-center justify-between px-8"
-              style={{ backgroundImage: `url('/images/img_image_20.png')` }}
-            >
-              <div className="flex-1">
-                <h1 className="text-xl font-inter font-bold text-global-8 mb-2">
-                  Dat Nguyen Tien
-                </h1>
-                <p className="text-sm font-inter font-normal text-global-6">
-                  @datnguyentien09
-                </p>
-                <div className="flex items-center mt-2 space-x-4">
-                  <span className="text-sm font-inter font-normal text-global-6">
-                    0 followers
-                  </span>
-                  <span className="text-sm font-inter font-normal text-global-6">
-                    0 article
-                  </span>
-                </div>
+      {/* Profile Info Section */}
+      <div className="w-full bg-white px-10 -mt-12">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          {/* Avatar + Info */}
+          <div className="flex items-center gap-6">
+            <img
+              src="/images/img_ellipse_43.png"
+              alt="Avatar"
+              className="w-[95px] h-[95px] rounded-full border-4 border-white"
+            />
+            <div>
+              <h1 className="text-xl font-bold text-black">Dat Nguyen Tien</h1>
+              <p className="text-sm text-gray-600">@datnguyentien09</p>
+              <div className="flex space-x-4 mt-1 text-sm text-gray-600">
+                <span>0 followers</span>
+                <span>0 article</span>
               </div>
-              
-              <Link to="/profile/edit">
-                <Button 
-                  variant="primary" 
-                  size="custom"
-                  className="w-[123px] h-[31px] text-xs"
-                >
-                  Edit inforrmation
-                </Button>
-              </Link>
             </div>
+          </div>
+
+          {/* Edit Button */}
+          <div className="flex items-center space-x-2">
+<Link to="/profile/edit">
+  <Button className="bg-blue-500 text-white text-sm px-4 py-1 rounded">
+    Edit information
+  </Button>
+</Link>
+
+            <img
+              src="/images/img_24_user_interface_image.svg"
+              alt="Share"
+              className="w-6 h-6 cursor-pointer"
+            />
           </div>
         </div>
-
-        {/* Profile Statistics */}
-        <ProfileStats />
-
-        {/* Supported Projects Section */}
-        <section className="mt-[11px] px-[168px]">
-          <h2 className="text-xl font-inter font-bold text-global-1 text-center mb-8">
-            The project has supported
-          </h2>
-          
-          {/* Projects Grid */}
-          <div className="flex justify-center space-x-[18px] mb-[24px]">
-            {supportedProjects.map((project, index) => (
-              <ProjectCard 
-                key={project.id} 
-                project={project} 
-                index={index}
-              />
-            ))}
-          </div>
-
-          {/* Explore More Button */}
-          <div className="flex justify-center">
-            <Link to="/campaigns">
-              <Button 
-                variant="primary" 
-                size="custom"
-                className="w-[222px] h-[31px] text-xs"
-              >
-                Explore fundraising campaigns
-              </Button>
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      <div className="mt-[146px]">
-        <Footer />
       </div>
+
+      {/* Statistics */}
+      <div className="w-full flex justify-center mt-12 mb-6">
+        <div className="flex justify-between w-[600px] text-center border-t border-b py-4">
+          <div>
+            <p className="text-gray-600 text-sm">Project</p>
+            <p className="text-pink-600 text-lg font-bold">3</p>
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm">Organization</p>
+            <p className="text-pink-600 text-lg font-bold">0</p>
+          </div>
+          <div>
+            <p className="text-gray-600 text-sm">Amount of donation</p>
+            <p className="text-pink-600 text-lg font-bold">950,000 VND</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Supported Projects */}
+ <div className="text-center mb-20 px-6">
+  {/* Tiêu đề lớn hơn */}
+  <h2 className="text-[32px] font-bold text-black mb-14">
+    The project has supported
+  </h2>
+
+  {/* Danh sách các project */}
+  <div className="flex justify-center gap-10 flex-wrap mb-16">
+    {supportedProjects.map((project, index) => (
+      <ProjectCard key={project.id} project={project} index={index} />
+    ))}
+  </div>
+
+  {/* Nút Explore to hơn */}
+  <div className="flex justify-center">
+    <Link to="/campaigns">
+      <Button className="bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold px-8 py-3 rounded-[8px] shadow-md">
+        Explore fundraising campaigns
+      </Button>
+    </Link>
+  </div>
+</div>
+
+<Footer />
+
     </div>
   );
 };
 
-export default ProfileDashboard;
+export default Profile;

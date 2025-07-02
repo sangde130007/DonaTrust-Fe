@@ -48,23 +48,26 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Right buttons */}
-        <div className="flex flex-row items-center space-x-3">
-          {/* Login */}
-          <Button variant="login" size="small">
-            Login
-          </Button>
+<div className="flex flex-row items-center space-x-3">
+  {/* Login */}
+  <Link to="/signin">
+    <Button variant="login" size="small">
+      Login
+    </Button>
+  </Link>
 
-          {/* Register Now */}
-          <Button variant="register" size="small">
-            <span className="mr-2">Register Now</span>
-            <img
-              src="/images/img_16_arrows_directions_right.svg"
-              alt="Arrow Right"
-              className="w-[11px] h-[11px]"
-            />
-          </Button>
-        </div>
+  {/* Register Now */}
+  <Link to="/signup">
+    <Button variant="register" size="small">
+      <span className="mr-2">Register Now</span>
+      <img
+        src="/images/img_16_arrows_directions_right.svg"
+        alt="Arrow Right"
+        className="w-[11px] h-[11px]"
+      />
+    </Button>
+  </Link>
+</div>
       </div>
     </div>
   );

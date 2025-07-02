@@ -4,7 +4,6 @@ import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 
-
 const ProfileEdit = () => {
   const [formData, setFormData] = useState({
     accountName: 'Đạt Nguyễn Tiến',
@@ -35,35 +34,21 @@ const ProfileEdit = () => {
   return (
     <div className="min-h-screen bg-global-3 shadow-2xl">
       <Header />
-      
-      <main className="relative">
-        {/* Background Image and Profile Section */}
-        <div className="relative w-full h-[535px]">
+
+      {/* Add padding-top to push below fixed header */}
+      <main className="relative pt-24">
+        {/* Avatar and Label */}
+        <div className="flex flex-col items-center">
           <img 
-            src="/images/img_image_22.png" 
-            alt="Profile Background" 
-            className="w-full h-full object-cover"
+            src="/images/avt.jpg" 
+            alt="Profile Picture" 
+            className="w-[120px] h-[120px] rounded-full border-4 border-global-3 bg-white"
           />
-          
-          {/* Profile Image Overlay */}
-          <div className="absolute top-[144px] left-1/2 transform -translate-x-1/2">
-            <div className="relative">
-              <img 
-                src="/images/img_frame_37.png" 
-                alt="Profile Picture" 
-                className="w-[120px] h-[120px] rounded-full border-4 border-global-3"
-              />
-            </div>
-          </div>
-          
-          {/* List Text Overlay */}
-          <div className="absolute top-[211px] left-[488px]">
-            <span className="text-xl font-bold font-inter text-global-8">List</span>
-          </div>
+          <span className="mt-4 text-xl font-bold font-inter text-global-8">List</span>
         </div>
 
         {/* Edit Form Section */}
-        <div className="max-w-4xl mx-auto px-8 py-12">
+<div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
           <h1 className="text-2xl font-bold font-inter text-global-1 text-center mb-12">
             Edit personal information
           </h1>

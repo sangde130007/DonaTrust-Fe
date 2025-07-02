@@ -65,7 +65,7 @@ const CampaignDetail = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1002px] mx-auto px-4 py-8">
+<div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8 py-8">
         {/* Campaign Info Section */}
         <div className="flex flex-col lg:flex-row gap-8 mb-8">
           {/* Left Column - Campaign Image and Details */}

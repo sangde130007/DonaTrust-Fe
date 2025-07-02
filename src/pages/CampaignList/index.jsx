@@ -140,79 +140,60 @@ const CampaignListPage = () => {
     setVisibleCampaigns(prev => prev + 8);
   };
 
-  const CampaignCard = ({ campaign }) => (
-    <div className="relative w-[137px] h-[187px] mb-8">
-      {/* Campaign Image */}
-      <div className="relative w-[137px] h-[104px]">
-        <img
-          src={campaign.image}
-          alt={campaign.title}
-          className="w-full h-full object-cover rounded-sm"
-        />
-        {/* Category Badge */}
-        <div className="absolute top-1 right-1 bg-global-4 px-2 py-1 rounded">
-          <span className="text-xs font-semibold font-inter text-global-8">
-            {campaign.category}
-          </span>
-        </div>
+const CampaignCard = ({ campaign }) => (
+  <div className="relative w-[270px] bg-white rounded shadow-md flex flex-col h-[420px]">
+    {/* Campaign Image */}
+    <div className="relative h-[160px]">
+      <img
+        src={campaign.image}
+        alt={campaign.title}
+        className="w-full h-full object-cover rounded-t"
+      />
+      {/* Category Badge */}
+      <div className="absolute top-2 right-2 bg-pink-500 text-white text-xs px-2 py-1 rounded">
+        {campaign.category}
       </div>
+    </div>
 
-      {/* Campaign Details */}
-      <div className="w-[118px] h-[89px] bg-global-2 rounded-sm shadow-sm p-2 mt-2 relative">
-        <p className="text-xs font-semibold font-inter text-global-6 text-center mb-1 underline">
-          {campaign.organization}
-        </p>
-        <h3 className="text-sm font-semibold font-inter text-global-3 text-center mb-2 line-clamp-2">
-          {campaign.title}
-        </h3>
-        
+    {/* Profile Image */}
+    <img
+      src={campaign.profileImage}
+      alt="Organization"
+      className="w-[32px] h-[32px] rounded-full absolute -top-4 left-4 border-2 border-white"
+    />
+
+    {/* Campaign Info */}
+    <div className="flex flex-col flex-1 px-4 py-3">
+      <div>
+        <p className="text-xs text-gray-500 text-center mb-1">{campaign.organization}</p>
+        <h3 className="text-sm font-bold text-center mb-2">{campaign.title}</h3>
+
         {/* Progress Bar */}
-        <div className="w-full h-[11px] mb-1">
-          <img
-            src="/images/img_rectangle_1.png"
-            alt="Progress bar"
-            className="w-full h-full object-cover"
-          />
+        <div className="w-full h-2 bg-gray-200 rounded mb-1">
+          <div className="h-full bg-pink-500 rounded" style={{ width: campaign.percentage }} />
         </div>
 
         {/* Funding Info */}
-        <div className="flex justify-between items-center mb-1">
-          <span className="text-xs font-semibold font-inter text-global-6">
-            {campaign.raised}
-          </span>
-          <span className="text-xs font-semibold font-inter text-global-6">
-            {campaign.percentage}
-          </span>
+        <div className="flex justify-between text-xs mb-1">
+          <span>{campaign.raised} VND</span>
+          <span>{campaign.percentage}</span>
         </div>
-
-        <p className="text-xs font-semibold font-inter text-global-6 mb-2">
-          with the goal of {campaign.goal} VND
-        </p>
-
-        {/* Detail Link */}
-        <Link 
-          to={`/campaign/${campaign.id}`}
-          className="flex items-center justify-center"
-        >
-          <span className="text-sm font-semibold font-inter text-global-5 mr-1">
-            Detail
-          </span>
-          <img
-            src="/images/img_24_arrows_directions_right.svg"
-            alt="Arrow right"
-            className="w-2 h-2"
-          />
-        </Link>
+        <p className="text-xs text-gray-500 mb-4">Goal: {campaign.goal} VND</p>
       </div>
 
-      {/* Profile Image */}
-      <img
-        src={campaign.profileImage}
-        alt="Organization profile"
-        className="absolute top-[78px] left-1/2 transform -translate-x-1/2 w-[21px] h-[20px] rounded-full z-10"
-      />
+      {/* Detail Button */}
+      <div className="mt-auto text-center">
+        <Link to={`/campaign/${campaign.id}`}>
+          <button className="bg-pink-500 hover:bg-pink-600 text-white text-xs font-semibold px-4 py-2 rounded">
+            Detail
+          </button>
+        </Link>
+      </div>
     </div>
-  );
+  </div>
+);
+
+
 
   return (
     <div className="min-h-screen bg-global-3 shadow-2xl">
@@ -267,7 +248,7 @@ const CampaignListPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4">
+<div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h2 className="text-[26px] font-bold font-inter text-global-1 mb-2">
             Campaigns currently raising funds

@@ -8,75 +8,71 @@ const ProjectCard = ({ project, index }) => {
   };
 
   return (
-    <div className="relative w-[187px] h-[137px]">
-      {/* Project Image */}
-      <div className="relative w-[137px] h-[104px]">
-        <img 
-          src={project.image} 
+    <div className="relative w-[240px] h-[340px] bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* Ảnh đại diện dự án */}
+      <div className="relative w-full h-[160px]">
+        <img
+          src={project.image}
           alt={project.title}
-          className="w-full h-full object-cover rounded-[2px]"
+          className="w-full h-full object-cover"
         />
-        {/* Category Badge */}
-        <div className={`absolute top-[4px] right-[4px] ${categoryColors[project.category] || 'bg-global-4'} px-2 py-1 rounded`}>
-          <span className="text-[4px] font-inter font-semibold text-global-8 leading-[5px]">
+
+        {/* Badge thể loại */}
+        <div
+          className={`absolute top-2 right-2 ${categoryColors[project.category] || 'bg-global-4'} px-3 py-1 rounded-full`}
+        >
+          <span className="text-[10px] font-semibold text-white">
             {project.category}
           </span>
         </div>
       </div>
 
-      {/* Project Details Card */}
-      <div className="absolute top-[98px] left-[11px] w-[118px] h-[89px] bg-global-2 rounded-[2px] shadow-[0px_2px_5px_#abbed166] p-3">
-        <h4 className="text-[4px] font-inter font-semibold text-global-6 leading-[5px] text-center mb-2">
+      {/* Nội dung card */}
+      <div className="p-4">
+        {/* Tên tổ chức */}
+        <h4 className="text-sm font-semibold text-gray-600 text-center mb-2">
           {project.organization}
         </h4>
-        <h3 className="text-[7px] font-inter font-semibold text-global-3 leading-[9px] text-center mb-2">
+
+        {/* Tên dự án */}
+        <h3 className="text-base font-bold text-gray-800 text-center mb-2">
           {project.title}
         </h3>
-        
-        {/* Progress Bar */}
-        <div className="w-[91px] h-[11px] mb-1">
-          <img 
-            src="/images/img_rectangle_1.png" 
-            alt="Progress Bar" 
-            className="w-full h-full"
+
+        {/* Progress */}
+        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
+          <div
+            className="h-full bg-green-500"
+            style={{ width: project.percentage }}
           />
         </div>
-        
-        {/* Progress Info */}
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-            {project.raised}
-          </span>
-          <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-            {project.percentage}
-          </span>
+
+        {/* Raised / Percent */}
+        <div className="flex justify-between text-xs text-gray-600 mb-2">
+          <span>{project.raised} VND</span>
+          <span>{project.percentage}</span>
         </div>
-        
-        <p className="text-[4px] font-inter font-semibold text-global-6 leading-[5px] mb-2">
+
+        {/* Goal */}
+        <p className="text-xs text-gray-500 mb-3 text-center">
           with the goal of {project.goal}
         </p>
-        
-        {/* Detail Link */}
-        <Link 
-          to={`/campaign/${project.id}`}
-          className="flex items-center justify-center"
-        >
-          <span className="text-[6px] font-inter font-semibold text-global-5 leading-[9px] mr-1">
-            Detail
-          </span>
-          <img 
-            src="/images/img_24_arrows_directions_right.svg" 
-            alt="Arrow Right" 
-            className="w-2 h-2"
-          />
-        </Link>
+
+        {/* Nút Detail */}
+        <div className="text-center">
+          <Link to={`/campaign/${project.id}`}>
+            <span className="text-sm font-semibold text-blue-600 hover:underline">
+              Detail →
+            </span>
+          </Link>
+        </div>
       </div>
 
-      {/* Organization Avatar */}
-      <img 
-        src={project.avatar} 
+      {/* Avatar tổ chức */}
+      <img
+        src={project.avatar}
         alt={`${project.organization} Avatar`}
-        className="absolute top-[86px] left-[61px] w-[21px] h-5 rounded-[10px]"
+        className="absolute top-[140px] left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full border-2 border-white"
       />
     </div>
   );

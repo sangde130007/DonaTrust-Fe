@@ -16,46 +16,62 @@ const EditText = ({
 
   const handlePasswordToggle = () => setShowPassword(!showPassword);
   const inputType = type === 'password' && showPassword ? 'text' : type;
+  const shouldFloat = isFocused || Boolean(value);
 
-  const shouldFloat = isFocused || Boolean(value); // ✅ fix quan trọng
+const getVariantClasses = () => {
+  switch (variant) {
+    case 'floating':
+      return {
+        container: 'relative w-full',
+        input:
+          'w-full px-3 pt-6 pb-2 border border-button-4 rounded-[10px] text-base font-inter font-medium text-global-1 bg-global-3 focus:outline-none focus:ring-2 focus:ring-button-4',
+        label:
+          'absolute left-3 bg-global-3 px-1 transition-all duration-200 pointer-events-none font-inter font-medium text-button-4 ' +
+          (shouldFloat ? 'top-[-8px] text-xs' : 'top-4 text-base')
+      };
+    default:
+      return {
+        container: 'w-full',
+        label: 'block mb-1 text-sm font-medium font-inter text-global-4',
+        input:
+          'w-full px-3 py-2 border border-global-7 rounded-[10px] text-base font-inter font-medium text-global-1 bg-global-3 focus:outline-none focus:ring-2 focus:ring-button-4 focus:border-button-4'
+      };
+  }
+};
 
-  const getVariantClasses = () => {
-    switch (variant) {
-      case 'floating':
-        return {
-          container: 'relative w-[399px] h-[59px]',
-          input:
-            'w-full h-full px-3 pt-6 pb-2 border border-button-4 rounded-[10px] text-base font-inter text-global-9 bg-global-3 focus:outline-none focus:ring-2 focus:ring-button-4',
-          label:
-            `absolute left-3 transition-all duration-200 pointer-events-none text-sm font-inter font-medium text-button-4 bg-global-3 px-1 ` +
-            (shouldFloat ? 'top-[-8px] text-xs' : 'top-4 text-base')
-        };
-      default:
-        return {
-          container: 'relative w-[399px] h-[59px]',
-          input:
-            'w-full h-full px-3 py-4 border border-global-7 rounded-[10px] text-lg font-inter text-global-14 bg-global-3 focus:outline-none focus:ring-2 focus:ring-button-4 focus:border-button-4',
-          label:
-            'absolute left-3 top-4 text-lg font-inter text-global-14 pointer-events-none'
-        };
-    }
-  };
 
   const classes = getVariantClasses();
 
   return (
     <div className={`${classes.container} ${className}`}>
-      <input
-        type={inputType}
-        value={value}
-        onChange={onChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        placeholder={variant === 'floating' ? '' : placeholder}
-        className={classes.input}
-        {...props}
-      />
-      {label && <label className={classes.label}>{label}</label>}
+      {variant === 'floating' ? (
+        <>
+          <input
+            type={inputType}
+            value={value}
+            onChange={(e) => onChange(e.target.value)} // ✅ Sửa lỗi chính tại đây
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder=""
+            className={classes.input}
+            {...props}
+          />
+          {label && <label className={classes.label}>{label}</label>}
+        </>
+      ) : (
+        <>
+          {label && <label className={classes.label}>{label}</label>}
+          <input
+            type={inputType}
+            value={value}
+            onChange={(e) => onChange(e.target.value)} // ✅ Sửa lỗi chính tại đây
+            placeholder={placeholder}
+            className={classes.input}
+            {...props}
+          />
+        </>
+      )}
+
       {showPasswordToggle && type === 'password' && (
         <button
           type="button"
