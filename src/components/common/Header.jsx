@@ -26,14 +26,14 @@ const Header = () => {
             <Link to="/" className="text-base font-inter font-medium text-global-4">
               Home
             </Link>
-            <Link to="/campaign" className="text-base font-inter font-medium text-global-4">
+            <Link to="/campaigns" className="text-base font-inter font-medium text-global-4">
               Campaign
             </Link>
-            <Link to="/introduce" className="text-base font-inter font-medium text-global-4">
+            <Link to="/profile" className="text-base font-inter font-medium text-global-4">
               Introduce
             </Link>
-            <Link to="/contact" className="text-base font-inter font-medium text-global-4">
-              Contact
+            <Link to="/notification" className="text-base font-inter font-medium text-global-4">
+              Notification
             </Link>
           </nav>
 
