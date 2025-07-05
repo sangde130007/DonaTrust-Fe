@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
@@ -148,6 +148,7 @@ const CampaignDetail = () => {
                   </div>
                 </div>
                 <div className="flex space-x-4">
+                  <Link to="/donationinfor">
                   <Button 
                     onClick={handleDonate}
                     variant="secondary"
@@ -155,6 +156,7 @@ const CampaignDetail = () => {
                   >
                     DONATE NOW
                   </Button>
+                  </Link>
                   <Button 
                     onClick={handleShare}
                     variant="primary"
@@ -177,6 +179,7 @@ const CampaignDetail = () => {
           >
             Detailed content
           </Button>
+          <Link to="/campaigndetail">
           <Button
             onClick={() => setActiveTab('donations')}
             variant={activeTab === 'donations' ? 'tabActive' : 'tab'}
@@ -184,6 +187,7 @@ const CampaignDetail = () => {
           >
             Donation List
           </Button>
+          </Link>
         </div>
 
         {/* Tab Content */}
