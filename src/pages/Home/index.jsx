@@ -16,9 +16,10 @@ import {
   BarElement,
   Title as ChartTitle
 } from 'chart.js';
+
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
 
-// Copy AdminDashboard component từ ProfileDashboard
+// ---------- AdminDashboard Component ----------
 const AdminDashboard = ({ stats }) => {
   const pieData = {
     labels: ['Users', 'Charities', 'Campaigns', 'Donations', 'News', 'Donation Amount'],
@@ -32,38 +33,33 @@ const AdminDashboard = ({ stats }) => {
           stats.totalNews,
           stats.totalDonationAmount,
         ],
-        backgroundColor: [
-          '#3b82f6', // blue
-          '#22c55e', // green
-          '#facc15', // yellow
-          '#ec4899', // pink
-          '#6366f1', // indigo
-          '#f472b6', // rose
-        ],
+        backgroundColor: ['#3b82f6', '#22c55e', '#facc15', '#ec4899', '#6366f1', '#f472b6'],
         borderWidth: 1,
       },
     ],
   };
+
   const barData = {
     labels: ['Pending Charities', 'Pending Campaigns', 'Pending Approvals'],
     datasets: [
       {
         label: 'Pending',
-        data: [
-          stats.pendingCharities,
-          stats.pendingCampaigns,
-          stats.pendingApprovals,
-        ],
+        data: [stats.pendingCharities, stats.pendingCampaigns, stats.pendingApprovals],
         backgroundColor: '#f59e42',
         borderRadius: 6,
       },
     ],
   };
-  const chartContainerClass = "rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 flex flex-col items-center mb-10 border border-blue-100";
+
+  const chartContainerClass =
+    'rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 flex flex-col items-center mb-10 border border-blue-100';
+
   return (
     <div className="w-full bg-white min-h-screen">
       <div className="max-w-6xl mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold mb-8 text-blue-700">Admin Dashboard</h1>
+
+        {/* Statistic Boxes */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-blue-50 rounded-lg p-6 shadow text-center">
             <div className="text-2xl font-bold text-blue-700">{stats.totalUsers}</div>
@@ -82,38 +78,35 @@ const AdminDashboard = ({ stats }) => {
             <div className="text-gray-600 mt-1">Total News</div>
           </div>
         </div>
+
+        {/* Pie Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 tracking-tight uppercase drop-shadow">Overview Distribution</h2>
+          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Overview Distribution</h2>
           <div className="w-full max-w-xs">
             <Pie data={pieData} options={{
               plugins: {
                 legend: {
                   position: 'bottom',
                   labels: {
-                    font: { size: 15, family: 'inherit', weight: 'bold' },
+                    font: { size: 15, weight: 'bold' },
                     color: '#334155',
                     padding: 18,
                     boxWidth: 22,
                     usePointStyle: true,
                   },
-                  onHover: (e, legendItem, legend) => {
-                    e.native.target.style.cursor = 'pointer';
-                  }
+                  onHover: (e) => e.native.target.style.cursor = 'pointer'
                 },
                 tooltip: {
                   callbacks: {
-                    label: function(context) {
-                      let label = context.label || '';
-                      if (label) label += ': ';
-                      label += context.parsed;
-                      return label;
-                    }
+                    label: (ctx) => `${ctx.label || ''}: ${ctx.parsed}`
                   }
                 }
               }
             }} />
           </div>
         </div>
+
+        {/* Pending Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-orange-50 rounded-lg p-6 shadow text-center">
             <div className="text-xl font-bold text-orange-700">{stats.pendingCharities}</div>
@@ -128,41 +121,39 @@ const AdminDashboard = ({ stats }) => {
             <div className="text-gray-600 mt-1">Pending Approvals</div>
           </div>
         </div>
+
+        {/* Bar Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 tracking-tight uppercase drop-shadow">Pending Overview</h2>
+          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Pending Overview</h2>
           <div className="w-full max-w-2xl">
-            <Bar
-              data={barData}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: false },
-                  title: { display: false },
-                  tooltip: {
-                    callbacks: {
-                      label: function(context) {
-                        return `${context.dataset.label}: ${context.parsed.y}`;
-                      }
-                    }
+            <Bar data={barData} options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`
                   }
+                }
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { font: { size: 15, weight: 'bold' }, color: '#334155' }
                 },
-                scales: {
-                  x: {
-                    grid: { display: false },
-                    ticks: { font: { size: 15, family: 'inherit', weight: 'bold' }, color: '#334155' }
-                  },
-                  y: {
-                    beginAtZero: true,
-                    grid: { color: '#e0e7ef', borderDash: [4, 4] },
-                    ticks: { stepSize: 1, font: { size: 15, family: 'inherit', weight: 'bold' }, color: '#334155' }
-                  }
-                },
-                hover: { mode: 'nearest', intersect: true },
-                animation: { duration: 900, easing: 'easeOutQuart' },
-              }}
-            />
+                y: {
+                  beginAtZero: true,
+                  grid: { color: '#e0e7ef', borderDash: [4, 4] },
+                  ticks: { stepSize: 1, font: { size: 15, weight: 'bold' }, color: '#334155' }
+                }
+              },
+              hover: { mode: 'nearest', intersect: true },
+              animation: { duration: 900, easing: 'easeOutQuart' },
+            }} />
           </div>
         </div>
+
+        {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-lg font-bold text-gray-700 mb-2">Total Donation Amount</div>
@@ -232,13 +223,14 @@ const Home = () => {
 
         // Fetch featured campaigns and categories in parallel
         const [campaignsResponse, categoriesResponse] = await Promise.allSettled([
-          campaignService.getFeaturedCampaigns(),
+          campaignService.getAllCampaigns({ featured: true }),
           campaignService.getCategories(),
         ]);
 
         // Handle campaigns response
         if (campaignsResponse.status === 'fulfilled') {
-          setCampaigns(campaignsResponse.value.data || []);
+console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, null, 2));
+  setCampaigns(campaignsResponse.value.campaigns || []);
         } else {
           console.warn('Failed to fetch campaigns:', campaignsResponse.reason);
           setCampaigns([]); // Fallback to empty array
@@ -377,143 +369,137 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Featured Campaigns Section */}
-      <div className="flex flex-col items-center w-full mt-[29px]">
-        <h2 className="text-base font-roboto font-semibold text-global-1 text-center leading-[19px]">
-          FEATURED FUNDRAISING CAMPAIGN
-        </h2>
+     {/* Featured Campaigns Section */}
+<div className="flex flex-col items-center w-full mt-10">
+  <h2 className="text-lg font-semibold text-global-1 text-center">
+    FEATURED FUNDRAISING CAMPAIGN
+  </h2>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 mb-6 max-w-md">
-            <p className="text-red-600 text-sm text-center">{error}</p>
-          </div>
-        )}
+  {/* Error Message */}
+  {error && (
+    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 mb-6 max-w-md">
+      <p className="text-red-600 text-sm text-center">{error}</p>
+    </div>
+  )}
 
-        {/* Campaign Slider */}
-        {campaigns.length > 0 ? (
-          <div className="flex flex-row items-center w-full mt-[52px] px-[89px]">
-            {/* Previous Button */}
-            <button
-              onClick={() => handleCampaignSlideChange('prev')}
-              className="mr-[24px] hover:opacity-80"
-              disabled={currentCampaignSlide === 0}
-            >
-              <img
-                src="/images/img_vector_140.svg"
-                alt="Previous"
-                className="w-3 h-[28px] transform rotate-180"
-              />
-            </button>
+  {/* Campaign Slider */}
+  {campaigns.length > 0 ? (
+    <div className="flex items-center w-full mt-8 px-16">
+      {/* Previous Button */}
+      <button
+        onClick={() => handleCampaignSlideChange('prev')}
+        className="mr-4 hover:opacity-80"
+        disabled={currentCampaignSlide === 0}
+      >
+        <img
+          src="/images/img_vector_140.svg"
+          alt="Previous"
+          className="w-5 h-6 transform rotate-180"
+        />
+      </button>
 
-            {/* Campaign Cards */}
-            <div className="flex flex-row space-x-[34px] overflow-hidden">
-              {campaigns
-                .slice(currentCampaignSlide, currentCampaignSlide + 3)
-                .map((campaign, index) => (
-                  <div key={campaign.id || index} className="flex flex-col w-[122px]">
-                    {/* Campaign Image with Category Tag */}
-                    <div className="relative w-[122px] h-[95px] mb-[1px]">
-                      <img
-                        src={campaign.image || campaign.imageUrl || '/images/img_image_18.png'}
-                        alt={campaign.title}
-                        className="w-full h-full object-cover rounded-sm"
-                        onError={(e) => {
-                          e.target.src = '/images/img_image_18.png'; // Fallback image
-                        }}
-                      />
-                      <div className="absolute top-[6px] right-[7px] bg-global-4 px-2 py-1 rounded-sm">
-                        <span className="text-[4px] font-inter font-semibold text-global-8 leading-[5px]">
-                          {campaign.category || 'General'}
-                        </span>
-                      </div>
-                      <img
-                        src={
-                          campaign.avatar || campaign.charityAvatar || '/images/img_ellipse_8.png'
-                        }
-                        alt="Organization Avatar"
-                        className="absolute bottom-[-9px] left-1/2 transform -translate-x-1/2 w-[19px] h-[19px] rounded-full"
-                        onError={(e) => {
-                          e.target.src = '/images/img_ellipse_8.png'; // Fallback avatar
-                        }}
-                      />
-                    </div>
+      {/* Campaign Cards */}
+      <div className="flex space-x-6 overflow-hidden">
+        {campaigns
+          .slice(currentCampaignSlide, currentCampaignSlide + 3)
+          .map((campaign, index) => (
+<div
+  key={campaign.id || index}
+  className="flex flex-col justify-between w-[280px] bg-white rounded-lg shadow p-4 h-[420px]"
+>
+  {/* Campaign Image with Category Tag */}
+  <div className="relative w-full h-[160px] rounded-md overflow-hidden mb-4">
+    <img
+      src={campaign.image_url || '/images/img_image_18.png'}
+      alt={campaign.title}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.src = '/images/img_image_18.png';
+      }}
+    />
+    <div className="absolute top-2 right-2 bg-blue-100 px-2 py-1 rounded-sm text-xs font-medium text-blue-600">
+      {campaign.category || 'General'}
+    </div>
+    <img
+      src={campaign.charity?.logo_url || '/images/img_ellipse_8.png'}
+      alt="Organization Avatar"
+      className="absolute bottom-[-12px] left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full border-2 border-white bg-white"
+      onError={(e) => {
+        e.target.src = '/images/img_ellipse_8.png';
+      }}
+    />
+  </div>
 
-                    {/* Campaign Details Card */}
-                    <div className="bg-global-2 rounded-sm shadow-[0px_2px_5px_#abbed166] p-2 w-[105px] h-[82px]">
-                      <p className="text-[4px] font-inter font-semibold text-global-6 text-center leading-[5px] mb-1">
-                        {campaign.organization || campaign.charityName || 'Unknown Organization'}
-                      </p>
-                      <h3 className="text-[7px] font-inter font-semibold text-global-3 text-center leading-[9px] mb-2">
-                        {campaign.title}
-                      </h3>
+  {/* Campaign Details */}
+  <div className="text-center flex flex-col justify-between flex-grow">
+    <div>
+      <p className="text-sm font-semibold text-gray-500 mb-1">
+        {campaign.charity?.name || 'Unknown Organization'}
+      </p>
+      <h3 className="text-base font-bold text-gray-800 mb-3 line-clamp-2">
+        {campaign.title}
+      </h3>
 
-                      {/* Progress Bar */}
-                      <div className="w-[91px] h-[11px] mb-1 bg-gray-200 rounded">
-                        <div
-                          className="h-full bg-blue-500 rounded"
-                          style={{
-                            width: `${Math.min((campaign.raisedAmount / campaign.goalAmount) * 100, 100)}%`,
-                          }}
-                        ></div>
-                      </div>
+      {/* Progress Bar */}
+      <div className="w-full h-3 bg-gray-200 rounded-full mb-2 overflow-hidden">
+        <div
+          className="h-full bg-blue-500"
+          style={{
+            width: `${Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)}%`,
+          }}
+        ></div>
+      </div>
 
-                      {/* Amount and Percentage */}
-                      <div className="flex flex-row justify-between items-center mb-1">
-                        <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-                          {campaign.raised ||
-                            new Intl.NumberFormat('vi-VN').format(campaign.raisedAmount || 0)}
-                        </span>
-                        <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-                          {campaign.percentage ||
-                            `${Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}%`}
-                        </span>
-                      </div>
+      {/* Amount and Percentage */}
+      <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
+        <span>
+          {new Intl.NumberFormat('vi-VN').format(campaign.current_amount || 0)} đ
+        </span>
+        <span>
+          {Math.round(((campaign.current_amount || 0) / (campaign.goal_amount || 1)) * 100)}%
+        </span>
+      </div>
 
-                      <p className="text-[4px] font-inter font-semibold text-global-6 leading-[5px] mb-2">
-                        with the goal of{' '}
-                        {campaign.goal ||
-                          new Intl.NumberFormat('vi-VN').format(campaign.goalAmount || 0)}{' '}
-                        VND
-                      </p>
+      <p className="text-xs text-gray-500 mb-3">
+        Goal: {new Intl.NumberFormat('vi-VN').format(campaign.goal_amount || 0)} đ
+      </p>
+    </div>
 
-                      {/* Detail Button */}
-                      <button
-                        onClick={() => handleCampaignDetailClick(campaign.id)}
-                        className="flex flex-row items-center hover:opacity-80"
-                      >
-                        <span className="text-[6px] font-inter font-semibold text-global-5 leading-[9px] mr-1">
-                          Detail
-                        </span>
-                        <img
-                          src="/images/img_24_arrows_directions_right.svg"
-                          alt="Arrow Right"
-                          className="w-2 h-2"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
+    {/* Detail Button */}
+    <div className="flex justify-center mt-auto">
+      <button className="bg-pink-500 hover:bg-pink-600 text-white text-xs font-semibold px-4 py-1 rounded flex items-center justify-center space-x-1">
+        <span>Detail</span>
+        <img
+          src="/images/img_24_arrows_directions_right.svg"
+          alt="Arrow Right"
+          className="w-3 h-3"
+        />
+      </button>
+    </div>
+  </div>
+</div>
 
-            {/* Next Button */}
-            <button
-              onClick={() => handleCampaignSlideChange('next')}
-              className="ml-[25px] hover:opacity-80"
-              disabled={currentCampaignSlide >= campaigns.length - 3}
-            >
-              <img src="/images/img_vector_140.svg" alt="Next" className="w-3 h-[28px]" />
-            </button>
-          </div>
-        ) : (
-          // No campaigns state
-          <div className="mt-[52px] text-center py-12">
-            <p className="text-global-6 mb-4">No featured campaigns available at the moment.</p>
-            <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
-              Browse All Campaigns →
-            </Button>
-          </div>
-        )}
+          ))}
+      </div>
+
+      {/* Next Button */}
+      <button
+        onClick={() => handleCampaignSlideChange('next')}
+        className="ml-4 hover:opacity-80"
+        disabled={currentCampaignSlide >= campaigns.length - 3}
+      >
+        <img src="/images/img_vector_140.svg" alt="Next" className="w-5 h-6" />
+      </button>
+    </div>
+  ) : (
+    <div className="mt-10 text-center py-12">
+      <p className="text-gray-500 mb-4">No featured campaigns available at the moment.</p>
+      <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
+        Browse All Campaigns →
+      </Button>
+    </div>
+  )}
+
 
         {/* View All Button */}
         {campaigns.length > 0 && (
