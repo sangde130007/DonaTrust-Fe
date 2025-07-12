@@ -10,23 +10,23 @@ const Home = () => {
   const [currentCampaignSlide, setCampaignSlide] = useState(0);
 
   const categories = [
-    { icon: '/images/img_logo_24x27.png', label: 'Natural disaster' },
-    { icon: '/images/img_logo_1.png', label: 'Education' },
-    { icon: '/images/img_logo_27x27.png', label: 'Children' },
-    { icon: '/images/img_logo_2.png', label: 'Poor people' },
-    { icon: '/images/img_logo_3.png', label: 'Elderly' },
-    { icon: '/images/img_logo_4.png', label: 'People with disabilities' },
-    { icon: '/images/img_logo_5.png', label: 'Serious illness' },
-    { icon: '/images/img_logo_6.png', label: 'Mountainous area' },
-    { icon: '/images/img_logo_7.png', label: 'Environment' }
+    { icon: '/images/img_logo_24x27.png', label: 'THIÊN TAI' },
+    { icon: '/images/img_logo_1.png', label: 'GIÁO DỤC' },
+    { icon: '/images/img_logo_27x27.png', label: 'TRẺ EM' },
+    { icon: '/images/img_logo_2.png', label: 'NGƯỜI NGHÈO' },
+    { icon: '/images/img_logo_3.png', label: 'NGƯỜI CAO TUỔI' },
+    { icon: '/images/img_logo_4.png', label: 'NGƯỜI KHUYẾT TẬT' },
+    { icon: '/images/img_logo_5.png', label: 'BỆNH HIỂM NGHÈO' },
+    { icon: '/images/img_logo_6.png', label: 'VÙNG NÚI' },
+    { icon: '/images/img_logo_7.png', label: 'MÔI TRƯỜNG' }
   ];
 
   const campaigns = [
     {
       id: 1,
       image: '/images/img_image_18.png',
-      category: 'Children',
-      title: 'Supporting students to go to school in 2025',
+      category: 'TRẺ EM',
+      title: 'TIẾP SỨC ĐẾN TRƯỜNG 2025',
       organization: 'Quỹ Vì trẻ em khuyết tật Việt Nam',
       raised: '9.720.000',
       percentage: '32.4%',
@@ -36,9 +36,9 @@ const Home = () => {
     {
       id: 2,
       image: '/images/img_image_18.png',
-      category: 'Children',
-      title: 'Supporting students to go to school in 2025',
-      organization: 'Quỹ Vì trẻ em khuyết tật Việt Nam',
+      category: 'TRẺ EM',
+      title: 'MỘT NGÀN CÁNH DIỀU CHO HY VỌNG',
+      organization: 'Quỹ Tuổi trẻ Việt Nam',
       raised: '9.720.000',
       percentage: '32.4%',
       goal: '30,000,000 VND',
@@ -47,9 +47,9 @@ const Home = () => {
     {
       id: 3,
       image: '/images/img_image_18.png',
-      category: 'Children',
-      title: 'Supporting students to go to school in 2025',
-      organization: 'Quỹ Vì trẻ em khuyết tật Việt Nam',
+      category: 'MÔI TRƯỜNG',
+      title: 'RỪNG XANH LÊN 2025',
+      organization: 'Hội môi trường Việt Nam',
       raised: '9.720.000',
       percentage: '32.4%',
       goal: '30,000,000 VND',
@@ -58,9 +58,9 @@ const Home = () => {
     {
       id: 4,
       image: '/images/img_image_18.png',
-      category: 'Children',
-      title: 'Supporting students to go to school in 2025',
-      organization: 'Quỹ Vì trẻ em khuyết tật Việt Nam',
+      category: 'TRẺ EM',
+      title: 'GIÚP ĐỠ GIA ĐÌNH EM VÀNG THỊ SANH',
+      organization: 'Quỹ Vì trẻ em Việt Nam',
       raised: '9.720.000',
       percentage: '32.4%',
       goal: '30,000,000 VND',
@@ -69,8 +69,8 @@ const Home = () => {
     {
       id: 5,
       image: '/images/img_image_18.png',
-      category: 'Children',
-      title: 'Supporting students to go to school in 2025',
+      category: 'TRẺ EM',
+      title: 'CHIẾN DỊCH GÂY QUỸ 5',
       organization: 'Quỹ Vì trẻ em khuyết tật Việt Nam',
       raised: '9.720.000',
       percentage: '32.4%',
@@ -141,12 +141,22 @@ const Home = () => {
       <Header />
       
       {/* Hero Section with Slider */}
-      <div className="relative w-full h-[396px]">
+      <div className="relative w-full h-[670px]">
         <Slider 
-          title="JOIN HANDS TO BUILD A BETTER COMMUNITY!"
-          subtitle="Discover and support trustworthy charitable projects."
-          buttonText="EXPLORE CAMPAIGN"
-          backgroundImage="/images/bacground_homepage.jpg"
+        slides={[
+          {
+          title:"CHUNG TAY XÂY DỰNG CỘNG ĐỒNG TỐT ĐẸP HƠN!",
+          subtitle:"Khám phá và hỗ trợ các dự án từ thiện đáng tin cậy.",
+          buttonText:"KHÁM PHÁ CHIẾN DỊCH",
+          backgroundImage:"/images/bacground_homepage.jpg",
+          },
+          {
+          title:"CHUNG TAY XÂY DỰNG CỘNG ĐỒNG TỐT ĐẸP HƠN!",
+          subtitle:"Khám phá và hỗ trợ các dự án từ thiện đáng tin cậy.",
+          buttonText:"KHÁM PHÁ CHIẾN DỊCH",
+          backgroundImage:"/images/img_.png"
+          }
+        ]}
           onButtonClick={handleExploreClick}
         />
         
@@ -168,7 +178,7 @@ const Home = () => {
               <img 
                 src={category.icon} 
                 alt={category.label}
-                className="w-[27px] h-[27px] mb-[2px]"
+                className="w-[30px] h-[30px] mb-[2px]"
               />
               <span className="text-[9px] font-roboto font-medium text-global-1 text-center leading-[11px] max-w-[74px]">
                 {category.label}
@@ -179,13 +189,13 @@ const Home = () => {
       </div>
 
       {/* Featured Campaigns Section */}
-      <div className="flex flex-col items-center w-full mt-[29px]">
-        <h2 className="text-base font-roboto font-semibold text-global-1 text-center leading-[19px]">
-          FEATURED FUNDRAISING CAMPAIGN
+      <div className="flex flex-col items-center w-full mt-[40px]">
+        <h2 className="text-[24px] font-roboto font-bold text-global-1 text-center leading-[32px]">
+          CHIẾN DỊCH GÂY QUỸ NỔI BẬT
         </h2>
         
         {/* Campaign Slider */}
-        <div className="flex flex-row items-center w-full mt-[52px] px-[89px]">
+        <div className="flex flex-row items-center w-full mt-[52px] px-[15%]">
           {/* Previous Button */}
           <button 
             onClick={() => handleCampaignSlideChange('prev')}
@@ -195,39 +205,39 @@ const Home = () => {
             <img 
               src="/images/img_vector_140.svg" 
               alt="Previous"
-              className="w-3 h-[28px] transform rotate-180"
+              className="w-3 h-[28px]"
             />
           </button>
           
           {/* Campaign Cards */}
-          <div className="flex flex-row space-x-[34px] overflow-hidden">
+          <div className="flex flex-row space-x-[60px] overflow-hidden">
             {campaigns.slice(currentCampaignSlide, currentCampaignSlide + 3).map((campaign, index) => (
-              <div key={campaign.id} className="flex flex-col w-[122px]">
+              <div key={campaign.id} className="flex flex-col w-[280px]">
                 {/* Campaign Image with Category Tag */}
-                <div className="relative w-[122px] h-[95px] mb-[1px]">
+                <div className="relative w-[280px] h-[220px] mb-[0px]">
                   <img 
                     src={campaign.image}
                     alt={campaign.title}
                     className="w-full h-full object-cover rounded-sm"
                   />
                   <div className="absolute top-[6px] right-[7px] bg-global-4 px-2 py-1 rounded-sm">
-                    <span className="text-[4px] font-inter font-semibold text-global-8 leading-[5px]">
+                    <span className="text-[11px] font-inter font-semibold text-global-8 leading-[5px]">
                       {campaign.category}
                     </span>
                   </div>
                   <img 
                     src={campaign.avatar}
                     alt="Organization Avatar"
-                    className="absolute bottom-[-9px] left-1/2 transform -translate-x-1/2 w-[19px] h-[19px] rounded-full"
+                    className="absolute bottom-[-14px] left-1/2 transform -translate-x-1/2 w-[60px] h-[60px] rounded-full mb-0"
                   />
                 </div>
                 
                 {/* Campaign Details Card */}
-                <div className="bg-global-2 rounded-sm shadow-[0px_2px_5px_#abbed166] p-2 w-[105px] h-[82px]">
-                  <p className="text-[4px] font-inter font-semibold text-global-6 text-center leading-[5px] mb-1">
+                <div className="bg-global-2 rounded-sm shadow-[5px_5px_5px_#abbed166] p-7 w-[280px] h-[200px]">
+                  <p className="text-[12px] font-inter font-semibold text-global-6 text-center leading-[5px] mb-5">
                     {campaign.organization}
                   </p>
-                  <h3 className="text-[7px] font-inter font-semibold text-global-3 text-center leading-[9px] mb-2">
+                  <h3 className="text-[13px] font-inter font-semibold text-global-3 text-center leading-[18px] mb-3">
                     {campaign.title}
                   </h3>
                   
@@ -235,21 +245,21 @@ const Home = () => {
                   <img 
                     src="/images/img_rectangle_1.png"
                     alt="Progress Bar"
-                    className="w-[91px] h-[11px] mb-1"
+                    className="w-[220px] h-[20px] mb-1"
                   />
                   
                   {/* Amount and Percentage */}
                   <div className="flex flex-row justify-between items-center mb-1">
-                    <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
+                    <span className="text-[13px] font-inter font-semibold text-global-6 leading-[5px] mb-3">
                       {campaign.raised}
                     </span>
-                    <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
+                    <span className="text-[13px] font-inter font-semibold text-global-6 leading-[5px] mb-3">
                       {campaign.percentage}
                     </span>
                   </div>
                   
-                  <p className="text-[4px] font-inter font-semibold text-global-6 leading-[5px] mb-2">
-                    with the goal of {campaign.goal}
+                  <p className="text-[12px] font-inter font-semibold text-global-6 leading-[5px] mb-4">
+                    Mục tiêu chiến dịch {campaign.goal}
                   </p>
                   
                   {/* Detail Button */}
@@ -257,13 +267,13 @@ const Home = () => {
                     onClick={() => handleCampaignDetailClick(campaign.id)}
                     className="flex flex-row items-center hover:opacity-80"
                   >
-                    <span className="text-[6px] font-inter font-semibold text-global-5 leading-[9px] mr-1">
-                      Detail
+                    <span className="text-[14px] font-inter font-semibold text-global-5 leading-[9px]">
+                      CHI TIẾT
                     </span>
                     <img 
                       src="/images/img_24_arrows_directions_right.svg"
                       alt="Arrow Right"
-                      className="w-2 h-2"
+                      className="w-6 h-6"
                     />
                   </button>
                 </div>
@@ -280,7 +290,7 @@ const Home = () => {
             <img 
               src="/images/img_vector_140.svg" 
               alt="Next"
-              className="w-3 h-[28px]"
+              className="w-3 h-[40px] transform rotate-180"
             />
           </button>
         </div>
@@ -288,21 +298,21 @@ const Home = () => {
         {/* View All Button */}
         <div className="mt-[22px]">
           <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
-            View all →
+            Xem tất cả →
           </Button>
         </div>
       </div>
 
       {/* Statistics Section */}
-      <div className="w-full h-[219px] bg-global-2 mt-[37px]">
+      <div className="w-full h-[219px] bg-global-2 mt-[37px] px-[15%]">
         <div className="flex flex-row w-full h-full">
           {/* Left Content */}
           <div className="flex flex-col ml-[100px] mt-[67px] w-[284px] h-[83px]">
             <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[30px]">
-              The numbers speak for themselves.
+              Những con số tự nói lên tất cả.
             </h2>
-            <p className="text-[11px] font-inter text-global-2 leading-[14px] mt-[16px]">
-              Quick stats about DonaTrust
+            <p className="text-[13px] font-inter text-global-2 leading-[14px] mt-[16px]">
+              Thống kê nhanh về DonaTrust
             </p>
           </div>
           
@@ -321,7 +331,7 @@ const Home = () => {
                     1,500+
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-[14px]">
-                    Supporter
+                    Người ủng hộ
                   </span>
                 </div>
               </div>
@@ -337,7 +347,7 @@ const Home = () => {
                     200+
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-[14px]">
-                    Charity
+                    Tổ chức gây quỹ
                   </span>
                 </div>
               </div>
@@ -356,7 +366,7 @@ const Home = () => {
                     328+
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-[14px]">
-                    Campaign
+                    Chiến dịch gây quỹ
                   </span>
                 </div>
               </div>
@@ -372,7 +382,7 @@ const Home = () => {
                     132,920,000
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-4">
-                    Total amount donated (VND)
+                    Tổng tiền ủng hộ (VND)
                   </span>
                 </div>
               </div>
@@ -382,7 +392,7 @@ const Home = () => {
       </div>
 
       {/* About DonaTrust Section */}
-      <div className="flex flex-row w-full mt-[34px] px-[100px]">
+      <div className="flex flex-row w-full mt-[34px] px-[15%]">
         <img 
           src="/images/img_frame_6.png"
           alt="DonaTrust Illustration"
@@ -391,14 +401,14 @@ const Home = () => {
         
         <div className="flex flex-col ml-[19px] mt-[29px] w-[433px] h-[156px]">
           <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[31px]">
-            What is DonaTrust?
+            DonaTrust là gì?
           </h2>
           <p className="text-xs font-inter text-global-6 leading-[13px] mt-[11px]">
-            DonaTrust is a system for managing charitable donations, an intermediary platform connecting charities and donors. The main goal of the system is to create a transparent, convenient and efficient environment for calling for and managing charitable activities.
+            DonaTrust là hệ thống quản lý các khoản đóng góp từ thiện, là nền tảng trung gian kết nối các tổ chức từ thiện và nhà tài trợ. Mục tiêu chính của hệ thống là tạo ra một môi trường minh bạch, thuận tiện và hiệu quả để kêu gọi và quản lý các hoạt động từ thiện.
           </p>
           <div className="mt-[21px]">
             <Button variant="tertiary" size="lg" onClick={handleLearnMoreClick}>
-              Learn More
+              Tìm hiểu thêm
             </Button>
           </div>
         </div>
@@ -407,29 +417,23 @@ const Home = () => {
       {/* Outstanding Organizations Section */}
       <div className="flex flex-col items-center w-full mt-[34px]">
         <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[31px] text-center">
-          Outstanding Fundraising Organization/Individual
+          CÁ NHÂN/ TỔ CHỨC GÂY QUỸ NỔI BẬT
         </h2>
         
         <div className="flex flex-row space-x-[29px] mt-[51px] px-[92px]">
           {organizations.map((org, index) => (
             <div key={org.id} className="relative w-[256px] h-[318px]">
-              {/* Organization Image */}
-              <img 
-                src={org.image}
-                alt={org.name}
-                className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] rounded-[80px]"
-              />
               
               {/* Organization Card */}
               <div className="absolute bottom-0 w-full h-[249px] bg-global-1 rounded-[3px]">
                 <div className="bg-global-2 rounded-[5px] shadow-[0px_5px_11px_#abbed166] mx-[17px] mt-[97px] p-3 h-[144px]">
-                  <h3 className="text-[13px] font-inter font-semibold text-global-3 text-center leading-[19px] mb-[8px]">
+                  <h3 className="text-[15px] font-inter font-semibold text-global-3 text-center leading-[19px] mb-[8px]">
                     {org.name}
                   </h3>
-                  <p className="text-[11px] font-inter font-semibold text-global-6 text-center leading-[14px] mb-[3px]">
-                    Fundraising amount
+                  <p className="text-[13px] font-inter font-semibold text-global-6 text-center leading-[14px] mb-[4px]">
+                    Số tiền gây quỹ
                   </p>
-                  <p className="text-[13px] font-inter font-semibold text-global-7 text-center leading-[17px] mb-[6px]">
+                  <p className="text-[14px] font-inter font-semibold text-global-7 text-center leading-[17px] mb-[10px]">
                     {org.amount}
                   </p>
                   
@@ -438,8 +442,8 @@ const Home = () => {
                     onClick={() => handleOrganizationInfoClick(org.id)}
                     className="flex flex-row items-center justify-center w-full hover:opacity-80"
                   >
-                    <span className="text-[13px] font-inter font-semibold text-global-5 leading-[17px] mr-2">
-                      Information
+                    <span className="text-[15px] font-inter font-semibold text-global-5 leading-[17px] mr-2">
+                      Thông tin
                     </span>
                     <img 
                       src="/images/img_24_arrows_directions_right.svg"
@@ -449,14 +453,20 @@ const Home = () => {
                   </button>
                 </div>
               </div>
+              {/* Organization Image */}
+              <img 
+                src={org.image}
+                alt={org.name}
+                className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] rounded-[80px]"
+              />
             </div>
           ))}
         </div>
         
         {/* View All Organizations Button */}
-        <div className="mt-[19px]">
+        <div className="mt-[19px] mb-5">
           <Button variant="tertiary" size="md" onClick={handleViewAllOrganizationsClick}>
-            View all →
+            Xem tất cả →
           </Button>
         </div>
       </div>
