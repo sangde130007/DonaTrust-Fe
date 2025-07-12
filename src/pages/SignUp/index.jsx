@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 
@@ -20,7 +20,6 @@ const SignUpPage = () => {
       ...prev,
       [field]: e.target.value
     }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -33,31 +32,31 @@ const SignUpPage = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Vui lòng nhập họ tên';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Vui lòng nhập email';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Email không hợp lệ';
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = 'Vui lòng nhập số điện thoại';
     } else if (!/^\d{10,}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Phone number must be at least 10 digits';
+      newErrors.phone = 'Số điện thoại phải có ít nhất 10 chữ số';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Vui lòng nhập mật khẩu';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = 'Mật khẩu tối thiểu 8 ký tự';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = 'Vui lòng nhập lại mật khẩu';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'Mật khẩu không trùng khớp';
     }
 
     setErrors(newErrors);
@@ -66,31 +65,22 @@ const SignUpPage = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
-    
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Show success message
-      alert('Account created successfully! Welcome to DonaTrust!');
-      
-      // Redirect to sign in page
+      alert('Đăng ký thành công! Chào mừng bạn đến với DonaTrust.');
       navigate('/signin');
     } catch (error) {
-      alert('Failed to create account. Please try again.');
+      alert('Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleSignUp = () => {
-    alert('Google Sign Up functionality would be implemented here');
+    alert('Tính năng đăng ký bằng Google sẽ được tích hợp sau.');
   };
 
   const handleSignInRedirect = () => {
@@ -98,165 +88,141 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex flex-row min-h-screen bg-global-3">
-      {/* Left Side - Sign Up Form */}
-      <div className="flex flex-col w-full max-w-[550px] px-[105px] py-8">
+    <div className="flex h-screen font-inter">
+      {/* Bên trái - Form đăng ký */}
+      <div className="w-1/2 flex flex-col justify-center px-40 py-20 bg-global-3 mt-5">
         {/* Logo */}
- <div className="flex justify-center items-center mb-10">
-  <img 
-    src="/images/img_top.png"  
-    alt="DonaTrust Logo"
-    className="w-[120px] h-auto object-contain"
-  />
-</div>
+        <div className="flex justify-center items-center mb-0">
+          <img
+            src="/images/img_top.png"
+            alt="DonaTrust Logo"
+            className="w-[220px] h-auto object-contain"
+          />
+        </div>
 
-        {/* Sign Up Form */}
-        <div className="flex flex-col">
-          {/* Header */}
-          <h1 className="text-[40px] font-inter font-bold leading-[49px] text-center text-global-9 mb-4">
-            Sign up
-          </h1>
-          
-          <p className="text-lg font-inter font-normal leading-[27px] text-left text-global-13 mb-[75px] max-w-[399px]">
-            Sign up to join hands for the community with DonaTrust
-          </p>
+        {/* Nội dung form */}
+        <div className="w-full max-w-md mx-auto">
+          <div className="mb-6 text-center">
+            <h1 className="text-[32px] font-bold text-global-4 mb-0">Đăng ký</h1>
+            <p className="text-[13px] text-global-6">
+              Nhập thông tin bên dưới để tạo tài khoản mới trên DonaTrust.
+            </p>
+          </div>
 
-          {/* Form */}
-          <form onSubmit={handleSignUp} className="flex flex-col space-y-5">
-            {/* Name Field */}
-            <div className="relative">
-              <EditText
-                label="Your Name"
-                type="text"
-                value={formData.name}
-                onChange={handleInputChange('name')}
-                error={!!errors.name}
-                className="w-[399px]"
-              />
-              {errors.name && (
-                <span className="text-red-500 text-sm mt-1">{errors.name}</span>
-              )}
-            </div>
+          <form onSubmit={handleSignUp} className="space-y-3">
+            <EditText
+              label="Họ và tên"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange('name')}
+              placeholder="Nhập họ tên của bạn"
+              variant="floating"
+              className="opacity-50"
+            />
+            {errors.name && <p className="text-red-500 text-sm ml-1">{errors.name}</p>}
 
-            {/* Email Field */}
-            <div className="relative">
-              <EditText
-                label="Email"
-                type="email"
-                value={formData.email}
-                onChange={handleInputChange('email')}
-                error={!!errors.email}
-                className="w-[399px]"
-              />
-              {errors.email && (
-                <span className="text-red-500 text-sm mt-1">{errors.email}</span>
-              )}
-            </div>
+            <EditText
+              label="Email"
+              type="email"
+              value={formData.email}
+              onChange={handleInputChange('email')}
+              placeholder="Nhập email của bạn"
+              variant="floating"
+              className="opacity-50"
+            />
+            {errors.email && <p className="text-red-500 text-sm ml-1">{errors.email}</p>}
 
-            {/* Phone Field */}
-            <div className="relative">
-              <EditText
-                label="Phone number"
-                type="tel"
-                value={formData.phone}
-                onChange={handleInputChange('phone')}
-                error={!!errors.phone}
-                className="w-[399px]"
-              />
-              {errors.phone && (
-                <span className="text-red-500 text-sm mt-1">{errors.phone}</span>
-              )}
-            </div>
+            <EditText
+              label="Số điện thoại"
+              type="tel"
+              value={formData.phone}
+              onChange={handleInputChange('phone')}
+              placeholder="Nhập số điện thoại"
+              variant="floating"
+              className="opacity-50"
+            />
+            {errors.phone && <p className="text-red-500 text-sm ml-1">{errors.phone}</p>}
 
-            {/* Password Field */}
-            <div className="relative">
-              <EditText
-                label="Password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange('password')}
-                error={!!errors.password}
-                showPasswordToggle={true}
-                className="w-[399px]"
-              />
-              {errors.password && (
-                <span className="text-red-500 text-sm mt-1">{errors.password}</span>
-              )}
-            </div>
+            <EditText
+              label="Mật khẩu"
+              type="password"
+              value={formData.password}
+              onChange={handleInputChange('password')}
+              showPasswordToggle={true}
+              variant="floating"
+              className="opacity-50"
+            />
+            {errors.password && <p className="text-red-500 text-sm ml-1">{errors.password}</p>}
 
-            {/* Confirm Password Field */}
-            <div className="relative">
-              <EditText
-                label="Confirm Password"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleInputChange('confirmPassword')}
-                error={!!errors.confirmPassword}
-                showPasswordToggle={true}
-                className="w-[399px]"
-              />
-              {errors.confirmPassword && (
-                <span className="text-red-500 text-sm mt-1">{errors.confirmPassword}</span>
-              )}
-            </div>
+            <EditText
+              label="Xác nhận mật khẩu"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange('confirmPassword')}
+              showPasswordToggle={true}
+              variant="floating"
+              className="opacity-50"
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm ml-1">{errors.confirmPassword}</p>
+            )}
 
-            {/* Sign Up Button */}
             <Button
               type="submit"
               variant="primary"
               disabled={isLoading}
-              className="w-[399px] h-[54px] mt-[20px]"
+              className="w-full mt-1"
             >
-              {isLoading ? 'Creating Account...' : 'Sign up'}
+              {isLoading ? 'Đang đăng ký...' : 'Đăng ký'}
             </Button>
-          </form>
 
-          {/* Divider */}
-          <div className="flex items-center w-[399px] h-6 mt-[20px] mb-[20px]">
-            <div className="flex-1 h-px bg-global-7"></div>
-            <span className="px-4 text-base font-inter font-medium leading-5 text-global-12">
-              or
-            </span>
-            <div className="flex-1 h-px bg-global-7"></div>
-          </div>
+            {/* Divider */}
+            <div className="flex items-center w-full h-4 my-6">
+              <div className="flex-1 h-px bg-global-7" />
+              <span className="px-4 text-[14px] font-medium text-global-6">hoặc</span>
+              <div className="flex-1 h-px bg-global-7" />
+            </div>
 
-          {/* Google Sign Up Button */}
-          <Button
-            variant="google"
-            onClick={handleGoogleSignUp}
-            className="w-[399px] h-[54px] mb-[35px] shadow-sm"
-          >
-            <span className="text-lg font-inter font-semibold leading-[22px] text-global-9">
-              Continue with Google
-            </span>
-            <img 
-              src="/images/img_plus.svg" 
-              alt="Google" 
-              className="w-6 h-6 ml-2"
-            />
-          </Button>
-
-          {/* Sign In Link */}
-          <div className="text-center">
-            <span className="text-lg font-inter font-normal leading-[22px] text-global-11">
-              Already have an account?{' '}
-            </span>
-            <button
-              onClick={handleSignInRedirect}
-              className="text-lg font-inter font-semibold leading-[22px] text-global-10 underline hover:opacity-80"
+            {/* Google đăng ký */}
+            <Button
+              type="button"
+              variant="google"
+              onClick={handleGoogleSignUp}
+              className="w-full shadow-sm"
             >
-              Sign in
-            </button>
-          </div>
+              <span className="text-[14px] font-semibold text-global-4">
+                Đăng ký bằng Google
+              </span>
+              <img
+                src="/images/img_plus.svg"
+                alt="Google"
+                className="w-6 h-6 ml-0"
+              />
+            </Button>
+
+            {/* Đã có tài khoản? */}
+            <div className="text-center pt-0">
+              <p className="text-[14px] text-global-6">
+                <span className="font-normal">Đã có tài khoản? </span>
+                <button
+                  type="button"
+                  onClick={handleSignInRedirect}
+                  className="font-semibold text-global-5 underline hover:no-underline"
+                >
+                  Đăng nhập
+                </button>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
 
-      {/* Right Side - Image */}
-      <div className="flex-1 flex items-center justify-center p-3">
-        <img 
-          src="/images/img_container.png" 
-          alt="Community children" 
-          className="w-full max-w-[825px] h-auto max-h-[1000px] object-cover rounded-[24px]"
+      {/* Bên phải - Ảnh nền */}
+      <div className="w-1/2 relative">
+        <img
+          src="/images/img_container_1000x825.png"
+          alt="Ảnh trang trí"
+          className="w-full h-full object-cover"
         />
       </div>
     </div>

@@ -7,7 +7,7 @@ const CheckBox = ({
   id = "checkbox"
 }) => {
   return (
-    <div className="flex flex-row items-center w-[176px] h-[25px]">
+    <div className="flex flex-row items-center w-[200px] h-[25px]">
       <div className="relative w-6 h-6">
         <input
           type="checkbox"
