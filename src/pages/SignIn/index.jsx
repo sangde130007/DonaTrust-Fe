@@ -1,36 +1,55 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
+import { useAuth } from '../../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
+import api from '../../services/api';
 
 const SignInPage = () => {
   const navigate = useNavigate();
+  const {
+    login,
+    googleLogin,
+    isAuthenticated,
+    isLoading: authLoading,
+    error: authError,
+  } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    keepLoggedIn: false
+    keepLoggedIn: false,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleInputChange = (field) => (e) => {
-    setFormData(prev => ({
+    const value = e.target.value;
+    setFormData((prev) => ({
       ...prev,
-      [field]: e.target.value
+      [field]: value,
     }));
+    // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: '',
       }));
     }
   };
 
   const handleCheckboxChange = (e) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      keepLoggedIn: e.target.checked
+      keepLoggedIn: e.target.checked,
     }));
   };
 
@@ -38,15 +57,15 @@ const SignInPage = () => {
     const newErrors = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Vui lòng nhập email';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = 'Please enter a valid email address';
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Mật khẩu tối thiểu 6 ký tự';
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -55,62 +74,103 @@ const SignInPage = () => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    if (!validateForm()) {
+      return;
+    }
 
     setIsLoading(true);
+    setErrors({});
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await login({
+        email: formData.email,
+        password: formData.password,
+        keepLoggedIn: formData.keepLoggedIn,
+      });
 
-      if (formData.keepLoggedIn) {
-        localStorage.setItem('userSession', JSON.stringify({
-          email: formData.email,
-          timestamp: Date.now()
-        }));
-      }
-
-      alert('Đăng nhập thành công! Chào mừng bạn đến với DonaTrust.');
-      navigate('/');
+      // Success - user will be redirected by useEffect
+      // navigate('/') will be called automatically by useEffect when isAuthenticated becomes true
     } catch (error) {
-      alert('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      // Handle specific error cases
+      if (error.status === 401) {
+        setErrors({
+          email: 'Invalid email or password',
+          password: 'Invalid email or password',
+        });
+      } else if (error.status === 422) {
+        // Handle validation errors
+        const validationErrors = {};
+        if (error.errors) {
+          error.errors.forEach((err) => {
+            validationErrors[err.field] = err.message;
+          });
+        }
+        setErrors(validationErrors);
+      } else {
+        setErrors({
+          general: error.message || 'Sign in failed. Please try again.',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    alert('Tính năng đăng nhập bằng Google sẽ được tích hợp sau.');
-    setTimeout(() => navigate('/'), 1000);
+  // Thay thế hàm handleGoogleSignIn bằng hàm xử lý credential từ Google
+  const handleGoogleSignIn = async (credentialResponse) => {
+    console.log('Google credentialResponse:', credentialResponse); // Log toàn bộ object trả về từ Google
+    console.log('Google credential:', credentialResponse.credential); // Log riêng credential
+    setIsLoading(true);
+    setErrors({});
+    try {
+      const res = await api.post('/auth/google', {
+        token: credentialResponse.credential,
+      });
+      localStorage.setItem('accessToken', res.data.accessToken);
+      // TODO: Nếu có AuthContext, nên gọi hàm login context ở đây
+      navigate('/');
+    } catch (error) {
+      setErrors({ general: 'Google sign in failed. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCreateAccount = () => {
     navigate('/signup');
   };
 
+
+
   return (
-    <div className="flex h-screen font-inter">
-      {/* Bên trái - Form đăng nhập */}
-      <div className="w-1/2 flex flex-col justify-center px-24 py-14 bg-global-3">
+    <div className="flex flex-row min-h-screen bg-global-3">
+      {/* Left Side - Sign In Form */}
+      <div className="flex flex-col w-full max-w-[531px] px-24 py-14">
         {/* Logo */}
-        <div className="flex justify-center items-center mb-6">
+        <div className="flex justify-center items-center mb-10">
           <img
-            src="/images/img_top.png"
+            src="/images/img_top.png" // 👈 thay đúng tên file logo bạn dùng
             alt="DonaTrust Logo"
-            className="w-[220px] h-auto object-contain"
+            className="w-[380px] h-auto object-contain"
           />
         </div>
 
-        {/* Nội dung form */}
-        <div className="w-full max-w-md mx-auto">
-          <div className="mb-6 text-center">
-            <h1 className="text-[32px] font-bold text-global-4 mb-2">Đăng nhập</h1>
-            <p className="text-[13px] text-global-6">
-              Vui lòng nhập thông tin để tiếp tục sử dụng hệ thống.
+        {/* Sign In Form */}
+        <div className="flex flex-col">
+          {/* Header */}
+          <div className="mb-[46px]">
+            <h1 className="text-[40px] font-inter font-bold leading-[49px]  text-global-9 mb-4">
+              Sign in
+            </h1>
+            <p className="text-lg font-inter font-normal leading-[22px] text-global-13">
+              Please login to continue to your account.
             </p>
           </div>
 
-          <form onSubmit={handleSignIn} className="space-y-3">
-            {/* Email */}
+          {/* Form */}
+          <form onSubmit={handleSignIn} className="flex flex-col space-y-6">
+            {/* Email Field */}
             <div>
               <EditText
                 label="Email"
@@ -118,88 +178,87 @@ const SignInPage = () => {
                 value={formData.email}
                 onChange={handleInputChange('email')}
                 variant="floating"
-                placeholder="Nhập email của bạn"
-                className="opacity-50"
+                placeholder="Enter your email"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1 ml-3">{errors.email}</p>
-              )}
+              {errors.email && <p className="mt-1 ml-3 text-sm text-red-500">{errors.email}</p>}
             </div>
 
-            {/* Mật khẩu */}
             <div>
               <EditText
-                label="Mật khẩu"
+                label="Password"
                 type="password"
                 value={formData.password}
                 onChange={handleInputChange('password')}
                 variant="floating"
                 showPasswordToggle={true}
-                className="opacity-50"
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1 ml-3">{errors.password}</p>
+                <p className="mt-1 ml-3 text-sm text-red-500">{errors.password}</p>
               )}
             </div>
 
-            {/* Checkbox */}
+            {/* Keep me logged in */}
             <div className="pt-2">
               <CheckBox
-                label="Ghi nhớ đăng nhập"
+                label="Keep me logged in"
                 checked={formData.keepLoggedIn}
                 onChange={handleCheckboxChange}
                 id="keepLoggedIn"
               />
             </div>
 
-            {/* Nút đăng nhập */}
-            <div className="pt-2">
+            {/* General Error Message */}
+            {errors.general && (
+              <div className="p-3 mb-4 bg-red-50 rounded-md border border-red-200">
+                <p className="text-sm text-red-600">{errors.general}</p>
+              </div>
+            )}
+
+            {/* Sign In Button */}
+            <div className="pt-3">
               <Button
                 type="submit"
                 variant="primary"
                 size="large"
-                disabled={isLoading}
-                className="w-full"
+                disabled={isLoading || authLoading}
+                className="w-[399px]"
               >
-                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                {isLoading || authLoading ? 'Signing in...' : 'Sign in'}
               </Button>
             </div>
 
-            {/* Hoặc */}
-            <div className="flex items-center w-full h-6 my-6">
-              <div className="flex-1 h-px bg-global-7" />
-              <span className="px-4 text-[14px] font-medium text-global-6">hoặc</span>
-              <div className="flex-1 h-px bg-global-7" />
+            {/* Divider */}
+            <div className="flex items-center w-[399px] h-6 my-6">
+              <div className="flex-1 h-px bg-global-7"></div>
+              <span className="px-4 text-base font-medium font-inter text-global-12">or</span>
+              <div className="flex-1 h-px bg-global-7"></div>
             </div>
 
-            {/* Đăng nhập bằng Google */}
-            <Button
-              type="button"
-              variant="google"
-              size="large"
-              onClick={handleGoogleSignIn}
-              className="w-full shadow-sm"
-            >
-              <span className="text-[14px] font-semibold text-global-4">
-                Đăng nhập bằng Google
-              </span>
-              <img
-                src="/images/img_plus.svg"
-                alt="Google"
-                className="w-6 h-6 ml-4"
+            {/* Google Sign In */}
+            <div className="w-[399px]">
+              <GoogleLogin
+                onSuccess={handleGoogleSignIn}
+                onError={() => setErrors({ general: 'Google sign in failed. Please try again.' })}
+                width="100%"
+                size="large"
+                shape="pill"
+                text="signin_with"
               />
-            </Button>
+            </div>
 
-            {/* Tạo tài khoản */}
-            <div className="text-center pt-6">
-              <p className="text-[14px] text-global-6">
-                <span className="font-normal">Chưa có tài khoản? </span>
+            {/* Google OAuth Redirect Button */}
+            
+
+            {/* Create Account Link */}
+            <div className="pt-6 text-center">
+              <p className="text-lg font-inter text-global-11">
+                <span className="font-normal">Need an account? </span>
                 <button
                   type="button"
                   onClick={handleCreateAccount}
-                  className="font-semibold text-global-5 underline hover:no-underline"
+                  className="font-semibold underline text-button-4 hover:no-underline"
                 >
-                  Tạo tài khoản
+                  Create one
                 </button>
               </p>
             </div>
@@ -207,12 +266,12 @@ const SignInPage = () => {
         </div>
       </div>
 
-      {/* Bên phải - Ảnh nền */}
-      <div className="w-1/2 relative">
+      {/* Right Side - Background Image */}
+      <div className="relative flex-1">
         <img
           src="/images/img_container_1000x825.png"
-          alt="Ảnh trang trí"
-          className="w-full h-full object-cover"
+          alt="Children playing in traditional clothing"
+          className="w-full h-full object-cover rounded-l-[24px]"
         />
       </div>
     </div>
