@@ -27,38 +27,35 @@ const ProfileEdit = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Information updated successfully!');
+    console.log('Dữ liệu gửi đi:', formData);
+    alert('Cập nhật thông tin thành công!');
   };
 
   return (
-    <div className="min-h-screen bg-global-3 shadow-2xl">
+    <div className="min-h-screen bg-white flex flex-col">
       <Header />
 
-      {/* Add padding-top to push below fixed header */}
-      <main className="relative pt-24">
-        {/* Avatar and Label */}
-        <div className="flex flex-col items-center">
-          <img 
-            src="/images/avt.jpg" 
-            alt="Profile Picture" 
-            className="w-[120px] h-[120px] rounded-full border-4 border-global-3 bg-white"
+      <main className="flex-1 pt-28 pb-16 bg-global-3">
+        {/* Avatar và tiêu đề */}
+        <div className="flex flex-col items-center mb-10">
+          <img
+            src="/images/avt.jpg"
+            alt="Ảnh đại diện"
+            className="w-[120px] h-[120px] rounded-full border-4 border-white shadow-md object-cover"
           />
-          <span className="mt-4 text-xl font-bold font-inter text-global-8">List</span>
+          <h2 className="mt-4 text-2xl font-bold text-global-1">
+            Chỉnh sửa thông tin cá nhân
+          </h2>
         </div>
 
-        {/* Edit Form Section */}
-<div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
-          <h1 className="text-2xl font-bold font-inter text-global-1 text-center mb-12">
-            Edit personal information
-          </h1>
-
-          <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Form */}
+        <div className="max-w-5xl mx-auto px-4 md:px-10 py-6 bg-white rounded-xl shadow-lg">
+          <form onSubmit={handleSubmit} className="space-y-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <div className="space-y-6">
+              {/* Cột trái */}
+              <div className="space-y-5">
                 <EditText
-                  label="Account Name"
+                  label="Tên tài khoản"
                   value={formData.accountName}
                   onChange={(value) => handleInputChange('accountName', value)}
                   required
@@ -66,57 +63,56 @@ const ProfileEdit = () => {
                 />
 
                 <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Sex
+                  <label className="block text-sm font-medium text-global-4 mb-1">
+                    Giới tính
                   </label>
                   <select
                     value={formData.sex}
                     onChange={(e) => handleInputChange('sex', e.target.value)}
-                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none"
+                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base text-global-9 outline-none"
                   >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="">Chọn giới tính</option>
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Date of birth
+                  <label className="block text-sm font-medium text-global-4 mb-1">
+                    Ngày sinh
                   </label>
                   <input
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none"
-                    placeholder="dd/mm/yyyy"
+                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base text-global-9 outline-none"
                   />
                 </div>
 
                 <EditText
-                  label="Phone number"
+                  label="Số điện thoại"
                   type="tel"
                   value={formData.phoneNumber}
                   onChange={(value) => handleInputChange('phoneNumber', value)}
-                  placeholder="Phone number"
+                  placeholder="Nhập số điện thoại"
                   className="h-[45px]"
                 />
 
                 <EditText
-                  label="Introduce yourself"
+                  label="Giới thiệu bản thân"
                   value={formData.introduction}
                   onChange={(value) => handleInputChange('introduction', value)}
-                  placeholder="Maximum 255 characters"
+                  placeholder="Tối đa 255 ký tự"
                   rows={4}
                   maxLength={255}
                 />
               </div>
 
-              {/* Right Column */}
-              <div className="space-y-6">
+              {/* Cột phải */}
+              <div className="space-y-5">
                 <EditText
-                  label="Contact Email"
+                  label="Email liên hệ"
                   type="email"
                   value={formData.contactEmail}
                   onChange={(value) => handleInputChange('contactEmail', value)}
@@ -127,7 +123,7 @@ const ProfileEdit = () => {
                   label="Link Facebook"
                   value={formData.linkFacebook}
                   onChange={(value) => handleInputChange('linkFacebook', value)}
-                  placeholder="Link facebook"
+                  placeholder="Nhập link Facebook"
                   className="h-[45px]"
                 />
 
@@ -135,7 +131,7 @@ const ProfileEdit = () => {
                   label="Link Youtube"
                   value={formData.linkYoutube}
                   onChange={(value) => handleInputChange('linkYoutube', value)}
-                  placeholder="Link youtube"
+                  placeholder="Nhập link Youtube"
                   className="h-[45px]"
                 />
 
@@ -143,28 +139,28 @@ const ProfileEdit = () => {
                   label="Link Tiktok"
                   value={formData.linkTiktok}
                   onChange={(value) => handleInputChange('linkTiktok', value)}
-                  placeholder="Link tiktok"
+                  placeholder="Nhập link Tiktok"
                   className="h-[45px]"
                 />
 
                 <EditText
-                  label="Address"
+                  label="Địa chỉ"
                   value={formData.address}
                   onChange={(value) => handleInputChange('address', value)}
-                  placeholder="Address"
+                  placeholder="Nhập địa chỉ"
                   className="h-[45px]"
                 />
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-center pt-8">
+            {/* Nút cập nhật */}
+            <div className="flex justify-center">
               <Button
                 type="submit"
                 variant="primary"
-                className="w-[153px] h-[31px] text-xs font-bold"
+                className="w-[180px] h-[40px] text-sm font-bold"
               >
-                Update Information
+                Cập nhật thông tin
               </Button>
             </div>
           </form>
