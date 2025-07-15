@@ -10,28 +10,28 @@ const CampaignDetail = () => {
   const [reviewText, setReviewText] = useState('');
 
   const handleDonate = () => {
-    alert('Thank you for your interest in donating! Redirecting to payment...');
+    alert('Cảm ơn bạn đã quan tâm quyên góp! Đang chuyển hướng đến thanh toán...');
   };
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Supporting students to go to school in 2025',
-        text: 'Help support students with disabilities to access education',
+        title: 'Hỗ trợ học sinh đến trường vào năm 2025',
+        text: 'Giúp hỗ trợ học sinh khuyết tật tiếp cận giáo dục',
         url: window.location.href,
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Campaign link copied to clipboard!');
+      alert('Đã sao chép liên kết chiến dịch vào bảng tạm!');
     }
   };
 
   const handleWriteReview = () => {
     if (reviewText.trim()) {
-      alert('Thank you for your review!');
+      alert('Cảm ơn bạn đã đánh giá!');
       setReviewText('');
     } else {
-      alert('Please write a review before submitting.');
+      alert('Vui lòng viết đánh giá trước khi gửi.');
     }
   };
 
@@ -48,14 +48,14 @@ const CampaignDetail = () => {
       >
         <div className="text-center">
           <h1 className="text-[32px] font-bold leading-[39px] text-center mb-4">
-            <span className="text-global-10">Charity</span>
+            <span className="text-global-10">Tổ chức</span>
             <span className="text-global-8"> </span>
-            <span className="text-global-7">fundraising</span>
+            <span className="text-global-7">gây quỹ</span>
             <span className="text-global-8"> </span>
-            <span className="text-global-5">campaign</span>
+            <span className="text-global-5">chiến dịch</span>
           </h1>
           <p className="text-xl font-bold leading-6 text-center text-global-8">
-            Campaign Detail
+            Chi tiết chiến dịch
           </p>
         </div>
       </div>
@@ -73,7 +73,7 @@ const CampaignDetail = () => {
                 className="w-full h-[273px] object-cover rounded-lg"
               />
               <div className="absolute top-4 right-4 bg-global-7 text-global-8 px-3 py-1 rounded text-sm font-semibold">
-                Children
+                Những đứa trẻ
               </div>
             </div>
           </div>
@@ -82,14 +82,14 @@ const CampaignDetail = () => {
           <div className="flex-1">
             <div className="bg-global-2 rounded-sm p-6 shadow-sm">
               <h2 className="text-2xl font-semibold text-global-3 mb-4">
-                Supporting students to go to school in 2025
+                Hỗ trợ học sinh đến trường vào năm 2025
               </h2>
               
               {/* Organization Info */}
               <div className="flex items-center mb-4">
                 <img 
                   src="/images/img_ellipse_8_39x39.png" 
-                  alt="Organization" 
+                  alt="Tổ chức" 
                   className="w-[39px] h-[39px] rounded-full mr-3"
                 />
                 <span className="text-base font-semibold text-global-6">
@@ -99,7 +99,7 @@ const CampaignDetail = () => {
 
               {/* Campaign Objective */}
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-semibold text-global-6">Campaign Objective</span>
+                <span className="text-xs font-semibold text-global-6">Mục tiêu chiến dịch</span>
                 <span className="text-xs font-semibold text-global-6">30,000,000 VND</span>
               </div>
 
@@ -121,9 +121,9 @@ const CampaignDetail = () => {
                       alt="Donations" 
                       className="w-[21px] h-[18px] mr-2"
                     />
-                    <span className="text-xs font-semibold text-global-6">85 donations</span>
+                    <span className="text-xs font-semibold text-global-6">85 đóng góp</span>
                   </div>
-                  <span className="text-sm font-semibold text-global-6">Achieved</span>
+                  <span className="text-sm font-semibold text-global-6">Đạt được</span>
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-semibold text-global-21">9.720.000 VND</span>
@@ -139,8 +139,8 @@ const CampaignDetail = () => {
                     className="w-[20px] h-[28px] mr-3"
                   />
                   <div>
-                    <p className="text-xs font-semibold text-global-6">Time remaining</p>
-                    <p className="text-sm font-semibold text-global-6">87 days</p>
+                    <p className="text-xs font-semibold text-global-6">Thời gian còn lại</p>
+                    <p className="text-sm font-semibold text-global-6">87 ngày</p>
                   </div>
                 </div>
                 <div className="flex space-x-4">
@@ -149,14 +149,14 @@ const CampaignDetail = () => {
                     variant="secondary"
                     className="h-9 px-6 bg-global-7 text-global-8 rounded-sm"
                   >
-                    DONATE NOW
+                    Quyên góp ngay
                   </Button>
                   <Button 
                     onClick={handleShare}
                     variant="primary"
                     className="h-9 px-6 bg-global-12 text-global-8 rounded-sm"
                   >
-                    SHARE
+                    Chia sẻ
                   </Button>
                 </div>
               </div>
@@ -171,14 +171,14 @@ const CampaignDetail = () => {
             variant={activeTab === 'detailed' ? 'tabActive' : 'tab'}
             className="h-9 px-8 rounded-none rounded-tl-[18px] border-b-0"
           >
-            Detailed content
+            Nội dung chi tiết
           </Button>
           <Button
             onClick={() => setActiveTab('donations')}
             variant={activeTab === 'donations' ? 'tabActive' : 'tab'}
             className="h-9 px-8 rounded-none rounded-tr-[18px] border-l border-global-8 text-global-11"
           >
-            Donation List
+            Danh sách quyên góp
           </Button>
         </div>
 
@@ -232,7 +232,7 @@ const CampaignDetail = () => {
               <div className="w-[281px]">
                 <div className="bg-global-2 rounded-sm p-4 shadow-sm">
                   <h3 className="text-xs font-semibold text-global-6 mb-4">
-                    Charity Fundraising Information
+                    Thông tin gây quỹ từ thiện
                   </h3>
                   
                   {/* Organization Profile */}
@@ -299,14 +299,14 @@ const CampaignDetail = () => {
 
           {activeTab === 'donations' && (
             <div className="text-center py-8">
-              <p className="text-global-6">Donation list will be displayed here.</p>
+              <p className="text-global-6">Danh sách quyên góp sẽ được hiển thị ở đây.</p>
             </div>
           )}
         </div>
 
         {/* Share Campaign */}
         <div className="mt-8 mb-6">
-          <h3 className="text-sm font-semibold text-global-19 mb-4">Share the campaign</h3>
+          <h3 className="text-sm font-semibold text-global-19 mb-4">Chia sẻ chiến dịch</h3>
           <button onClick={handleFacebookShare}>
             <img 
               src="/images/img_rectangle_158.png" 
@@ -319,13 +319,13 @@ const CampaignDetail = () => {
         {/* Reviews Section */}
         <div className="mt-8">
           <div className="mb-6">
-            <h3 className="text-xl font-semibold text-global-19 mb-2">Review & Feedback</h3>
-            <p className="text-sm font-semibold text-global-15 mb-4">User rating</p>
+            <h3 className="text-xl font-semibold text-global-19 mb-2">Đánh giá và phản hồi</h3>
+            <p className="text-sm font-semibold text-global-15 mb-4">Đánh giá của người dùng</p>
             
             {/* Rating Display */}
             <div className="flex items-center space-x-4 mb-6">
               <RatingBar rating={4} maxRating={5} size="medium" />
-              <span className="text-sm font-semibold text-global-15">4.2 out of 5</span>
+              <span className="text-sm font-semibold text-global-15">4,2 trên 5</span>
             </div>
           </div>
 
@@ -340,9 +340,9 @@ const CampaignDetail = () => {
                 />
                 <span className="text-sm font-medium text-global-11">KaiB</span>
                 <div className="w-1 h-1 bg-global-11 rounded-full mx-2"></div>
-                <span className="text-sm font-normal text-global-11">22 Jul</span>
+                <span className="text-sm font-normal text-global-11">22 tháng 7</span>
                 <div className="ml-4 bg-global-14 text-global-11 px-3 py-1 rounded text-sm">
-                  Donated
+                 Đã quyên góp
                 </div>
               </div>
               <RatingBar rating={5} maxRating={5} size="small" />
@@ -363,7 +363,7 @@ const CampaignDetail = () => {
 
         {/* Other Campaigns Section */}
         <div className="mt-12 bg-global-13 py-8">
-          <h2 className="text-2xl font-bold text-center text-global-1 mb-8">Other campaigns</h2>
+          <h2 className="text-2xl font-bold text-center text-global-1 mb-8">Các chiến dịch khác</h2>
           
           <div className="flex justify-center space-x-8">
             {/* Campaign 1 */}
@@ -383,7 +383,7 @@ const CampaignDetail = () => {
                   Quỹ Từ tâm Đắk Lắk
                 </p>
                 <p className="text-sm font-semibold text-center text-global-3 mb-2">
-                  Oh, who saves my face?
+                  Ôi, ai cứu lấy thể diện của tôi?
                 </p>
                 <img 
                   src="/images/img_rectangle_1.png" 

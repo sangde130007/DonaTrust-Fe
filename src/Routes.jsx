@@ -73,7 +73,7 @@ const AppRoutes = () => {
           <Route path="registeradao" element={<DaoMemberPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
 
-          {/* Protected routes */}
+          {/* Protected routes - require authentication */}
           <Route
             path="charity-registration"
             element={
