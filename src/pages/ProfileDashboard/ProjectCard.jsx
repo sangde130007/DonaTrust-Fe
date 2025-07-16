@@ -47,7 +47,7 @@ const ProjectCard = ({ project }) => {
       {/* Avatar tổ chức */}
       <img
         src={project.charity?.logo_url || project.avatar || '/images/img_ellipse_8.png'}
-        alt="Tổ chức"
+        alt={project.organization || project.charity?.name || 'Tổ chức'}
         className="absolute top-[130px] left-1/2 transform -translate-x-1/2 w-[44px] h-[44px] rounded-full border-2 border-white shadow bg-white object-cover"
         onError={(e) => { e.target.src = '/images/img_ellipse_8.png'; }}
       />

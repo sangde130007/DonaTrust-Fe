@@ -15,7 +15,6 @@ import CampaignListPage from './pages/CampaignList';
 import ProfileEditPage from './pages/ProfileEdit';
 import ProfileDashboardPage from './pages/ProfileDashboard';
 import NotificationPage from './pages/Notification';
-import DaoMemberPage from './pages/RegisterDAO';
 import DonationPage from './pages/DonationPage';
 import VerifyEmailPage from './pages/VerifyEmail';
 
@@ -70,7 +69,7 @@ const AppRoutes = () => {
           <Route path="campaigns" element={<CampaignListPage />} />
           <Route path="campaign/:id" element={<CampaignDetailPage />} />
           <Route path="notification" element={<NotificationPage />} />
-          <Route path="registeradao" element={<DaoMemberPage />} />
+          <Route path="registeradao" element={<DaoRegistrationPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
 
           {/* Protected routes */}

@@ -5,9 +5,9 @@ import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import { User } from 'lucide-react';
 import api from '../../services/api';
-import ProjectCard from '../../components/ui/ProjectCard';
 import Footer from '../../components/common/Footer';
-import AdminDashboard from './AdminDashboard';
+import ProjectCard from "../ProfileDashboard/ProjectCard";
+
 
 const Profile = () => {
   const navigate = useNavigate();

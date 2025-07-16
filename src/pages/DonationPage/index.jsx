@@ -40,7 +40,7 @@ const DonationPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-white font-sans">
-      <Header />
+    
 
       <section
         className="w-full h-[300px] bg-cover bg-center flex flex-col items-center justify-center text-center"
@@ -218,7 +218,6 @@ const DonationPage = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

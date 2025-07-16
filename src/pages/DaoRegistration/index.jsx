@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
@@ -47,26 +46,26 @@ const DaoRegistration = () => {
 
     const hasInterest = Object.values(formData.areasOfInterest).some((val) => val);
     if (!formData.fullName || !formData.email || !formData.introduction || !formData.experience) {
-      alert('Please fill in all required fields.');
+      alert('Vui lòng điền đầy đủ các trường bắt buộc.');
       return;
     }
 
     if (!hasInterest) {
-      alert('Please select at least one area of interest.');
+      alert('Vui lòng chọn ít nhất một lĩnh vực bạn quan tâm.');
       return;
     }
 
     if (!formData.certificateFile) {
-      alert('Please upload at least one certificate or proof of volunteering.');
+      alert('Vui lòng tải lên ít nhất một bằng chứng hoạt động thiện nguyện.');
       return;
     }
 
     if (!formData.commitment) {
-      alert('Please confirm your commitment to DonaTrust principles.');
+      alert('Vui lòng xác nhận cam kết với nguyên tắc của DonaTrust.');
       return;
     }
 
-    console.log('DAO Registration submitted:', formData);
+    console.log('Đăng ký DAO:', formData);
     setShowSuccessModal(true);
   };
 
@@ -85,7 +84,7 @@ const DaoRegistration = () => {
         <div className="absolute top-[316px] right-[40px]">
           <img
             src="/images/img_24_user_interface_image.svg"
-            alt="Image Icon"
+            alt="Biểu tượng ảnh"
             className="w-6 h-6 rounded-[5px]"
           />
         </div>
@@ -96,10 +95,10 @@ const DaoRegistration = () => {
         <div className="w-full max-w-[714px] bg-global-3 rounded-[20px] shadow-lg px-6 py-10">
           <div className="text-center mb-12">
             <h1 className="text-[32px] font-bold font-manrope text-global-1 leading-[44px] mb-6">
-              BECOME A DAO MEMBER - DONATRUST
+              ĐĂNG KÝ THÀNH VIÊN DAO - DONATRUST
             </h1>
             <p className="text-base font-light font-manrope text-global-1 leading-6">
-              Join the DAO community to monitor, vote and build a more transparent DonaTrust.
+              Tham gia cộng đồng DAO để giám sát, bỏ phiếu và xây dựng một DonaTrust minh bạch hơn.
             </p>
           </div>
 
@@ -107,13 +106,13 @@ const DaoRegistration = () => {
             {/* Full Name Input */}
             <div>
               <label className="block text-lg font-bold text-global-1 mb-2">
-                Full name: <span className="text-global-21">*</span>
+                Họ và tên: <span className="text-global-21">*</span>
               </label>
               <input
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
-                placeholder="Enter your full name"
+                placeholder="Nhập họ và tên của bạn"
                 className="w-full h-[46px] px-4 border rounded bg-white text-global-1"
               />
             </div>
@@ -127,7 +126,7 @@ const DaoRegistration = () => {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                placeholder="Enter your email"
+                placeholder="Nhập email của bạn"
                 className="w-full h-[46px] px-4 border rounded bg-white text-global-1"
               />
             </div>
@@ -135,12 +134,12 @@ const DaoRegistration = () => {
             {/* Introduction */}
             <div>
               <label className="block text-lg font-bold text-global-1 mb-2">
-                Introduce yourself: <span className="text-global-21">*</span>
+                Giới thiệu bản thân: <span className="text-global-21">*</span>
               </label>
               <EditText
                 value={formData.introduction}
                 onChange={(value) => handleInputChange('introduction', value)}
-                placeholder="Why do you want to join the DAO? What do you care about most?..."
+                placeholder="Vì sao bạn muốn tham gia DAO? Bạn quan tâm điều gì nhất?..."
                 multiline
                 rows={4}
                 className="w-full"
@@ -150,38 +149,38 @@ const DaoRegistration = () => {
             {/* Areas of Interest */}
             <div>
               <label className="block text-lg font-bold text-global-1 mb-2">
-                Areas of interest: <span className="text-global-21">*</span>
+                Lĩnh vực quan tâm: <span className="text-global-21">*</span>
               </label>
               <div className="flex flex-wrap gap-x-6 gap-y-5 mb-2">
                 <CheckBox
                   checked={formData.areasOfInterest.education}
                   onChange={(c) => handleInterestChange('education', c)}
-                  label="🎓 Education"
+                  label="🎓 Giáo dục"
                 />
                 <CheckBox
                   checked={formData.areasOfInterest.medical}
                   onChange={(c) => handleInterestChange('medical', c)}
-                  label="⛑️ Medical"
+                  label="⛑️ Y tế"
                 />
                 <CheckBox
                   checked={formData.areasOfInterest.children}
                   onChange={(c) => handleInterestChange('children', c)}
-                  label="👶 Children"
+                  label="👶 Trẻ em"
                 />
                 <CheckBox
                   checked={formData.areasOfInterest.environment}
                   onChange={(c) => handleInterestChange('environment', c)}
-                  label="🌿 Environment"
+                  label="🌿 Môi trường"
                 />
                 <CheckBox
                   checked={formData.areasOfInterest.naturalDisaster}
                   onChange={(c) => handleInterestChange('naturalDisaster', c)}
-                  label="⛈️ Natural disaster"
+                  label="⛈️ Thiên tai"
                 />
                 <CheckBox
                   checked={formData.areasOfInterest.disability}
                   onChange={(c) => handleInterestChange('disability', c)}
-                  label="🧑‍🦽 Disability"
+                  label="🧑‍🦽 Người khuyết tật"
                 />
               </div>
             </div>
@@ -189,12 +188,12 @@ const DaoRegistration = () => {
             {/* Experience */}
             <div>
               <label className="block text-lg font-bold text-global-1 mb-2">
-                Experience / understanding of charity: <span className="text-global-21">*</span>
+                Kinh nghiệm / hiểu biết về hoạt động thiện nguyện: <span className="text-global-21">*</span>
               </label>
               <EditText
                 value={formData.experience}
                 onChange={(value) => handleInputChange('experience', value)}
-                placeholder="Could be past contributions, DAO community knowledge"
+                placeholder="Có thể là các đóng góp trước đây, hiểu biết về cộng đồng DAO..."
                 multiline
                 rows={4}
                 className="w-full"
@@ -204,8 +203,7 @@ const DaoRegistration = () => {
             {/* Certificate Upload */}
             <div>
               <label className="block text-lg font-bold text-global-1 mb-2">
-                Certificate, activity photos, proof of volunteering:{' '}
-                <span className="text-global-21">*</span>
+                Giấy chứng nhận, ảnh hoạt động, bằng chứng thiện nguyện: <span className="text-global-21">*</span>
               </label>
               <input
                 type="file"
@@ -214,7 +212,7 @@ const DaoRegistration = () => {
               />
               {formData.certificateFile && (
                 <p className="mt-2 text-sm text-global-1">
-                  Selected: {formData.certificateFile.name}
+                  Đã chọn: {formData.certificateFile.name}
                 </p>
               )}
             </div>
@@ -227,8 +225,7 @@ const DaoRegistration = () => {
                 className="mt-1"
               />
               <span className="text-base text-global-1 leading-6 flex-1">
-                ✔️ I am committed to DonaTrust's principles of transparency, objectivity, and
-                community service.
+                ✔️ Tôi cam kết tuân thủ các nguyên tắc minh bạch, khách quan và phục vụ cộng đồng của DonaTrust.
               </span>
             </div>
 
@@ -240,7 +237,7 @@ const DaoRegistration = () => {
                 className="w-[163px] h-[38px] bg-button-4 rounded-[5px]"
               >
                 <span className="text-xs font-bold font-inter text-button-1 leading-[15px]">
-                  Submit Request
+                  Gửi đăng ký
                 </span>
               </Button>
             </div>
@@ -253,8 +250,7 @@ const DaoRegistration = () => {
         <div className="fixed inset-0 bg-global-10 flex items-center justify-center z-50">
           <div className="w-[679px] h-[185px] bg-global-3 border-2 border-global-1 rounded-[10px] flex flex-col items-center justify-center p-8">
             <p className="text-xl font-inter text-global-1 text-center mb-8 max-w-[628px]">
-              Thank you for registering. DonaTrust administrators will review and respond to you via
-              email and notification center.
+              Cảm ơn bạn đã đăng ký. Ban quản trị DonaTrust sẽ xem xét và phản hồi qua email và trung tâm thông báo.
             </p>
             <Button
               onClick={handleBackToHome}
@@ -262,14 +258,12 @@ const DaoRegistration = () => {
               className="w-[235px] h-[43px] bg-button-4 rounded-[5px]"
             >
               <span className="text-xs font-bold font-inter text-button-1 leading-[15px]">
-                Back to home page
+                Quay về trang chủ
               </span>
             </Button>
           </div>
         </div>
       )}
-
-      <Footer />
     </div>
   );
 };
