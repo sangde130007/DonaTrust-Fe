@@ -18,6 +18,7 @@ import VerifyEmailPage from './pages/VerifyEmail';
 import { default as NewsManagement } from './pages/Admin/NewsManagement';
 import CharityPendingPage from './pages/CharityPending';
 import { CampaignDetail } from './pages/CharityPending';
+import Users from './pages/Users';
 
 const AppRoutes = () => {
   return (
@@ -29,8 +30,24 @@ const AppRoutes = () => {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
 
         {/* Pending Charity Campaigns */}
-        <Route path="/charity-pending" element={<Layout><CharityPendingPage /></Layout>} requiredRole="admin" />
-        <Route path="/charity-pending/:id" element={<Layout><CampaignDetail /></Layout>} requiredRole="admin" />
+        <Route
+          path="/charity-pending"
+          element={
+            <Layout>
+              <CharityPendingPage />
+            </Layout>
+          }
+          requiredRole="admin"
+        />
+        <Route
+          path="/charity-pending/:id"
+          element={
+            <Layout>
+              <CampaignDetail />
+            </Layout>
+          }
+          requiredRole="admin"
+        />
 
         {/* Routes with layout */}
         <Route path="/" element={<Layout />}>
@@ -75,13 +92,26 @@ const AppRoutes = () => {
         </Route>
 
         {/* Admin routes */}
-        <Route path="/admin/news" element={
-          <ProtectedRoute requiredRole="admin">
-            <AdminLayout>
-              <NewsManagement />
-            </AdminLayout>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/admin/news"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminLayout>
+                <NewsManagement />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminLayout>
+                <Users />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

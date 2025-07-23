@@ -4,10 +4,12 @@ import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
+import daoService from '../../services/daoService';
 
 const DaoRegistration = () => {
   const navigate = useNavigate();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: 'Dat Nguyen Tien',
     email: 'Datnguyentien@gmail.com',
@@ -42,32 +44,40 @@ const DaoRegistration = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    const hasInterest = Object.values(formData.areasOfInterest).some((val) => val);
-    if (!formData.fullName || !formData.email || !formData.introduction || !formData.experience) {
-      alert('Please fill in all required fields.');
-      return;
+    try {
+      const hasInterest = Object.values(formData.areasOfInterest).some((val) => val);
+      if (!formData.fullName || !formData.email || !formData.introduction || !formData.experience) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      if (!hasInterest) {
+        alert('Please select at least one area of interest.');
+        return;
+      }
+
+      if (!formData.certificateFile) {
+        alert('Please upload at least one certificate or proof of volunteering.');
+        return;
+      }
+
+      if (!formData.commitment) {
+        alert('Please confirm your commitment to DonaTrust principles.');
+        return;
+      }
+
+      await daoService.registerDao(formData);
+      setShowSuccessModal(true);
+    } catch (error) {
+      alert('Failed to register DAO member.');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-
-    if (!hasInterest) {
-      alert('Please select at least one area of interest.');
-      return;
-    }
-
-    if (!formData.certificateFile) {
-      alert('Please upload at least one certificate or proof of volunteering.');
-      return;
-    }
-
-    if (!formData.commitment) {
-      alert('Please confirm your commitment to DonaTrust principles.');
-      return;
-    }
-
-    console.log('DAO Registration submitted:', formData);
-    setShowSuccessModal(true);
   };
 
   const handleBackToHome = () => {
@@ -76,7 +86,7 @@ const DaoRegistration = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-global-3">
+    <div className="flex flex-col min-h-screen bg-global-3">
       {/* Hero Background */}
       <div
         className="w-full h-[349px] bg-cover bg-center relative"
@@ -92,13 +102,13 @@ const DaoRegistration = () => {
       </div>
 
       {/* Main Form */}
-      <main className="flex-1 bg-global-1 py-20 flex justify-center px-4">
+      <main className="flex flex-1 justify-center px-4 py-20 bg-global-1">
         <div className="w-full max-w-[714px] bg-global-3 rounded-[20px] shadow-lg px-6 py-10">
-          <div className="text-center mb-12">
+          <div className="mb-12 text-center">
             <h1 className="text-[32px] font-bold font-manrope text-global-1 leading-[44px] mb-6">
               BECOME A DAO MEMBER - DONATRUST
             </h1>
-            <p className="text-base font-light font-manrope text-global-1 leading-6">
+            <p className="text-base font-light leading-6 font-manrope text-global-1">
               Join the DAO community to monitor, vote and build a more transparent DonaTrust.
             </p>
           </div>
@@ -106,7 +116,7 @@ const DaoRegistration = () => {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Full Name Input */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Full name: <span className="text-global-21">*</span>
               </label>
               <input
@@ -120,7 +130,7 @@ const DaoRegistration = () => {
 
             {/* Email Input */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Email: <span className="text-global-21">*</span>
               </label>
               <input
@@ -134,7 +144,7 @@ const DaoRegistration = () => {
 
             {/* Introduction */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Introduce yourself: <span className="text-global-21">*</span>
               </label>
               <EditText
@@ -149,10 +159,10 @@ const DaoRegistration = () => {
 
             {/* Areas of Interest */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Areas of interest: <span className="text-global-21">*</span>
               </label>
-              <div className="flex flex-wrap gap-x-6 gap-y-5 mb-2">
+              <div className="flex flex-wrap gap-y-5 gap-x-6 mb-2">
                 <CheckBox
                   checked={formData.areasOfInterest.education}
                   onChange={(c) => handleInterestChange('education', c)}
@@ -188,7 +198,7 @@ const DaoRegistration = () => {
 
             {/* Experience */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Experience / understanding of charity: <span className="text-global-21">*</span>
               </label>
               <EditText
@@ -203,7 +213,7 @@ const DaoRegistration = () => {
 
             {/* Certificate Upload */}
             <div>
-              <label className="block text-lg font-bold text-global-1 mb-2">
+              <label className="block mb-2 text-lg font-bold text-global-1">
                 Certificate, activity photos, proof of volunteering:{' '}
                 <span className="text-global-21">*</span>
               </label>
@@ -220,13 +230,13 @@ const DaoRegistration = () => {
             </div>
 
             {/* Commitment */}
-            <div className="flex items-start gap-4">
+            <div className="flex gap-4 items-start">
               <CheckBox
                 checked={formData.commitment}
                 onChange={(c) => handleInputChange('commitment', c)}
                 className="mt-1"
               />
-              <span className="text-base text-global-1 leading-6 flex-1">
+              <span className="flex-1 text-base leading-6 text-global-1">
                 ✔️ I am committed to DonaTrust's principles of transparency, objectivity, and
                 community service.
               </span>
@@ -238,9 +248,10 @@ const DaoRegistration = () => {
                 type="submit"
                 variant="primary"
                 className="w-[163px] h-[38px] bg-button-4 rounded-[5px]"
+                disabled={loading}
               >
                 <span className="text-xs font-bold font-inter text-button-1 leading-[15px]">
-                  Submit Request
+                  {loading ? 'Submitting...' : 'Submit Request'}
                 </span>
               </Button>
             </div>
@@ -250,7 +261,7 @@ const DaoRegistration = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 bg-global-10 flex items-center justify-center z-50">
+        <div className="flex fixed inset-0 z-50 justify-center items-center bg-global-10">
           <div className="w-[679px] h-[185px] bg-global-3 border-2 border-global-1 rounded-[10px] flex flex-col items-center justify-center p-8">
             <p className="text-xl font-inter text-global-1 text-center mb-8 max-w-[628px]">
               Thank you for registering. DonaTrust administrators will review and respond to you via
@@ -269,7 +280,6 @@ const DaoRegistration = () => {
         </div>
       )}
 
-      <Footer />
     </div>
   );
 };

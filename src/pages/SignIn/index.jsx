@@ -5,13 +5,12 @@ import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import api from '../../services/api';
 
 const SignInPage = () => {
   const navigate = useNavigate();
   const {
     login,
-    googleLogin,
+    googleLogin, // Use googleLogin from AuthContext
     isAuthenticated,
     isLoading: authLoading,
     error: authError,
@@ -57,15 +56,15 @@ const SignInPage = () => {
     const newErrors = {};
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email là bắt buộc';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Vui lòng nhập địa chỉ email hợp lệ';
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Mật khẩu là bắt buộc';
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
     }
 
     setErrors(newErrors);
@@ -95,8 +94,8 @@ const SignInPage = () => {
       // Handle specific error cases
       if (error.status === 401) {
         setErrors({
-          email: 'Invalid email or password',
-          password: 'Invalid email or password',
+          email: 'Email hoặc mật khẩu không đúng',
+          password: 'Email hoặc mật khẩu không đúng',
         });
       } else if (error.status === 422) {
         // Handle validation errors
@@ -109,7 +108,7 @@ const SignInPage = () => {
         setErrors(validationErrors);
       } else {
         setErrors({
-          general: error.message || 'Sign in failed. Please try again.',
+          general: error.message || 'Đăng nhập thất bại. Vui lòng thử lại.',
         });
       }
     } finally {
@@ -117,42 +116,56 @@ const SignInPage = () => {
     }
   };
 
-  // Thay thế hàm handleGoogleSignIn bằng hàm xử lý credential từ Google
+  // Fixed Google Sign In handler - Use AuthContext
   const handleGoogleSignIn = async (credentialResponse) => {
-    console.log('Google credentialResponse:', credentialResponse); // Log toàn bộ object trả về từ Google
-    console.log('Google credential:', credentialResponse.credential); // Log riêng credential
+    console.log('🔍 Google OAuth Response:', credentialResponse);
     setIsLoading(true);
     setErrors({});
+
     try {
-      const res = await api.post('/auth/google', {
-        token: credentialResponse.credential,
-      });
-      localStorage.setItem('accessToken', res.data.accessToken);
-      // TODO: Nếu có AuthContext, nên gọi hàm login context ở đây
-      navigate('/');
+      if (!credentialResponse.credential) {
+        throw new Error('Không nhận được thông tin xác thực từ Google');
+      }
+
+      console.log('📤 Using AuthContext googleLogin...');
+
+      // Use googleLogin from AuthContext instead of authService directly
+      await googleLogin(credentialResponse.credential);
+
+      console.log('✅ Google login successful via AuthContext');
+
+      // No need to navigate manually, useEffect will handle it when isAuthenticated becomes true
     } catch (error) {
-      setErrors({ general: 'Google sign in failed. Please try again.' });
+      console.error('❌ Google sign in error:', error);
+      setErrors({
+        general: error.message || 'Đăng nhập bằng Google thất bại. Vui lòng thử lại.',
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleError = () => {
+    console.error('❌ Google OAuth Error');
+    setErrors({
+      general: 'Đăng nhập bằng Google thất bại. Vui lòng thử lại.',
+    });
   };
 
   const handleCreateAccount = () => {
     navigate('/signup');
   };
 
-
-
   return (
-    <div className="flex flex-row min-h-screen bg-global-3">
+    <div className="flex flex-row justify-center items-center min-h-screen bg-global-3">
       {/* Left Side - Sign In Form */}
       <div className="flex flex-col w-full max-w-[531px] px-24 py-14">
-        {/* Logo */}
+        {/* Logo - Smaller size */}
         <div className="flex justify-center items-center mb-10">
           <img
-            src="/images/img_top.png" // 👈 thay đúng tên file logo bạn dùng
+            src="/images/img_top.png"
             alt="DonaTrust Logo"
-            className="w-[380px] h-auto object-contain"
+            className="w-[200px] h-auto object-contain"
           />
         </div>
 
@@ -160,11 +173,11 @@ const SignInPage = () => {
         <div className="flex flex-col">
           {/* Header */}
           <div className="mb-[46px]">
-            <h1 className="text-[40px] font-inter font-bold leading-[49px]  text-global-9 mb-4">
-              Sign in
+            <h1 className="text-[40px] font-inter font-bold leading-[49px] text-global-9 mb-4">
+              Đăng nhập
             </h1>
             <p className="text-lg font-inter font-normal leading-[22px] text-global-13">
-              Please login to continue to your account.
+              Vui lòng đăng nhập để tiếp tục vào tài khoản của bạn.
             </p>
           </div>
 
@@ -178,14 +191,14 @@ const SignInPage = () => {
                 value={formData.email}
                 onChange={handleInputChange('email')}
                 variant="floating"
-                placeholder="Enter your email"
+                placeholder="Nhập email của bạn"
               />
               {errors.email && <p className="mt-1 ml-3 text-sm text-red-500">{errors.email}</p>}
             </div>
 
             <div>
               <EditText
-                label="Password"
+                label="Mật khẩu"
                 type="password"
                 value={formData.password}
                 onChange={handleInputChange('password')}
@@ -200,7 +213,7 @@ const SignInPage = () => {
             {/* Keep me logged in */}
             <div className="pt-2">
               <CheckBox
-                label="Keep me logged in"
+                label="Duy trì đăng nhập"
                 checked={formData.keepLoggedIn}
                 onChange={handleCheckboxChange}
                 id="keepLoggedIn"
@@ -223,14 +236,14 @@ const SignInPage = () => {
                 disabled={isLoading || authLoading}
                 className="w-[399px]"
               >
-                {isLoading || authLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading || authLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </div>
 
             {/* Divider */}
             <div className="flex items-center w-[399px] h-6 my-6">
               <div className="flex-1 h-px bg-global-7"></div>
-              <span className="px-4 text-base font-medium font-inter text-global-12">or</span>
+              <span className="px-4 text-base font-medium font-inter text-global-12">hoặc</span>
               <div className="flex-1 h-px bg-global-7"></div>
             </div>
 
@@ -238,27 +251,28 @@ const SignInPage = () => {
             <div className="w-[399px]">
               <GoogleLogin
                 onSuccess={handleGoogleSignIn}
-                onError={() => setErrors({ general: 'Google sign in failed. Please try again.' })}
+                onError={handleGoogleError}
+                useOneTap={false}
                 width="100%"
                 size="large"
                 shape="pill"
                 text="signin_with"
+                theme="outline"
+                logo_alignment="left"
+                disabled={isLoading || authLoading}
               />
             </div>
-
-            {/* Google OAuth Redirect Button */}
-            
 
             {/* Create Account Link */}
             <div className="pt-6 text-center">
               <p className="text-lg font-inter text-global-11">
-                <span className="font-normal">Need an account? </span>
+                <span className="font-normal">Cần tài khoản? </span>
                 <button
                   type="button"
                   onClick={handleCreateAccount}
                   className="font-semibold underline text-button-4 hover:no-underline"
                 >
-                  Create one
+                  Tạo tài khoản
                 </button>
               </p>
             </div>
@@ -268,11 +282,13 @@ const SignInPage = () => {
 
       {/* Right Side - Background Image */}
       <div className="relative flex-1">
-        <img
-          src="/images/img_container_1000x825.png"
-          alt="Children playing in traditional clothing"
-          className="w-full h-full object-cover rounded-l-[24px]"
-        />
+        <div className="w-full h-[825px] rounded-l-[24px]">
+          <img
+            src="/images/img_container_1000x825.png"
+            alt="Children playing in traditional clothing"
+            className="object-cover w-full h-full rounded-l-[24px]"
+          />
+        </div>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
-  Title as ChartTitle
+  Title as ChartTitle,
 } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
@@ -22,7 +22,14 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 const AdminDashboard = ({ stats }) => {
   // Simple bar chart for demo (pending vs total)
   const pieData = {
-    labels: ['Users', 'Charities', 'Campaigns', 'Donations', 'News', 'Donation Amount'],
+    labels: [
+      'Người dùng',
+      'Tổ chức từ thiện',
+      'Chiến dịch',
+      'Quyên góp',
+      'Tin tức',
+      'Số tiền quyên góp',
+    ],
     datasets: [
       {
         data: [
@@ -47,15 +54,11 @@ const AdminDashboard = ({ stats }) => {
   };
 
   const barData = {
-    labels: ['Pending Charities', 'Pending Campaigns', 'Pending Approvals'],
+    labels: ['Tổ chức chờ duyệt', 'Chiến dịch chờ duyệt', 'Phê duyệt chờ xử lý'],
     datasets: [
       {
-        label: 'Pending',
-        data: [
-          stats.pendingCharities,
-          stats.pendingCampaigns,
-          stats.pendingApprovals,
-        ],
+        label: 'Chờ duyệt',
+        data: [stats.pendingCharities, stats.pendingCampaigns, stats.pendingApprovals],
         backgroundColor: '#f59e42',
         borderRadius: 6,
       },
@@ -63,83 +66,91 @@ const AdminDashboard = ({ stats }) => {
   };
 
   // Custom chart container style
-  const chartContainerClass = "rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 flex flex-col items-center mb-10 border border-blue-100";
+  const chartContainerClass =
+    'rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 flex flex-col items-center mb-10 border border-blue-100';
 
   return (
-    <div className="w-full bg-white min-h-screen">
-      <div className="max-w-6xl mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-8 text-blue-700">Admin Dashboard</h1>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-blue-50 rounded-lg p-6 shadow text-center">
+    <div className="w-full min-h-screen bg-white">
+      <div className="px-4 py-10 mx-auto max-w-6xl">
+        <h1 className="mb-8 text-3xl font-bold text-blue-700">Bảng điều khiển quản trị</h1>
+        <div className="grid grid-cols-2 gap-6 mb-10 md:grid-cols-4">
+          <div className="p-6 text-center bg-blue-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-blue-700">{stats.totalUsers}</div>
-            <div className="text-gray-600 mt-1">Total Users</div>
+            <div className="mt-1 text-gray-600">Tổng người dùng</div>
           </div>
-          <div className="bg-green-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-green-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-green-700">{stats.totalCharities}</div>
-            <div className="text-gray-600 mt-1">Total Charities</div>
+            <div className="mt-1 text-gray-600">Tổng tổ chức từ thiện</div>
           </div>
-          <div className="bg-yellow-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-yellow-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-yellow-700">{stats.totalCampaigns}</div>
-            <div className="text-gray-600 mt-1">Total Campaigns</div>
+            <div className="mt-1 text-gray-600">Tổng chiến dịch</div>
           </div>
-          <div className="bg-pink-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-pink-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-pink-700">{stats.totalNews}</div>
-            <div className="text-gray-600 mt-1">Total News</div>
+            <div className="mt-1 text-gray-600">Tổng tin tức</div>
           </div>
         </div>
 
         {/* Pie Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 tracking-tight uppercase drop-shadow">Overview Distribution</h2>
+          <h2 className="mb-6 text-xl font-extrabold tracking-tight text-blue-700 uppercase drop-shadow">
+            Tổng quan phân phối
+          </h2>
           <div className="w-full max-w-xs">
-            <Pie data={pieData} options={{
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                  labels: {
-                    font: { size: 15, family: 'inherit', weight: 'bold' },
-                    color: '#334155',
-                    padding: 18,
-                    boxWidth: 22,
-                    usePointStyle: true,
+            <Pie
+              data={pieData}
+              options={{
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                      padding: 18,
+                      boxWidth: 22,
+                      usePointStyle: true,
+                    },
+                    onHover: (e, legendItem, legend) => {
+                      e.native.target.style.cursor = 'pointer';
+                    },
                   },
-                  onHover: (e, legendItem, legend) => {
-                    e.native.target.style.cursor = 'pointer';
-                  }
+                  tooltip: {
+                    callbacks: {
+                      label: function (context) {
+                        let label = context.label || '';
+                        if (label) label += ': ';
+                        label += context.parsed;
+                        return label;
+                      },
+                    },
+                  },
                 },
-                tooltip: {
-                  callbacks: {
-                    label: function(context) {
-                      let label = context.label || '';
-                      if (label) label += ': ';
-                      label += context.parsed;
-                      return label;
-                    }
-                  }
-                }
-              }
-            }} />
+              }}
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-orange-50 rounded-lg p-6 shadow text-center">
+        <div className="grid grid-cols-1 gap-6 mb-10 md:grid-cols-3">
+          <div className="p-6 text-center bg-orange-50 rounded-lg shadow">
             <div className="text-xl font-bold text-orange-700">{stats.pendingCharities}</div>
-            <div className="text-gray-600 mt-1">Pending Charities</div>
+            <div className="mt-1 text-gray-600">Tổ chức chờ duyệt</div>
           </div>
-          <div className="bg-red-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-red-50 rounded-lg shadow">
             <div className="text-xl font-bold text-red-700">{stats.pendingCampaigns}</div>
-            <div className="text-gray-600 mt-1">Pending Campaigns</div>
+            <div className="mt-1 text-gray-600">Chiến dịch chờ duyệt</div>
           </div>
-          <div className="bg-purple-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-purple-50 rounded-lg shadow">
             <div className="text-xl font-bold text-purple-700">{stats.pendingApprovals}</div>
-            <div className="text-gray-600 mt-1">Pending Approvals</div>
+            <div className="mt-1 text-gray-600">Phê duyệt chờ xử lý</div>
           </div>
         </div>
 
         {/* Bar Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 tracking-tight uppercase drop-shadow">Pending Overview</h2>
+          <h2 className="mb-6 text-xl font-extrabold tracking-tight text-blue-700 uppercase drop-shadow">
+            Tổng quan chờ duyệt
+          </h2>
           <div className="w-full max-w-2xl">
             <Bar
               data={barData}
@@ -150,22 +161,29 @@ const AdminDashboard = ({ stats }) => {
                   title: { display: false },
                   tooltip: {
                     callbacks: {
-                      label: function(context) {
+                      label: function (context) {
                         return `${context.dataset.label}: ${context.parsed.y}`;
-                      }
-                    }
-                  }
+                      },
+                    },
+                  },
                 },
                 scales: {
                   x: {
                     grid: { display: false },
-                    ticks: { font: { size: 15, family: 'inherit', weight: 'bold' }, color: '#334155' }
+                    ticks: {
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                    },
                   },
                   y: {
                     beginAtZero: true,
                     grid: { color: '#e0e7ef', borderDash: [4, 4] },
-                    ticks: { stepSize: 1, font: { size: 15, family: 'inherit', weight: 'bold' }, color: '#334155' }
-                  }
+                    ticks: {
+                      stepSize: 1,
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                    },
+                  },
                 },
                 hover: { mode: 'nearest', intersect: true },
                 animation: { duration: 900, easing: 'easeOutQuart' },
@@ -174,13 +192,15 @@ const AdminDashboard = ({ stats }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Total Donation Amount</div>
-            <div className="text-2xl font-bold text-green-700">{stats.totalDonationAmount?.toLocaleString() || 0} VND</div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="p-6 bg-white rounded-lg shadow">
+            <div className="mb-2 text-lg font-bold text-gray-700">Tổng số tiền quyên góp</div>
+            <div className="text-2xl font-bold text-green-700">
+              {stats.totalDonationAmount?.toLocaleString() || 0} VND
+            </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Total Donations</div>
+          <div className="p-6 bg-white rounded-lg shadow">
+            <div className="mb-2 text-lg font-bold text-gray-700">Tổng lượt quyên góp</div>
             <div className="text-2xl font-bold text-blue-700">{stats.totalDonations}</div>
           </div>
         </div>
@@ -201,14 +221,17 @@ const Profile = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       console.log('🔍 Debug Profile fetch:');
       console.log('- Is authenticated:', authUser ? 'Yes' : 'No');
       console.log('- Auth user:', authUser);
-      console.log('- Token in localStorage:', localStorage.getItem('accessToken') ? 'Present' : 'Missing');
-      
+      console.log(
+        '- Token in localStorage:',
+        localStorage.getItem('accessToken') ? 'Present' : 'Missing'
+      );
+
       if (!localStorage.getItem('accessToken')) {
-        throw new Error('No authentication token found. Please login again.');
+        throw new Error('Không tìm thấy token xác thực. Vui lòng đăng nhập lại.');
       }
 
       // Nếu là admin, fetch dashboard stats
@@ -224,9 +247,9 @@ const Profile = () => {
     } catch (error) {
       console.error('❌ Error fetching user data:', error);
       if (error.status === 401) {
-        setError('Authentication failed. Please login again.');
+        setError('Xác thực không thành công. Vui lòng đăng nhập lại.');
       } else {
-        setError(error.message || 'Failed to load profile data');
+        setError(error.message || 'Không thể tải dữ liệu hồ sơ');
       }
     } finally {
       setIsLoading(false);
@@ -241,9 +264,9 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full bg-white min-h-screen">
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="w-full min-h-screen bg-white">
+        <div className="flex justify-center items-center py-20">
+          <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
         </div>
       </div>
     );
@@ -251,12 +274,12 @@ const Profile = () => {
 
   if (error) {
     return (
-      <div className="w-full bg-white min-h-screen">
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="text-red-500 mb-4">Error loading profile</div>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={fetchUserData} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Retry
+      <div className="w-full min-h-screen bg-white">
+        <div className="flex flex-col justify-center items-center py-20">
+          <div className="mb-4 text-red-500">Lỗi khi tải hồ sơ</div>
+          <p className="mb-4 text-gray-600">{error}</p>
+          <Button onClick={fetchUserData} className="px-4 py-2 text-white bg-blue-500 rounded">
+            Thử lại
           </Button>
         </div>
       </div>
@@ -280,37 +303,41 @@ const Profile = () => {
               <div className="relative -mt-20">
                 {displayUser?.profile_image ? (
                   <img
-                    src={displayUser.profile_image}
+                    src={
+                      displayUser.profile_image.startsWith('http')
+                        ? displayUser.profile_image
+                        : `http://localhost:5000${displayUser.profile_image}`
+                    }
                     alt="Avatar"
                     className="object-cover w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg"
                     onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextElementSibling.style.display = 'flex';
+                      console.log('🖼️ Avatar load failed, using fallback');
+                      e.target.src = '/images/img_avatar.png';
                     }}
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-32 h-32 bg-gray-200 rounded-full border-4 border-white shadow-lg">
+                  <div className="flex justify-center items-center w-32 h-32 bg-gray-200 rounded-full border-4 border-white shadow-lg">
                     <User className="w-16 h-16 text-gray-400" />
                   </div>
                 )}
                 {/* Fallback avatar */}
-                <div className="hidden items-center justify-center w-32 h-32 bg-gray-200 rounded-full border-4 border-white shadow-lg">
+                <div className="hidden justify-center items-center w-32 h-32 bg-gray-200 rounded-full border-4 border-white shadow-lg">
                   <User className="w-16 h-16 text-gray-400" />
                 </div>
               </div>
 
               {/* User Info */}
               <div className="md:mb-4">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex gap-2 items-center mb-2">
                   <h1 className="text-2xl font-bold text-gray-900">
-                    {displayUser?.full_name || 'User Name'}
+                    {displayUser?.full_name || 'Tên người dùng'}
                   </h1>
                 </div>
                 <p className="mb-2 text-gray-600">
-                  @{displayUser?.email?.split('@')[0] || 'username'}
+                  @{displayUser?.email?.split('@')[0] || 'tên_người_dùng'}
                 </p>
-                <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-2">
-                  <span>{displayUser?.email || 'No email'}</span>
+                <div className="flex flex-wrap gap-4 mb-2 text-sm text-gray-600">
+                  <span>{displayUser?.email || 'Không có email'}</span>
                 </div>
               </div>
             </div>
@@ -319,7 +346,7 @@ const Profile = () => {
             <div className="flex gap-3 items-center mt-4 md:mt-0">
               <Link to="/profile/edit">
                 <Button className="px-6 py-2 font-medium text-white bg-blue-500 rounded-md transition-colors hover:bg-blue-600">
-                  Edit information
+                  Chỉnh sửa thông tin
                 </Button>
               </Link>
             </div>
@@ -331,8 +358,8 @@ const Profile = () => {
       {authUser?.role === 'admin' ? (
         isLoading || !adminStats ? (
           <div className="w-full bg-white min-h-[300px]">
-            <div className="flex items-center justify-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="flex justify-center items-center py-20">
+              <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
             </div>
           </div>
         ) : (
@@ -359,9 +386,9 @@ const Profile = () => {
                     />
                   </svg>
                 </div>
-                <h3 className="mb-2 text-xl font-semibold text-gray-900">No projects yet</h3>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900">Chưa có dự án nào</h3>
                 <p className="mb-8 text-gray-600">
-                  You haven't supported any campaigns yet. Start making a difference today!
+                  Bạn chưa ủng hộ chiến dịch nào. Hãy bắt đầu tạo sự thay đổi ngay hôm nay!
                 </p>
               </div>
             </div>
@@ -369,7 +396,7 @@ const Profile = () => {
             <div className="flex justify-center items-center text-center">
               <Link to="/campaigns">
                 <Button className="px-8 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-md transition-colors hover:bg-blue-700">
-                  Explore fundraising campaigns
+                  Khám phá các chiến dịch gây quỹ
                 </Button>
               </Link>
             </div>

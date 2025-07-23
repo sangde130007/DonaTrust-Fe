@@ -43,31 +43,31 @@ const SignUpPage = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Tên là bắt buộc';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email là bắt buộc';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Email không hợp lệ';
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
+      newErrors.phone = 'Số điện thoại là bắt buộc';
     } else if (!/^\d{10,}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Phone number must be at least 10 digits';
+      newErrors.phone = 'Số điện thoại phải có ít nhất 10 chữ số';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Mật khẩu là bắt buộc';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'Mật khẩu không khớp';
     }
 
     setErrors(newErrors);
@@ -92,7 +92,7 @@ const SignUpPage = () => {
         password: formData.password,
       });
 
-      alert('Account created successfully! Please check your email to verify your account.');
+      alert('Tạo tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
       navigate('/signin');
     } catch (error) {
       // Handle specific error cases
@@ -107,11 +107,11 @@ const SignUpPage = () => {
         setErrors(validationErrors);
       } else if (error.status === 409) {
         setErrors({
-          email: 'An account with this email already exists',
+          email: 'Đã tồn tại tài khoản với email này',
         });
       } else {
         setErrors({
-          general: error.message || 'Failed to create account. Please try again.',
+          general: error.message || 'Không thể tạo tài khoản. Vui lòng thử lại.',
         });
       }
     } finally {
@@ -127,7 +127,7 @@ const SignUpPage = () => {
       // Note: In a real implementation, you would use Google OAuth2 SDK
       // This is a placeholder for Google OAuth integration
       alert(
-        'Google OAuth integration needs to be implemented. Please use email/password registration for now.'
+        'Tích hợp Google OAuth cần được triển khai. Vui lòng sử dụng đăng ký bằng email/mật khẩu.'
       );
 
       // Example of how it would work:
@@ -135,7 +135,7 @@ const SignUpPage = () => {
       // await googleLogin(googleToken);
     } catch (error) {
       setErrors({
-        general: error.message || 'Google sign up failed. Please try again.',
+        general: error.message || 'Đăng ký bằng Google thất bại. Vui lòng thử lại.',
       });
     } finally {
       setIsLoading(false);
@@ -147,11 +147,11 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex flex-row min-h-screen bg-global-3">
+    <div className="flex flex-row justify-center items-center min-h-screen bg-global-3">
       {/* Left Side - Sign Up Form */}
       <div className="flex flex-col w-full max-w-[531px] px-24 py-14">
-        {/* Logo */}
-        <div className="w-full max-w-[250px] sm:max-w-[300px] md:max-w-[350px] lg:max-w-[381px] h-auto mb-6 sm:mb-8 lg:mb-10">
+        {/* Logo - Smaller size */}
+        <div className="w-full max-w-[200px] h-auto mb-6 sm:mb-8 lg:mb-10">
           <img src="/logo-auth.png" alt="DonaTrust Logo" className="object-contain w-full h-auto" />
         </div>
 
@@ -160,10 +160,10 @@ const SignUpPage = () => {
           {/* Header */}
           <div className="mb-[46px]">
             <h1 className="text-[40px] font-inter font-bold leading-[49px] text-global-9 mb-4">
-              Sign up
+              Đăng ký
             </h1>
             <p className="text-lg font-inter font-normal leading-[22px] text-global-13">
-              Sign up to join hands for the community with DonaTrust
+              Đăng ký để chung tay xây dựng cộng đồng cùng DonaTrust
             </p>
           </div>
 
@@ -172,12 +172,12 @@ const SignUpPage = () => {
             {/* Name Field */}
             <div>
               <EditText
-                label="Your Name"
+                label="Tên của bạn"
                 type="text"
                 value={formData.name}
                 onChange={handleInputChange('name')}
                 variant="floating"
-                placeholder="Enter your full name"
+                placeholder="Nhập họ và tên"
               />
               {errors.name && <p className="mt-1 ml-3 text-sm text-red-500">{errors.name}</p>}
             </div>
@@ -190,7 +190,7 @@ const SignUpPage = () => {
                 value={formData.email}
                 onChange={handleInputChange('email')}
                 variant="floating"
-                placeholder="Enter your email"
+                placeholder="Nhập email của bạn"
               />
               {errors.email && <p className="mt-1 ml-3 text-sm text-red-500">{errors.email}</p>}
             </div>
@@ -198,12 +198,12 @@ const SignUpPage = () => {
             {/* Phone Field */}
             <div>
               <EditText
-                label="Phone Number"
+                label="Số điện thoại"
                 type="tel"
                 value={formData.phone}
                 onChange={handleInputChange('phone')}
                 variant="floating"
-                placeholder="Enter your phone number"
+                placeholder="Nhập số điện thoại"
               />
               {errors.phone && <p className="mt-1 ml-3 text-sm text-red-500">{errors.phone}</p>}
             </div>
@@ -211,7 +211,7 @@ const SignUpPage = () => {
             {/* Password Field */}
             <div>
               <EditText
-                label="Password"
+                label="Mật khẩu"
                 type="password"
                 value={formData.password}
                 onChange={handleInputChange('password')}
@@ -226,7 +226,7 @@ const SignUpPage = () => {
             {/* Confirm Password Field */}
             <div>
               <EditText
-                label="Confirm Password"
+                label="Xác nhận mật khẩu"
                 type="password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange('confirmPassword')}
@@ -254,14 +254,14 @@ const SignUpPage = () => {
                 disabled={isLoading || authLoading}
                 className="w-[399px]"
               >
-                {isLoading || authLoading ? 'Creating Account...' : 'Sign up'}
+                {isLoading || authLoading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
               </Button>
             </div>
 
             {/* Divider */}
             <div className="flex items-center w-[399px] h-6 my-6">
               <div className="flex-1 h-px bg-global-7"></div>
-              <span className="px-4 text-base font-medium font-inter text-global-12">or</span>
+              <span className="px-4 text-base font-medium font-inter text-global-12">hoặc</span>
               <div className="flex-1 h-px bg-global-7"></div>
             </div>
 
@@ -274,7 +274,7 @@ const SignUpPage = () => {
               className="w-[399px] shadow-sm"
             >
               <span className="text-lg font-semibold font-inter text-global-9">
-                Sign up with Google
+                Đăng ký bằng Google
               </span>
               <img src="/images/img_plus.svg" alt="Google" className="ml-4 w-6 h-6" />
             </Button>
@@ -282,13 +282,13 @@ const SignUpPage = () => {
             {/* Sign In Link */}
             <div className="pt-6 text-center">
               <p className="text-lg font-inter text-global-11">
-                <span className="font-normal">Already have an account? </span>
+                <span className="font-normal">Đã có tài khoản? </span>
                 <button
                   type="button"
                   onClick={handleSignInRedirect}
                   className="font-semibold underline text-button-4 hover:no-underline"
                 >
-                  Sign in
+                  Đăng nhập
                 </button>
               </p>
             </div>
@@ -297,11 +297,11 @@ const SignUpPage = () => {
       </div>
 
       {/* Right Side - Background Image */}
-      <div className="relative flex-1">
+      <div className="relative flex-1 w-full h-[825px] rounded-l-[24px]">
         <img
           src="/images/img_container.png"
           alt="Children playing in traditional clothing"
-          className="w-full h-full object-cover rounded-l-[24px]"
+          className="object-cover w-full h-full rounded-l-[24px]"
         />
       </div>
     </div>

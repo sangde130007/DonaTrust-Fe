@@ -11,7 +11,18 @@ const Header = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const navigate = useNavigate();
 
-  console.log('user', user);
+  console.log('🔍 Header user state:', {
+    isAuthenticated,
+    user: user
+      ? {
+          email: user.email,
+          full_name: user.full_name,
+          role: user.role,
+          profile_image: user.profile_image,
+          avatar: user.avatar, // Check both fields
+        }
+      : null,
+  });
 
   const handleLogout = async () => {
     try {
@@ -34,6 +45,11 @@ const Header = () => {
     setShowChangePassword(true); // Open change password modal
   };
 
+  // Get user avatar - check both profile_image and avatar fields
+  const getUserAvatar = () => {
+    return user?.profile_image || '/images/img_avatar.png';
+  };
+
   return (
     <>
       <div className="flex flex-row w-full h-[61px] bg-global-3 shadow-[0px_2px_5px_#abbed166]">
@@ -47,7 +63,7 @@ const Header = () => {
           {user?.role !== 'admin' && (
             <div className="flex flex-row items-center space-x-8">
               {/* Search */}
-              <SearchView placeholder="Search campaign..." onSearch={handleSearch} />
+              <SearchView placeholder="Tìm kiếm chiến dịch..." onSearch={handleSearch} />
 
               {/* Navigation */}
               <nav className="flex flex-row items-center space-x-6">
@@ -55,32 +71,36 @@ const Header = () => {
                   to="/"
                   className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
                 >
-                  Home
+                  Trang chủ
                 </Link>
                 <Link
                   to="/campaigns"
                   className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
                 >
-                  Campaign
+                  Chiến dịch
                 </Link>
                 <Link
                   to="/introduce"
                   className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
                 >
-                  Introduce
+                  Giới thiệu
                 </Link>
                 <Link
                   to="/contact"
                   className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
                 >
-                  Contact
+                  Liên hệ
                 </Link>
               </nav>
 
               {/* Language */}
               <div className="flex flex-row items-center">
-                <span className="text-xs font-medium font-roboto text-global-4">EN</span>
-                <img src="/images/img_expand.svg" alt="Language Dropdown" className="ml-1 w-4 h-4" />
+                <span className="text-xs font-medium font-roboto text-global-4">VI</span>
+                <img
+                  src="/images/img_expand.svg"
+                  alt="Language Dropdown"
+                  className="ml-1 w-4 h-4"
+                />
               </div>
             </div>
           )}
@@ -95,15 +115,16 @@ const Header = () => {
                   className="flex items-center p-2 space-x-2 rounded-lg transition-colors hover:bg-gray-100"
                 >
                   <img
-                    src={user?.avatar || '/images/img_avatar.png'}
+                    src={getUserAvatar()}
                     alt="User Avatar"
-                    className="w-8 h-8 rounded-full"
+                    className="object-cover w-8 h-8 rounded-full"
                     onError={(e) => {
+                      console.log('🖼️ Avatar load failed, using fallback');
                       e.target.src = '/images/img_avatar.png';
                     }}
                   />
                   <span className="text-sm font-medium text-global-4">
-                    {user?.full_name || 'User'}
+                    {user?.full_name || 'Người dùng'}
                   </span>
                   <img src="/images/img_expand.svg" alt="Menu" className="w-4 h-4" />
                 </button>
@@ -112,46 +133,80 @@ const Header = () => {
                 {showUserMenu && (
                   <div className="absolute right-0 top-full z-50 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg">
                     <div className="py-2">
+                      {/* User Info Header */}
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
+                        <p className="text-xs text-blue-600 capitalize">{user?.role}</p>
+                      </div>
+
                       <Link
                         to="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        Profile Dashboard
+                        Bảng điều khiển cá nhân
                       </Link>
                       <Link
                         to="/profile/edit"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        Edit Profile
+                        Chỉnh sửa hồ sơ
                       </Link>
-                      <Link
-                        to="/charity-registration"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Register Charity
-                      </Link>
-                      <Link
-                        to="/dao-registration"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Join DAO
-                      </Link>
+
+                      {/* Show role-specific options */}
+                      {user?.role === 'donor' && (
+                        <>
+                          <Link
+                            to="/charity-registration"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            Đăng ký tổ chức từ thiện
+                          </Link>
+                          <Link
+                            to="/dao-registration"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            Tham gia DAO
+                          </Link>
+                        </>
+                      )}
+
+                      {user?.role === 'charity' && (
+                        <Link
+                          to="/charity/dashboard"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Bảng điều khiển từ thiện
+                        </Link>
+                      )}
+
+                      {user?.role === 'admin' && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Bảng điều khiển quản trị
+                        </Link>
+                      )}
+
                       <button
                         onClick={handleChangePassword}
-                        className="block w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 w-full text-sm text-left text-gray-700 hover:bg-gray-100"
                       >
-                        Change Password
+                        Đổi mật khẩu
                       </button>
                       <hr className="my-2" />
                       <button
                         onClick={handleLogout}
                         className="block px-4 py-2 w-full text-sm text-left text-red-600 hover:bg-gray-100"
                       >
-                        Logout
+                        Đăng xuất
                       </button>
                     </div>
                   </div>
@@ -162,13 +217,13 @@ const Header = () => {
               <>
                 <Link to="/signin">
                   <Button variant="login" size="small">
-                    Login
+                    Đăng nhập
                   </Button>
                 </Link>
 
                 <Link to="/signup">
                   <Button variant="register" size="small">
-                    <span className="mr-2">Register Now</span>
+                    <span className="mr-2">Đăng ký ngay</span>
                     <img
                       src="/images/img_16_arrows_directions_right.svg"
                       alt="Arrow Right"

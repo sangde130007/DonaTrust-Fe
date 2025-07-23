@@ -32,7 +32,7 @@ const VerifyEmail = () => {
   };
 
   const handleGoToLogin = () => {
-    navigate('/signin');
+    navigate('/sign-in');
   };
 
   const handleGoToHome = () => {
