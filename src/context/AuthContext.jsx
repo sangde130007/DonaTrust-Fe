@@ -17,6 +17,7 @@ const AUTH_ACTIONS = {
   LOGOUT: 'LOGOUT',
   CLEAR_ERROR: 'CLEAR_ERROR',
   SET_USER: 'SET_USER',
+  UPDATE_USER: 'UPDATE_USER',
 };
 
 // Reducer function
@@ -63,6 +64,14 @@ function authReducer(state, action) {
         isAuthenticated: !!action.payload,
         isLoading: false,
       };
+    case AUTH_ACTIONS.UPDATE_USER:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...action.payload,
+        },
+      };
     default:
       return state;
   }
@@ -77,28 +86,47 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is authenticated on app load
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
-        const user = authService.getCurrentUser();
+        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+
+        // First check if token exists
         const isAuthenticated = authService.isAuthenticated();
 
-        if (isAuthenticated && user) {
-          dispatch({
-            type: AUTH_ACTIONS.SET_USER,
-            payload: user,
-          });
+        if (isAuthenticated) {
+          console.log('🔍 Token found, fetching current user from API...');
+
+          // Fetch fresh user data from API
+          const user = await authService.getCurrentUser();
+
+          if (user) {
+            dispatch({
+              type: AUTH_ACTIONS.SET_USER,
+              payload: user,
+            });
+            console.log('✅ User authenticated and data loaded from API');
+          } else {
+            console.log('❌ Failed to fetch user data, logging out');
+            dispatch({ type: AUTH_ACTIONS.LOGOUT });
+          }
         } else {
+          console.log('🔓 No token found, user not authenticated');
           dispatch({
             type: AUTH_ACTIONS.SET_LOADING,
             payload: false,
           });
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('❌ Auth check failed:', error);
         dispatch({
           type: AUTH_ACTIONS.SET_LOADING,
           payload: false,
         });
+
+        // If error is 401, logout user
+        if (error.status === 401) {
+          dispatch({ type: AUTH_ACTIONS.LOGOUT });
+        }
       }
     };
 
@@ -183,6 +211,65 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update user function (called after profile updates, avatar uploads, etc.)
+  const updateUser = async (userData) => {
+    try {
+      console.log('🔄 Updating user data:', userData);
+
+      // Update cache first
+      authService.updateUserCache(userData);
+
+      // Update context state
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_USER,
+        payload: userData,
+      });
+
+      // Optionally fetch fresh data from API to ensure sync
+      try {
+        const freshUserData = await authService.getCurrentUser();
+        if (freshUserData) {
+          dispatch({
+            type: AUTH_ACTIONS.SET_USER,
+            payload: freshUserData,
+          });
+          console.log('✅ User data refreshed from API');
+        }
+      } catch (error) {
+        console.warn('⚠️ Failed to refresh user data from API:', error);
+        // Continue with local update if API fails
+      }
+    } catch (error) {
+      console.error('❌ Failed to update user:', error);
+    }
+  };
+
+  // Refresh user data from API
+  const refreshUser = async () => {
+    try {
+      console.log('🔄 Refreshing user data from API...');
+      const user = await authService.getCurrentUser();
+
+      if (user) {
+        dispatch({
+          type: AUTH_ACTIONS.SET_USER,
+          payload: user,
+        });
+        console.log('✅ User data refreshed successfully');
+        return user;
+      } else {
+        console.log('❌ Failed to refresh user data');
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing user data:', error);
+      if (error.status === 401) {
+        dispatch({ type: AUTH_ACTIONS.LOGOUT });
+      }
+      throw error;
+    }
+  };
+
   // Forgot password function
   const forgotPassword = async (email) => {
     try {
@@ -258,6 +345,8 @@ export const AuthProvider = ({ children }) => {
     sendPhoneVerification,
     verifyPhone,
     clearError,
+    updateUser,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
