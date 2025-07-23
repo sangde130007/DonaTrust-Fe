@@ -48,7 +48,7 @@ const EditText = ({
           <input
             type={inputType}
             value={value}
-            onChange={(e) => onChange(e.target.value)} // ✅ Fix logic
+            onChange={onChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             placeholder=""
@@ -63,7 +63,7 @@ const EditText = ({
           <input
             type={inputType}
             value={value}
-            onChange={(e) => onChange(e.target.value)} // ✅ Fix logic
+            onChange={onChange}
             placeholder={placeholder}
             className={classes.input}
             {...props}

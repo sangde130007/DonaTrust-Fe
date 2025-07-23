@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 const ProfileEdit = () => {
   const navigate = useNavigate();
   const { user: authUser, isAuthenticated } = useAuth();
+
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -20,7 +21,6 @@ const ProfileEdit = () => {
     bio: '',
     profile_image: '',
   });
-
   const [originalData, setOriginalData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,6 +40,8 @@ const ProfileEdit = () => {
   const fetchUserProfile = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+
       const response = await userService.getProfile();
       const userData = response.user || response;
 
@@ -60,7 +62,6 @@ const ProfileEdit = () => {
       setOriginalData(profileData);
       setAvatarPreview(null);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
       setError(error.message || 'Failed to load profile data');
     } finally {
       setIsLoading(false);
@@ -72,118 +73,19 @@ const ProfileEdit = () => {
       ...prev,
       [field]: value,
     }));
-
-    // Clear success message when user starts editing
-    if (success) {
-      setSuccess(false);
-    }
-  };
-
-  const handleAvatarClick = () => {
-    console.log('🎯 Avatar clicked - opening file dialog');
-    fileInputRef.current?.click();
-  };
-
-  const handleAvatarFileChange = async (event) => {
-    const file = event.target.files[0];
-    console.log('📁 File selected:', file ? file.name : 'No file');
-
-    if (!file) return;
-
-    // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setError('Vui lòng chọn file ảnh hợp lệ (JPEG, PNG, GIF, hoặc WebP)');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setError('Kích thước file ảnh phải nhỏ hơn 5MB');
-      return;
-    }
-
-    try {
-      setIsUploadingAvatar(true);
-      setError(null);
-
-      // Create preview IMMEDIATELY
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
-      console.log('🖼️ Preview created:', previewUrl);
-
-      console.log('📤 Starting avatar upload process...');
-
-      // Call REAL API upload
-      const response = await userService.uploadAvatar(file);
-
-      console.log('✅ Avatar upload API response:', response);
-
-      // Get the new avatar URL from response
-      const newAvatarUrl = response.avatar_url || response.profile_image;
-
-      if (!newAvatarUrl) {
-        throw new Error('Không có URL ảnh đại diện từ server');
-      }
-
-      console.log('🔄 Updating avatar URL in state:', newAvatarUrl);
-
-      // Clear preview and update with actual server URL
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-      setAvatarPreview(null);
-
-      // Update form data with new avatar URL
-      setFormData((prev) => ({
-        ...prev,
-        profile_image: newAvatarUrl,
-      }));
-
-      // Update original data as well since this is an immediate save
-      setOriginalData((prev) => ({
-        ...prev,
-        profile_image: newAvatarUrl,
-      }));
-
-      // Update AuthContext with new user data
-      if (response.user && updateUser) {
-        updateUser(response.user);
-        console.log('🔄 Updated auth context with new user data');
-      }
-
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-
-      console.log('🔄 Avatar update completed successfully');
-    } catch (error) {
-      console.error('❌ Avatar upload failed:', error);
-      setError(error.message || 'Không thể tải lên ảnh đại diện');
-
-      // Clean up preview on error
-      if (avatarPreview) {
-        URL.revokeObjectURL(avatarPreview);
-      }
-      setAvatarPreview(null);
-    } finally {
-      setIsUploadingAvatar(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
+    if (success) setSuccess(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       setIsSaving(true);
+      setError(null);
 
-      // Only send changed fields
       const changedFields = {};
       Object.keys(formData).forEach((key) => {
         if (formData[key] !== originalData[key] && key !== 'email') {
-          // Don't allow email changes
           changedFields[key] = formData[key];
         }
       });
@@ -194,222 +96,130 @@ const ProfileEdit = () => {
         return;
       }
 
-      console.log('📤 Updating profile with changes:', changedFields);
-
-      const response = await userService.updateProfile(changedFields);
-      const updatedUser = response.user || response;
-
-      // Update both form data and original data with the response
-      const updatedData = {
-        full_name: updatedUser.full_name || '',
-        email: updatedUser.email || '',
-        phone: updatedUser.phone || '',
-        gender: updatedUser.gender || '',
-        date_of_birth: updatedUser.date_of_birth || '',
-        address: updatedUser.address || '',
-        district: updatedUser.district || '',
-        ward: updatedUser.ward || '',
-        bio: updatedUser.bio || '',
-        profile_image: updatedUser.profile_image || '',
-      };
-
-      setFormData(updatedData);
-      setOriginalData(updatedData);
+      await userService.updateProfile(changedFields);
+      setOriginalData({ ...formData });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      console.error('Error updating profile:', error);
       setError(error.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to sign-in
-  }
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading profile...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-global-3 shadow-2xl">
-      {/* Add padding-top to push below fixed header */}
-      <div className="relative pt-24">
-        {/* Avatar and Label */}
-        <div className="flex flex-col items-center">
-          <img
-            src={formData.profile_image || '/images/avt.jpg'}
-            alt="Profile Picture"
-            className="w-[120px] h-[120px] rounded-full border-4 border-global-3 bg-white object-cover"
-          />
-          <span className="mt-4 text-xl font-bold font-inter text-global-8">
-            {formData.full_name || 'User'}
-          </span>
-        </div>
+    <div className="bg-white min-h-screen pt-24">
+      <div className="flex flex-col items-center">
+        <img
+          src={formData.profile_image || '/images/avt.jpg'}
+          alt="Avatar"
+          className="w-[120px] h-[120px] rounded-full border-4 border-white shadow-md object-cover"
+        />
+        <h2 className="mt-4 text-xl font-bold text-gray-800">Edit Profile</h2>
+      </div>
 
-        {/* Edit Form Section */}
-        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
-          <h1 className="text-2xl font-bold font-inter text-global-1 text-center mb-12">
-            Edit personal information
-          </h1>
+      <div className="max-w-4xl mx-auto mt-10 px-4 md:px-8">
+        {error && (
+          <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-6">
+            {error}
+          </div>
+        )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-              <p className="text-red-600">{error}</p>
-              <button
-                onClick={fetchUserProfile}
-                className="mt-2 text-red-600 underline hover:no-underline"
-              >
-                Try reloading profile data
-              </button>
-            </div>
-          )}
+        {success && (
+          <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-6">
+            Profile updated successfully!
+          </div>
+        )}
 
-          {/* Success Message */}
-          {success && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
-              <p className="text-green-600">Profile updated successfully!</p>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <EditText
+              label="Full Name"
+              value={formData.full_name}
+              onChange={(e) => handleInputChange('full_name', e.target.value)}
+              required
+            />
+            <EditText
+              label="Phone"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+            />
+            <EditText
+              label="Gender"
+              value={formData.gender}
+              onChange={(e) => handleInputChange('gender', e.target.value)}
+              placeholder="male / female / other"
+            />
+            <EditText
+              label="Date of Birth"
+              type="date"
+              value={formData.date_of_birth}
+              onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
+            />
+            <EditText
+              label="District"
+              value={formData.district}
+              onChange={(e) => handleInputChange('district', e.target.value)}
+            />
+            <EditText
+              label="Ward"
+              value={formData.ward}
+              onChange={(e) => handleInputChange('ward', e.target.value)}
+            />
+            <EditText
+              label="Address"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+            />
+            <EditText
+              label="Profile Image URL"
+              value={formData.profile_image}
+              onChange={(e) => handleInputChange('profile_image', e.target.value)}
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Left Column */}
-              <div className="space-y-6">
-                <EditText
-                  label="Full Name"
-                  value={formData.full_name}
-                  onChange={(e) => handleInputChange('full_name', e.target.value)}
-                  required
-                  className="h-[45px]"
-                />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Bio
+            </label>
+            <textarea
+              value={formData.bio}
+              onChange={(e) => handleInputChange('bio', e.target.value)}
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2"
+              maxLength={255}
+            />
+            <p className="text-sm text-gray-500 mt-1">{formData.bio.length}/255</p>
+          </div>
 
-                <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Sex
-                  </label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => handleInputChange('gender', e.target.value)}
-                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email (cannot change)</label>
+            <input
+              type="email"
+              value={formData.email}
+              disabled
+              className="w-full border border-gray-300 bg-gray-100 rounded-lg px-3 py-2 text-gray-500"
+            />
+          </div>
 
-                <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Date of birth
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.date_of_birth}
-                    onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none"
-                    placeholder="dd/mm/yyyy"
-                  />
-                </div>
-
-                <EditText
-                  label="Phone number"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Phone number"
-                  className="h-[45px]"
-                />
-
-                <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Introduce yourself
-                  </label>
-                  <textarea
-                    value={formData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
-                    placeholder="Maximum 255 characters"
-                    maxLength={255}
-                    rows={4}
-                    className="w-full px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none resize-none"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">{formData.bio.length}/255 characters</p>
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
-                    Email (Cannot be changed)
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    disabled
-                    className="w-full h-[45px] px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-base font-inter text-gray-500 outline-none cursor-not-allowed"
-                  />
-                </div>
-
-                <EditText
-                  label="District"
-                  value={formData.district}
-                  onChange={(e) => handleInputChange('district', e.target.value)}
-                  placeholder="District"
-                  className="h-[45px]"
-                />
-
-                <EditText
-                  label="Ward"
-                  value={formData.ward}
-                  onChange={(e) => handleInputChange('ward', e.target.value)}
-                  placeholder="Ward"
-                  className="h-[45px]"
-                />
-
-                <EditText
-                  label="Address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Address"
-                  className="h-[45px]"
-                />
-
-                <EditText
-                  label="Profile Image URL"
-                  type="url"
-                  value={formData.profile_image}
-                  onChange={(e) => handleInputChange('profile_image', e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="h-[45px]"
-                />
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-center pt-8">
-              <Button
-                type="submit"
-                variant="primary"
-                disabled={isSaving}
-                className="w-[200px] h-[40px] text-sm font-bold"
-              >
-                {isSaving ? 'Updating...' : 'Update Information'}
-              </Button>
-            </div>
-          </form>
-        </div>
+          <div className="flex justify-center mt-8">
+            <Button
+              type="submit"
+              disabled={isSaving}
+              className="w-48 h-12 font-bold"
+            >
+              {isSaving ? 'Saving...' : 'Update Profile'}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

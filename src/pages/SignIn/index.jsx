@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
 import { useAuth } from '../../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import api from '../../services/api';
+import { Link } from 'react-router-dom';
 
 const SignInPage = () => {
   const navigate = useNavigate();
-  const {
-    login,
-    googleLogin,
-    isAuthenticated,
-    isLoading: authLoading,
-    error: authError,
-  } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -24,33 +20,42 @@ const SignInPage = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) navigate('/');
+    if (isAuthenticated) {
+      navigate('/');
+    }
   }, [isAuthenticated, navigate]);
 
   const handleInputChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: '',
+      }));
+    }
   };
 
   const handleCheckboxChange = (e) => {
-    setFormData((prev) => ({ ...prev, keepLoggedIn: e.target.checked }));
+    setFormData((prev) => ({
+      ...prev,
+      keepLoggedIn: e.target.checked,
+    }));
   };
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = 'Vui lòng nhập email';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email không hợp lệ';
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+    if (!formData.password.trim()) newErrors.password = 'Vui lòng nhập mật khẩu';
+    else if (formData.password.length < 6) newErrors.password = 'Mật khẩu tối thiểu 6 ký tự';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -58,8 +63,13 @@ const SignInPage = () => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsLoading(true);
+    setErrors({});
 
     try {
       await login({
@@ -67,22 +77,16 @@ const SignInPage = () => {
         password: formData.password,
         keepLoggedIn: formData.keepLoggedIn,
       });
-      // isAuthenticated sẽ tự redirect trong useEffect
+
+      // Success - user will be redirected by useEffect
+      // navigate('/') will be called automatically by useEffect when isAuthenticated becomes true
     } catch (error) {
+      // Handle specific error cases
       if (error.status === 401) {
         setErrors({
-          email: 'Invalid email or password',
-          password: 'Invalid email or password',
+          email: 'Email hoặc mật khẩu không đúng',
+          password: 'Email hoặc mật khẩu không đúng',
         });
-      } else if (error.status === 422) {
-        // Handle validation errors
-        const validationErrors = {};
-        if (error.errors) {
-          error.errors.forEach((err) => {
-            validationErrors[err.field] = err.message;
-          });
-        }
-        setErrors(validationErrors);
       } else {
         setErrors({
           general: error.message || 'Đăng nhập thất bại. Vui lòng thử lại.',
@@ -93,59 +97,45 @@ const SignInPage = () => {
     }
   };
 
-  // Thay thế hàm handleGoogleSignIn bằng hàm xử lý credential từ Google
   const handleGoogleSignIn = async (credentialResponse) => {
-    console.log('Google credentialResponse:', credentialResponse); // Log toàn bộ object trả về từ Google
-    console.log('Google credential:', credentialResponse.credential); // Log riêng credential
     setIsLoading(true);
-    setErrors({});
     try {
       const res = await api.post('/auth/google', {
         token: credentialResponse.credential,
       });
       localStorage.setItem('accessToken', res.data.accessToken);
-      // TODO: Nếu có AuthContext, nên gọi hàm login context ở đây
       navigate('/');
     } catch (error) {
-      setErrors({ general: 'Google sign in failed. Please try again.' });
+      setErrors({ general: 'Đăng nhập Google thất bại. Vui lòng thử lại.' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCreateAccount = () => {
-    navigate('/signup');
-  };
-
-
-
   return (
-    <div className="flex flex-row min-h-screen bg-global-3">
-      {/* Left Side - Sign In Form */}
-      <div className="flex flex-col w-full max-w-[531px] px-24 py-14">
-        {/* Logo */}
-        <div className="flex justify-center items-center mb-10">
+    <div className="flex h-screen font-inter">
+      {/* Bên trái - Form đăng nhập */}
+      <div className="w-1/2 flex flex-col justify-center px-24 py-14 bg-global-3">
+        <div className="flex justify-center mb-4">
+          <Link to="/">
           <img
             src="/images/img_top.png"
             alt="DonaTrust Logo"
-            className="w-[380px] h-auto object-contain"
+            className="w-[220px] h-auto object-contain"
           />
-          </Link>
         </div>
 
-        {/* Sign In Form */}
-        <div className="flex flex-col">
-          {/* Header */}
-          <div className="mb-[46px]">
-            <h1 className="text-[40px] font-inter font-bold leading-[49px]  text-global-9 mb-4">
-              Sign in
-            </h1>
-            <p className="text-lg font-inter font-normal leading-[22px] text-global-13">
-              Please login to continue to your account.
+        <div className="w-full max-w-md mx-auto">
+          <div className="mb-6 text-center">
+            <h1 className="text-[32px] font-bold text-global-4 mb-2">Đăng nhập</h1>
+            <p className="text-[13px] text-global-6">
+              Vui lòng nhập thông tin để tiếp tục sử dụng hệ thống.
             </p>
           </div>
 
-          <form onSubmit={handleSignIn} className="space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSignIn} className="flex flex-col space-y-6">
+            {/* Email Field */}
             <div>
               <EditText
                 label="Email"
@@ -155,9 +145,7 @@ const SignInPage = () => {
                 variant="floating"
                 placeholder="Nhập email của bạn"
               />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1 ml-3">{errors.email}</p>
-              )}
+              {errors.email && <p className="mt-1 ml-3 text-sm text-red-500">{errors.email}</p>}
             </div>
 
             <div>
@@ -168,74 +156,57 @@ const SignInPage = () => {
                 onChange={handleInputChange('password')}
                 variant="floating"
                 showPasswordToggle={true}
-                placeholder="Nhập mật khẩu"
               />
               {errors.password && (
-                <p className="text-red-500 text-sm mt-1 ml-3">{errors.password}</p>
+                <p className="mt-1 ml-3 text-sm text-red-500">{errors.password}</p>
               )}
             </div>
 
-            <div className="flex items-left-1">
+            {/* Keep me logged in */}
+            <div className="pt-2">
               <CheckBox
-                label="Keep me logged in"
-                checked={formData.keepLoggedIn}
-                onChange={handleCheckboxChange}
-                id="keepLoggedIn"
-              />
-              <label htmlFor="keepLoggedIn" className="text-sm text-global-1 cursor-pointer">
-                Ghi nhớ đăng nhập
-              </label>
-            </div>
-
-            {/* General Error Message */}
-            {errors.general && (
-              <div className="p-3 mb-4 bg-red-50 rounded-md border border-red-200">
-                <p className="text-sm text-red-600">{errors.general}</p>
-              </div>
-            )}
-
-            {/* Sign In Button */}
-            <div className="pt-3">
-              <Button
-                type="submit"
-                variant="primary"
-                size="large"
-                disabled={isLoading || authLoading}
-                className="w-[399px]"
-              >
-                {isLoading || authLoading ? 'Signing in...' : 'Sign in'}
-              </Button>
-            </div>
-
-            <div className="flex items-center my-5">
-              <div className="flex-1 h-px bg-global-7"></div>
-              <span className="px-4 text-base font-medium font-inter text-global-12">or</span>
-              <div className="flex-1 h-px bg-global-7"></div>
-            </div>
-
-            {/* Google Sign In */}
-            <div className="w-[399px]">
-              <GoogleLogin
-                onSuccess={handleGoogleSignIn}
-                onError={() => setErrors({ general: 'Google sign in failed. Please try again.' })}
-                width="100%"
-                size="large"
-                shape="pill"
-                text="signin_with"
+              label="" // bỏ label trong CheckBox
+              checked={formData.keepLoggedIn}
+              onChange={handleCheckboxChange}
+              id="keepLoggedIn"
               />
             </div>
 
-            {/* Google OAuth Redirect Button */}
-            
+            <Button
+              type="submit"
+              variant="primary"
+              size="large"
+              disabled={isLoading || authLoading}
+              className="w-full"
+            >
+              {isLoading || authLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </Button>
 
-            {/* Create Account Link */}
-            <div className="pt-6 text-center">
-              <p className="text-lg font-inter text-global-11">
-                <span className="font-normal">Need an account? </span>
+            {/* Divider */}
+            <div className="flex items-center w-[399px] h-6 my-6">
+              <div className="flex-1 h-px bg-global-7"></div>
+              <span className="px-3 text-sm text-global-6">hoặc</span>
+              <div className="flex-1 h-px bg-global-7"></div>
+            </div>
+
+            <GoogleLogin
+              onSuccess={handleGoogleSignIn}
+              onError={() =>
+                setErrors({ general: 'Đăng nhập Google thất bại. Vui lòng thử lại.' })
+              }
+              width="100%"
+              size="large"
+              shape="pill"
+              text="signin_with"
+            />
+
+            <div className="text-center pt-6">
+              <p className="text-[14px] text-global-6">
+                <span className="font-normal">Chưa có tài khoản? </span>
                 <button
                   type="button"
-                  onClick={() => navigate('/signup')}
-                  className="font-semibold text-global-5 underline hover:no-underline"
+                  onClick={handleCreateAccount}
+                  className="font-semibold underline text-button-4 hover:no-underline"
                 >
                   Tạo tài khoản
                 </button>
@@ -245,12 +216,12 @@ const SignInPage = () => {
         </div>
       </div>
 
-      {/* Right Side - Background Image */}
-      <div className="relative flex-1">
+      {/* Bên phải - Ảnh nền */}
+      <div className="w-1/2 relative">
         <img
           src="/images/img_container_1000x825.png"
-          alt="Children playing in traditional clothing"
-          className="w-full h-full object-cover rounded-l-[24px]"
+          alt="Ảnh trang trí"
+          className="w-full h-full object-cover"
         />
       </div>
     </div>

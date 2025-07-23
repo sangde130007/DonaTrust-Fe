@@ -9,11 +9,11 @@ const Layout = ({ children }) => {
   const { user } = useAuth();
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-global-3">
+    <div className="flex flex-col min-h-screen bg-white">
       <Header />
       <div className="flex flex-1 w-full mx-auto">
         {user?.role === 'admin' && <AppSidebar />}
-        <main className="flex-1 p-1 bg-[#fafbfc] min-h-[calc(100vh-120px)]">
+        <main className="flex-1 p-8 bg-[#fafbfc] min-h-[calc(100vh-120px)]">
           {children || <Outlet />}
         </main>
       </div>

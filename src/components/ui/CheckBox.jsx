@@ -4,11 +4,10 @@ const CheckBox = ({
   label = "Keep me logged in", 
   checked = false, 
   onChange,
-  id = "checkbox",
-  className = ""
+  id = "checkbox"
 }) => {
   return (
-    <div className={`flex flex-row items-center h-[25px] ${className}`}>
+    <div className="flex flex-row items-center w-[176px] h-[25px]">
       <div className="relative w-6 h-6">
         <input
           type="checkbox"
