@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const SearchView = ({ placeholder = 'Search...', value = '', onChange, onSearch }) => {
+const SearchView = ({ 
+  placeholder = "Search...", 
+  value = "", 
+  onChange, 
+  onSearch 
+}) => {
   const [searchValue, setSearchValue] = useState(value);
+
+  useEffect(() => {
+    setSearchValue(value);
+  }, [value]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value;
@@ -33,9 +42,9 @@ const SearchView = ({ placeholder = 'Search...', value = '', onChange, onSearch 
         onKeyPress={handleKeyPress}
         className="flex-1 bg-transparent border-none outline-none text-[14px] font-inter text-gray-700 placeholder-gray-400"
       />
-      <img
-        src="/images/img_24_user_interface_search.svg"
-        alt="Search"
+      <img 
+        src="/images/img_24_user_interface_search.svg" 
+        alt="Search" 
         className="w-[20px] h-[20px] cursor-pointer hover:opacity-70"
         onClick={handleSearch}
       />

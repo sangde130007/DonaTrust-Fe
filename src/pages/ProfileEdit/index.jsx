@@ -7,9 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
-  const { user: authUser, isAuthenticated, updateUser } = useAuth();
-  const fileInputRef = useRef(null);
-
+  const { user: authUser, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -22,6 +20,7 @@ const ProfileEdit = () => {
     bio: '',
     profile_image: '',
   });
+
   const [originalData, setOriginalData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,8 +40,6 @@ const ProfileEdit = () => {
   const fetchUserProfile = async () => {
     try {
       setIsLoading(true);
-      setError(null);
-
       const response = await userService.getProfile();
       const userData = response.user || response;
 
@@ -64,7 +61,7 @@ const ProfileEdit = () => {
       setAvatarPreview(null);
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      setError(error.message || 'Không thể tải dữ liệu hồ sơ');
+      setError(error.message || 'Failed to load profile data');
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +73,7 @@ const ProfileEdit = () => {
       [field]: value,
     }));
 
+    // Clear success message when user starts editing
     if (success) {
       setSuccess(false);
     }
@@ -178,15 +176,14 @@ const ProfileEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setIsSaving(true);
-      setError(null);
 
-      // Only send changed fields (excluding profile_image since it's handled separately)
+      // Only send changed fields
       const changedFields = {};
       Object.keys(formData).forEach((key) => {
-        if (formData[key] !== originalData[key] && key !== 'email' && key !== 'profile_image') {
+        if (formData[key] !== originalData[key] && key !== 'email') {
+          // Don't allow email changes
           changedFields[key] = formData[key];
         }
       });
@@ -201,8 +198,6 @@ const ProfileEdit = () => {
 
       const response = await userService.updateProfile(changedFields);
       const updatedUser = response.user || response;
-
-      console.log('✅ Profile update successful:', updatedUser);
 
       // Update both form data and original data with the response
       const updatedData = {
@@ -220,40 +215,15 @@ const ProfileEdit = () => {
 
       setFormData(updatedData);
       setOriginalData(updatedData);
-
-      if (updateUser) {
-        updateUser(updatedUser);
-      }
-
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      console.error('❌ Profile update failed:', error);
-      setError(error.message || 'Không thể cập nhật hồ sơ');
+      console.error('Error updating profile:', error);
+      setError(error.message || 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }
   };
-
-  // Get current avatar to display - optimized to prevent loops
-  const getCurrentAvatar = React.useMemo(() => {
-    if (avatarPreview) {
-      console.log('🖼️ Using avatar preview:', avatarPreview);
-      return avatarPreview;
-    }
-
-    if (formData.profile_image) {
-      console.log('🖼️ Using profile image:', formData.profile_image);
-      // Check if it's a relative URL and make it absolute
-      const imageUrl = formData.profile_image.startsWith('http')
-        ? formData.profile_image
-        : `${window.location.origin}${formData.profile_image}`;
-      return imageUrl;
-    }
-
-    console.log('🖼️ Using fallback avatar');
-    return '/images/avt.jpg'; // Use your actual default avatar path
-  }, [avatarPreview, formData.profile_image]);
 
   if (!isAuthenticated) {
     return null; // Will redirect to sign-in
@@ -263,118 +233,61 @@ const ProfileEdit = () => {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="text-center">
-          <div className="mx-auto mb-4 w-12 h-12 rounded-full border-b-2 border-blue-600 animate-spin"></div>
-          <p className="text-lg text-gray-600">Đang tải hồ sơ...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="shadow-2xl bg-global-3">
+    <div className="bg-global-3 shadow-2xl">
       {/* Add padding-top to push below fixed header */}
       <div className="relative pt-24">
         {/* Avatar and Label */}
         <div className="flex flex-col items-center">
-          <div className="relative">
-            <img
-              src={getCurrentAvatar}
-              alt="Profile Picture"
-              className="w-[120px] h-[120px] rounded-full border-4 border-global-3 bg-white object-cover cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleAvatarClick}
-              onError={(e) => {
-                console.log('🖼️ Avatar load failed, using fallback');
-                e.target.src = '/images/avt.jpg';
-              }}
-            />
-
-            {/* Upload overlay */}
-            <div
-              className="flex absolute inset-0 justify-center items-center bg-black bg-opacity-0 rounded-full transition-all duration-200 cursor-pointer hover:bg-opacity-30"
-              onClick={handleAvatarClick}
-            >
-              <div className="opacity-0 transition-opacity duration-200 hover:opacity-100">
-                {isUploadingAvatar ? (
-                  <div className="w-8 h-8 rounded-full border-b-2 border-white animate-spin"></div>
-                ) : (
-                  <div className="text-center text-white">
-                    <svg className="mx-auto mb-1 w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-xs">Thay đổi</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Upload status indicator */}
-            {isUploadingAvatar && (
-              <div className="absolute -bottom-2 left-1/2 px-2 py-1 text-xs text-white bg-blue-600 rounded-full transform -translate-x-1/2">
-                Đang tải lên...
-              </div>
-            )}
-          </div>
-
-          {/* Hidden file input */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarFileChange}
-            className="hidden"
+          <img
+            src={formData.profile_image || '/images/avt.jpg'}
+            alt="Profile Picture"
+            className="w-[120px] h-[120px] rounded-full border-4 border-global-3 bg-white object-cover"
           />
-
           <span className="mt-4 text-xl font-bold font-inter text-global-8">
-            {formData.full_name || 'Người dùng'}
+            {formData.full_name || 'User'}
           </span>
-
-          <p className="mt-2 max-w-xs text-sm text-center text-gray-600">
-            Nhấp vào ảnh đại diện của bạn để tải lên ảnh mới
-            <br />
-            <span className="text-xs text-gray-500">Hỗ trợ: JPEG, PNG, GIF, WebP (tối đa 5MB)</span>
-          </p>
         </div>
 
         {/* Edit Form Section */}
-        <div className="px-4 py-8 mx-auto max-w-5xl md:px-6">
-          <h1 className="mb-12 text-2xl font-bold text-center font-inter text-global-1">
-            Chỉnh sửa thông tin cá nhân
+        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8">
+          <h1 className="text-2xl font-bold font-inter text-global-1 text-center mb-12">
+            Edit personal information
           </h1>
 
           {/* Error Message */}
           {error && (
-            <div className="p-4 mb-6 bg-red-50 rounded-md border border-red-200">
+            <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
               <p className="text-red-600">{error}</p>
               <button
                 onClick={fetchUserProfile}
                 className="mt-2 text-red-600 underline hover:no-underline"
               >
-                Thử tải lại dữ liệu hồ sơ
+                Try reloading profile data
               </button>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
-            <div className="p-4 mb-6 bg-green-50 rounded-md border border-green-200">
-              <p className="text-green-600">
-                {isUploadingAvatar
-                  ? 'Tải lên ảnh đại diện thành công!'
-                  : 'Cập nhật hồ sơ thành công!'}
-              </p>
+            <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+              <p className="text-green-600">Profile updated successfully!</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Left Column */}
               <div className="space-y-6">
                 <EditText
-                  label="Họ và tên"
+                  label="Full Name"
                   value={formData.full_name}
                   onChange={(e) => handleInputChange('full_name', e.target.value)}
                   required
@@ -382,24 +295,24 @@ const ProfileEdit = () => {
                 />
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium font-inter text-global-4">
-                    Giới tính
+                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
+                    Sex
                   </label>
                   <select
                     value={formData.gender}
                     onChange={(e) => handleInputChange('gender', e.target.value)}
                     className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none"
                   >
-                    <option value="">Chọn giới tính</option>
-                    <option value="male">Nam</option>
-                    <option value="female">Nữ</option>
-                    <option value="other">Khác</option>
+                    <option value="">Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium font-inter text-global-4">
-                    Ngày sinh
+                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
+                    Date of birth
                   </label>
                   <input
                     type="date"
@@ -411,35 +324,35 @@ const ProfileEdit = () => {
                 </div>
 
                 <EditText
-                  label="Số điện thoại"
+                  label="Phone number"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Số điện thoại"
+                  placeholder="Phone number"
                   className="h-[45px]"
                 />
 
                 <div>
-                  <label className="block mb-1 text-sm font-medium font-inter text-global-4">
-                    Giới thiệu bản thân
+                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
+                    Introduce yourself
                   </label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
-                    placeholder="Tối đa 255 ký tự"
+                    placeholder="Maximum 255 characters"
                     maxLength={255}
                     rows={4}
-                    className="px-3 py-2 w-full text-base rounded-lg border outline-none resize-none border-global-8 bg-global-3 font-inter text-global-9"
+                    className="w-full px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base font-inter text-global-9 outline-none resize-none"
                   />
-                  <p className="mt-1 text-xs text-gray-500">{formData.bio.length}/255 ký tự</p>
+                  <p className="text-xs text-gray-500 mt-1">{formData.bio.length}/255 characters</p>
                 </div>
               </div>
 
               {/* Right Column */}
               <div className="space-y-6">
                 <div>
-                  <label className="block mb-1 text-sm font-medium font-inter text-global-4">
-                    Email (Không thể thay đổi)
+                  <label className="block text-sm font-medium font-inter text-global-4 mb-1">
+                    Email (Cannot be changed)
                   </label>
                   <input
                     type="email"
@@ -450,26 +363,35 @@ const ProfileEdit = () => {
                 </div>
 
                 <EditText
-                  label="Quận/Huyện"
+                  label="District"
                   value={formData.district}
                   onChange={(e) => handleInputChange('district', e.target.value)}
-                  placeholder="Quận/Huyện"
+                  placeholder="District"
                   className="h-[45px]"
                 />
 
                 <EditText
-                  label="Phường/Xã"
+                  label="Ward"
                   value={formData.ward}
                   onChange={(e) => handleInputChange('ward', e.target.value)}
-                  placeholder="Phường/Xã"
+                  placeholder="Ward"
                   className="h-[45px]"
                 />
 
                 <EditText
-                  label="Địa chỉ"
+                  label="Address"
                   value={formData.address}
                   onChange={(e) => handleInputChange('address', e.target.value)}
-                  placeholder="Địa chỉ"
+                  placeholder="Address"
+                  className="h-[45px]"
+                />
+
+                <EditText
+                  label="Profile Image URL"
+                  type="url"
+                  value={formData.profile_image}
+                  onChange={(e) => handleInputChange('profile_image', e.target.value)}
+                  placeholder="https://example.com/image.jpg"
                   className="h-[45px]"
                 />
               </div>
@@ -480,10 +402,10 @@ const ProfileEdit = () => {
               <Button
                 type="submit"
                 variant="primary"
-                disabled={isSaving || isUploadingAvatar}
+                disabled={isSaving}
                 className="w-[200px] h-[40px] text-sm font-bold"
               >
-                {isSaving ? 'Đang cập nhật...' : 'Cập nhật thông tin'}
+                {isSaving ? 'Updating...' : 'Update Information'}
               </Button>
             </div>
           </form>

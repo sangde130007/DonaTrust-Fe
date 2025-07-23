@@ -211,15 +211,15 @@ const Home = () => {
 
   // Default categories fallback
   const defaultCategories = [
-    { icon: '/images/img_logo_24x27.png', label: 'Thảm họa thiên nhiên' },
-    { icon: '/images/img_logo_1.png', label: 'Giáo dục' },
-    { icon: '/images/img_logo_27x27.png', label: 'Trẻ em' },
-    { icon: '/images/img_logo_2.png', label: 'Người nghèo' },
-    { icon: '/images/img_logo_3.png', label: 'Người già' },
-    { icon: '/images/img_logo_4.png', label: 'Người khuyết tật' },
-    { icon: '/images/img_logo_5.png', label: 'Bệnh hiểm nghèo' },
-    { icon: '/images/img_logo_6.png', label: 'Vùng núi' },
-    { icon: '/images/img_logo_7.png', label: 'Môi trường' },
+    { icon: '/images/img_logo_24x27.png', label: 'Natural disaster' },
+    { icon: '/images/img_logo_1.png', label: 'Education' },
+    { icon: '/images/img_logo_27x27.png', label: 'Children' },
+    { icon: '/images/img_logo_2.png', label: 'Poor people' },
+    { icon: '/images/img_logo_3.png', label: 'Elderly' },
+    { icon: '/images/img_logo_4.png', label: 'People with disabilities' },
+    { icon: '/images/img_logo_5.png', label: 'Serious illness' },
+    { icon: '/images/img_logo_6.png', label: 'Mountainous area' },
+    { icon: '/images/img_logo_7.png', label: 'Environment' },
   ];
 
   const organizations = [
@@ -353,16 +353,17 @@ const Home = () => {
   }
 
   return (
-    <div className="w-full bg-global-3">
+    <div className="flex flex-col w-full min-h-screen bg-global-3">
       {/* Hero Section with Slider */}
       <div className="relative w-full h-[396px]">
         <Slider
-          title="CHUNG TAY XÂY DỰNG CỘNG ĐỒNG TỐT ĐẸP HỠN!"
-          subtitle="Khám phá và hỗ trợ các dự án từ thiện đáng tin cậy."
-          buttonText="KHÁM PHÁ CHIẾN DỊCH"
+          title="JOIN HANDS TO BUILD A BETTER COMMUNITY!"
+          subtitle="Discover and support trustworthy charitable projects."
+          buttonText="EXPLORE CAMPAIGN"
           backgroundImage="/images/bacground_homepage.jpg"
           onButtonClick={handleExploreClick}
         />
+
 
         {/* Pager Indicator */}
         <div className="absolute bottom-[17px] left-1/2 transform -translate-x-1/2">
@@ -385,7 +386,7 @@ const Home = () => {
               <img
                 src={category.icon || category.iconUrl || '/images/img_logo.png'}
                 alt={category.label || category.name}
-                className="w-[27px] h-[27px] mb-[2px]"
+                className="w-[30px] h-[30px] mb-[2px]"
                 onError={(e) => {
                   e.target.src = '/images/img_logo.png'; // Fallback icon
                 }}
@@ -398,11 +399,11 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Featured Campaigns Section */}
-      <div className="flex flex-col items-center w-full mt-[29px]">
-        <h2 className="text-base font-roboto font-semibold text-global-1 text-center leading-[19px]">
-          CHIẾN DỊCH GÂY QUỸ NỔI BẬT
-        </h2>
+     {/* Featured Campaigns Section */}
+<div className="flex flex-col items-center w-full mt-10">
+  <h2 className="text-lg font-semibold text-global-1 text-center">
+    FEATURED FUNDRAISING CAMPAIGN
+  </h2>
 
         {/* Error Message */}
         {error && (
@@ -411,130 +412,124 @@ const Home = () => {
           </div>
         )}
 
-        {/* Campaign Slider */}
-        {campaigns.length > 0 ? (
-          <div className="flex flex-row items-center w-full mt-[52px] px-[89px]">
-            {/* Previous Button */}
-            <button
-              onClick={() => handleCampaignSlideChange('prev')}
-              className="mr-[24px] hover:opacity-80"
-              disabled={currentCampaignSlide === 0}
-            >
-              <img
-                src="/images/img_vector_140.svg"
-                alt="Previous"
-                className="w-3 h-[28px] transform rotate-180"
-              />
-            </button>
+  {/* Campaign Slider */}
+  {campaigns.length > 0 ? (
+    <div className="flex items-center w-full mt-8 px-16">
+      {/* Previous Button */}
+      <button
+        onClick={() => handleCampaignSlideChange('prev')}
+        className="mr-4 hover:opacity-80"
+        disabled={currentCampaignSlide === 0}
+      >
+        <img
+          src="/images/img_vector_140.svg"
+          alt="Previous"
+          className="w-5 h-6 transform rotate-180"
+        />
+      </button>
 
-            {/* Campaign Cards */}
-            <div className="flex flex-row space-x-[34px] overflow-hidden">
-              {campaigns
-                .slice(currentCampaignSlide, currentCampaignSlide + 3)
-                .map((campaign, index) => (
-                  <div key={campaign.id || index} className="flex flex-col w-[122px]">
-                    {/* Campaign Image with Category Tag */}
-                    <div className="relative w-[122px] h-[95px] mb-[1px]">
-                      <img
-                        src={campaign.image || campaign.imageUrl || '/images/img_image_18.png'}
-                        alt={campaign.title}
-                        className="object-cover w-full h-full rounded-sm"
-                        onError={(e) => {
-                          e.target.src = '/images/img_image_18.png'; // Fallback image
-                        }}
-                      />
-                      <div className="absolute top-[6px] right-[7px] bg-global-4 px-2 py-1 rounded-sm">
-                        <span className="text-[4px] font-inter font-semibold text-global-8 leading-[5px]">
-                          {campaign.category || 'Tổng quát'}
-                        </span>
-                      </div>
-                      <img
-                        src={
-                          campaign.avatar || campaign.charityAvatar || '/images/img_ellipse_8.png'
-                        }
-                        alt="Organization Avatar"
-                        className="absolute bottom-[-9px] left-1/2 transform -translate-x-1/2 w-[19px] h-[19px] rounded-full"
-                        onError={(e) => {
-                          e.target.src = '/images/img_ellipse_8.png'; // Fallback avatar
-                        }}
-                      />
-                    </div>
+      {/* Campaign Cards */}
+      <div className="flex space-x-6 overflow-hidden">
+        {campaigns
+          .slice(currentCampaignSlide, currentCampaignSlide + 3)
+          .map((campaign, index) => (
+<div
+  key={campaign.id || index}
+  className="flex flex-col justify-between w-[280px] bg-white rounded-lg shadow p-4 h-[420px]"
+>
+  {/* Campaign Image with Category Tag */}
+  <div className="relative w-full h-[160px] rounded-md overflow-hidden mb-4">
+    <img
+      src={campaign.image_url || '/images/img_image_18.png'}
+      alt={campaign.title}
+      className="w-full h-full object-cover"
+      onError={(e) => {
+        e.target.src = '/images/img_image_18.png';
+      }}
+    />
+    <div className="absolute top-2 right-2 bg-blue-100 px-2 py-1 rounded-sm text-xs font-medium text-blue-600">
+      {campaign.category || 'General'}
+    </div>
+    <img
+      src={campaign.charity?.logo_url || '/images/img_ellipse_8.png'}
+      alt="Organization Avatar"
+      className="absolute bottom-[-12px] left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full border-2 border-white bg-white"
+      onError={(e) => {
+        e.target.src = '/images/img_ellipse_8.png';
+      }}
+    />
+  </div>
 
-                    {/* Campaign Details Card */}
-                    <div className="bg-global-2 rounded-sm shadow-[0px_2px_5px_#abbed166] p-2 w-[105px] h-[82px]">
-                      <p className="text-[4px] font-inter font-semibold text-global-6 text-center leading-[5px] mb-1">
-                        {campaign.organization || campaign.charityName || 'Tổ chức không xác định'}
-                      </p>
-                      <h3 className="text-[7px] font-inter font-semibold text-global-3 text-center leading-[9px] mb-2">
-                        {campaign.title}
-                      </h3>
+  {/* Campaign Details */}
+  <div className="text-center flex flex-col justify-between flex-grow">
+    <div>
+      <p className="text-sm font-semibold text-gray-500 mb-1">
+        {campaign.charity?.name || 'Unknown Organization'}
+      </p>
+      <h3 className="text-base font-bold text-gray-800 mb-3 line-clamp-2">
+        {campaign.title}
+      </h3>
 
-                      {/* Progress Bar */}
-                      <div className="w-[91px] h-[11px] mb-1 bg-gray-200 rounded">
-                        <div
-                          className="h-full bg-blue-500 rounded"
-                          style={{
-                            width: `${Math.min((campaign.raisedAmount / campaign.goalAmount) * 100, 100)}%`,
-                          }}
-                        ></div>
-                      </div>
+      {/* Progress Bar */}
+      <div className="w-full h-3 bg-gray-200 rounded-full mb-2 overflow-hidden">
+        <div
+          className="h-full bg-blue-500"
+          style={{
+            width: `${Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)}%`,
+          }}
+        ></div>
+      </div>
 
-                      {/* Amount and Percentage */}
-                      <div className="flex flex-row justify-between items-center mb-1">
-                        <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-                          {campaign.raised ||
-                            new Intl.NumberFormat('vi-VN').format(campaign.raisedAmount || 0)}
-                        </span>
-                        <span className="text-[4px] font-inter font-semibold text-global-6 leading-[5px]">
-                          {campaign.percentage ||
-                            `${Math.round(((campaign.raisedAmount || 0) / (campaign.goalAmount || 1)) * 100)}%`}
-                        </span>
-                      </div>
+      {/* Amount and Percentage */}
+      <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
+        <span>
+          {new Intl.NumberFormat('vi-VN').format(campaign.current_amount || 0)} đ
+        </span>
+        <span>
+          {Math.round(((campaign.current_amount || 0) / (campaign.goal_amount || 1)) * 100)}%
+        </span>
+      </div>
 
-                      <p className="text-[4px] font-inter font-semibold text-global-6 leading-[5px] mb-2">
-                        với mục tiêu{' '}
-                        {campaign.goal ||
-                          new Intl.NumberFormat('vi-VN').format(campaign.goalAmount || 0)}{' '}
-                        VND
-                      </p>
+      <p className="text-xs text-gray-500 mb-3">
+        Goal: {new Intl.NumberFormat('vi-VN').format(campaign.goal_amount || 0)} đ
+      </p>
+    </div>
 
-                      {/* Detail Button */}
-                      <button
-                        onClick={() => handleCampaignDetailClick(campaign.id)}
-                        className="flex flex-row items-center hover:opacity-80"
-                      >
-                        <span className="text-[6px] font-inter font-semibold text-global-5 leading-[9px] mr-1">
-                          Chi tiết
-                        </span>
-                        <img
-                          src="/images/img_24_arrows_directions_right.svg"
-                          alt="Arrow Right"
-                          className="w-2 h-2"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-            </div>
+    {/* Detail Button */}
+    <div className="flex justify-center mt-auto">
+      <button className="bg-pink-500 hover:bg-pink-600 text-white text-xs font-semibold px-4 py-1 rounded flex items-center justify-center space-x-1">
+        <span>Detail</span>
+        <img
+          src="/images/img_24_arrows_directions_right.svg"
+          alt="Arrow Right"
+          className="w-3 h-3"
+        />
+      </button>
+    </div>
+  </div>
+</div>
 
-            {/* Next Button */}
-            <button
-              onClick={() => handleCampaignSlideChange('next')}
-              className="ml-[25px] hover:opacity-80"
-              disabled={currentCampaignSlide >= campaigns.length - 3}
-            >
-              <img src="/images/img_vector_140.svg" alt="Next" className="w-3 h-[28px]" />
-            </button>
-          </div>
-        ) : (
-          // No campaigns state
-          <div className="mt-[52px] text-center py-12">
-            <p className="mb-4 text-global-6">Hiện tại chưa có chiến dịch nổi bật nào.</p>
-            <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
-              Xem tất cả chiến dịch →
-            </Button>
-          </div>
-        )}
+          ))}
+      </div>
+
+      {/* Next Button */}
+      <button
+        onClick={() => handleCampaignSlideChange('next')}
+        className="ml-4 hover:opacity-80"
+        disabled={currentCampaignSlide >= campaigns.length - 3}
+      >
+        <img src="/images/img_vector_140.svg" alt="Next" className="w-5 h-6" />
+      </button>
+    </div>
+  ) : (
+    <div className="mt-10 text-center py-12">
+      <p className="text-gray-500 mb-4">No featured campaigns available at the moment.</p>
+      <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
+        Browse All Campaigns →
+      </Button>
+    </div>
+  )}
+
 
         {/* View All Button */}
         {campaigns.length > 0 && (
@@ -547,24 +542,24 @@ const Home = () => {
       </div>
 
       {/* Statistics Section */}
-      <div className="w-full h-[219px] bg-global-2 mt-[37px]">
+      <div className="w-full h-[219px] bg-global-2 mt-[37px] px-[15%]">
         <div className="flex flex-row w-full h-full">
           {/* Left Content */}
           <div className="flex flex-col ml-[100px] mt-[67px] w-[284px] h-[83px]">
             <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[30px]">
-              Những con số nói lên tất cả.
+              The numbers speak for themselves.
             </h2>
             <p className="text-[11px] font-inter text-global-2 leading-[14px] mt-[16px]">
-              Thống kê nhanh về DonaTrust
+              Quick stats about DonaTrust
             </p>
           </div>
-
+          
           {/* Statistics Grid */}
           <div className="flex flex-col ml-[138px] mt-[44px] w-[379px] h-[130px]">
             {/* First Row */}
             <div className="flex flex-row w-full h-[43px] mb-[28px]">
               <div className="flex flex-row items-center">
-                <img
+                <img 
                   src="/images/img_icon.svg"
                   alt="Supporters Icon"
                   className="w-[33px] h-[33px] mr-[11px]"
@@ -578,9 +573,9 @@ const Home = () => {
                   </span>
                 </div>
               </div>
-
+              
               <div className="flex flex-row items-center ml-[120px]">
-                <img
+                <img 
                   src="/images/img_icon_teal_300.svg"
                   alt="Charity Icon"
                   className="w-[33px] h-[33px] mr-[12px]"
@@ -590,16 +585,17 @@ const Home = () => {
                     200+
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-[14px]">
-                    Tổ chức từ thiện
+                    Charity
                   </span>
                 </div>
               </div>
             </div>
 
+
             {/* Second Row */}
             <div className="flex flex-row w-full h-[60px]">
               <div className="flex flex-row items-center">
-                <img
+                <img 
                   src="/images/img_icon_teal_300_33x33.svg"
                   alt="Campaign Icon"
                   className="w-[33px] h-[33px] mr-[11px]"
@@ -609,13 +605,13 @@ const Home = () => {
                     328+
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-[14px]">
-                    Chiến dịch
+                    Campaign
                   </span>
                 </div>
               </div>
-
+              
               <div className="flex flex-row items-center ml-[98px]">
-                <img
+                <img 
                   src="/images/img_icon_33x33.svg"
                   alt="Donation Icon"
                   className="w-[33px] h-[33px] mr-[12px]"
@@ -625,7 +621,7 @@ const Home = () => {
                     132,920,000
                   </span>
                   <span className="text-[11px] font-inter text-global-6 leading-4">
-                    Tổng số tiền quyên góp (VND)
+                    Total amount donated (VND)
                   </span>
                 </div>
               </div>
@@ -634,22 +630,23 @@ const Home = () => {
         </div>
       </div>
 
+
       {/* About DonaTrust Section */}
-      <div className="flex flex-row w-full mt-[34px] px-[100px]">
-        <img
+      <div className="flex flex-row w-full mt-[34px] px-[15%]">
+        <img 
           src="/images/img_frame_6.png"
           alt="DonaTrust Illustration"
           className="w-[350px] h-[215px]"
         />
-
+        
         <div className="flex flex-col ml-[19px] mt-[29px] w-[433px] h-[156px]">
           <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[31px]">
             DonaTrust là gì?
           </h2>
           <p className="text-xs font-inter text-global-6 leading-[13px] mt-[11px]">
-            DonaTrust là hệ thống quản lý quyên góp từ thiện, một nền tảng trung gian kết nối các tổ
-            chức từ thiện và nhà tài trợ. Mục tiêu chính của hệ thống là tạo ra một môi trường minh
-            bạch, thuận tiện và hiệu quả để kêu gọi và quản lý các hoạt động từ thiện.
+            DonaTrust is a system for managing charitable donations, an intermediary platform
+            connecting charities and donors. The main goal of the system is to create a transparent,
+            convenient and efficient environment for calling for and managing charitable activities.
           </p>
           <div className="mt-[21px]">
             <Button variant="tertiary" size="lg" onClick={handleLearnMoreClick}>
@@ -659,32 +656,28 @@ const Home = () => {
         </div>
       </div>
 
+
       {/* Outstanding Organizations Section */}
       <div className="flex flex-col items-center w-full mt-[34px] mb-[37px]">
         <h2 className="text-[25px] font-inter font-semibold text-global-4 leading-[31px] text-center">
-          Tổ chức/Cá nhân Gây quỹ Xuất sắc
+          Outstanding Fundraising Organization/Individual
         </h2>
 
         <div className="flex flex-row space-x-[29px] mt-[51px] px-[92px]">
           {organizations.map((org, index) => (
             <div key={org.id} className="relative w-[256px] h-[318px]">
-              {/* Organization Image */}
-              <img
-                src={org.image}
-                alt={org.name}
-                className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] rounded-[80px]"
-              />
+    
 
               {/* Organization Card */}
               <div className="absolute bottom-0 w-full h-[249px] bg-global-1 rounded-[3px]">
                 <div className="bg-global-2 rounded-[5px] shadow-[0px_5px_11px_#abbed166] mx-[17px] mt-[97px] p-3 h-[144px]">
-                  <h3 className="text-[13px] font-inter font-semibold text-global-3 text-center leading-[19px] mb-[8px]">
+                  <h3 className="text-[15px] font-inter font-semibold text-global-3 text-center leading-[19px] mb-[8px]">
                     {org.name}
                   </h3>
                   <p className="text-[11px] font-inter font-semibold text-global-6 text-center leading-[14px] mb-[3px]">
-                    Số tiền gây quỹ
+                    Fundraising amount
                   </p>
-                  <p className="text-[13px] font-inter font-semibold text-global-7 text-center leading-[17px] mb-[6px]">
+                  <p className="text-[14px] font-inter font-semibold text-global-7 text-center leading-[17px] mb-[10px]">
                     {org.amount}
                   </p>
 
@@ -694,7 +687,7 @@ const Home = () => {
                     className="flex flex-row justify-center items-center w-full hover:opacity-80"
                   >
                     <span className="text-[13px] font-inter font-semibold text-global-5 leading-[17px] mr-2">
-                      Thông tin
+                      Information
                     </span>
                     <img
                       src="/images/img_24_arrows_directions_right.svg"
@@ -704,12 +697,18 @@ const Home = () => {
                   </button>
                 </div>
               </div>
+              {/* Organization Image */}
+              <img
+                src={org.image}
+                alt={org.name}
+                className="absolute top-0 left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] rounded-[80px]"
+              />
             </div>
           ))}
         </div>
 
         {/* View All Organizations Button */}
-        <div className="mt-[22px]">
+        <div className="mt-[19px] mb-5">
           <Button variant="tertiary" size="md" onClick={handleViewAllOrganizationsClick}>
             Xem tất cả →
           </Button>

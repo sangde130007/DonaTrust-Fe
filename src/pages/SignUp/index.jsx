@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const { register, googleLogin, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { register, isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
+
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/');
@@ -25,16 +27,14 @@ const SignUpPage = () => {
   }, [isAuthenticated, navigate]);
 
   const handleInputChange = (field) => (e) => {
-    const value = e.target.value;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: e.target.value
     }));
-    // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({
+      setErrors(prev => ({
         ...prev,
-        [field]: '',
+        [field]: ''
       }));
     }
   };
@@ -43,31 +43,31 @@ const SignUpPage = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Tên là bắt buộc';
+      newErrors.name = 'Name is required';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email là bắt buộc';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email không hợp lệ';
     }
 
     if (!formData.phone.trim()) {
-      newErrors.phone = 'Số điện thoại là bắt buộc';
+      newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10,}$/.test(formData.phone.replace(/\D/g, ''))) {
       newErrors.phone = 'Số điện thoại phải có ít nhất 10 chữ số';
     }
 
     if (!formData.password) {
-      newErrors.password = 'Mật khẩu là bắt buộc';
+      newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
-      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu';
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Mật khẩu không khớp';
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -76,14 +76,9 @@ const SignUpPage = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
-    setErrors({});
-
     try {
       await register({
         fullName: formData.name,
@@ -92,12 +87,10 @@ const SignUpPage = () => {
         password: formData.password,
       });
 
-      alert('Tạo tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
+      alert('Account created successfully! Please check your email to verify your account.');
       navigate('/signin');
     } catch (error) {
-      // Handle specific error cases
       if (error.status === 422) {
-        // Handle validation errors
         const validationErrors = {};
         if (error.errors) {
           error.errors.forEach((err) => {
@@ -107,11 +100,11 @@ const SignUpPage = () => {
         setErrors(validationErrors);
       } else if (error.status === 409) {
         setErrors({
-          email: 'Đã tồn tại tài khoản với email này',
+          email: 'An account with this email already exists',
         });
       } else {
         setErrors({
-          general: error.message || 'Không thể tạo tài khoản. Vui lòng thử lại.',
+          general: error.message || 'Failed to create account. Please try again.',
         });
       }
     } finally {
@@ -127,7 +120,7 @@ const SignUpPage = () => {
       // Note: In a real implementation, you would use Google OAuth2 SDK
       // This is a placeholder for Google OAuth integration
       alert(
-        'Tích hợp Google OAuth cần được triển khai. Vui lòng sử dụng đăng ký bằng email/mật khẩu.'
+        'Google OAuth integration needs to be implemented. Please use email/password registration for now.'
       );
 
       // Example of how it would work:
@@ -135,7 +128,7 @@ const SignUpPage = () => {
       // await googleLogin(googleToken);
     } catch (error) {
       setErrors({
-        general: error.message || 'Đăng ký bằng Google thất bại. Vui lòng thử lại.',
+        general: error.message || 'Google sign up failed. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -147,11 +140,11 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex flex-row justify-center items-center min-h-screen bg-global-3">
+    <div className="flex flex-row min-h-screen bg-global-3">
       {/* Left Side - Sign Up Form */}
       <div className="flex flex-col w-full max-w-[531px] px-24 py-14">
-        {/* Logo - Smaller size */}
-        <div className="w-full max-w-[200px] h-auto mb-6 sm:mb-8 lg:mb-10">
+        {/* Logo */}
+        <div className="w-full max-w-[250px] sm:max-w-[300px] md:max-w-[350px] lg:max-w-[381px] h-auto mb-6 sm:mb-8 lg:mb-10">
           <img src="/logo-auth.png" alt="DonaTrust Logo" className="object-contain w-full h-auto" />
         </div>
 
@@ -160,10 +153,10 @@ const SignUpPage = () => {
           {/* Header */}
           <div className="mb-[46px]">
             <h1 className="text-[40px] font-inter font-bold leading-[49px] text-global-9 mb-4">
-              Đăng ký
+              Sign up
             </h1>
             <p className="text-lg font-inter font-normal leading-[22px] text-global-13">
-              Đăng ký để chung tay xây dựng cộng đồng cùng DonaTrust
+              Sign up to join hands for the community with DonaTrust
             </p>
           </div>
 
@@ -172,12 +165,12 @@ const SignUpPage = () => {
             {/* Name Field */}
             <div>
               <EditText
-                label="Tên của bạn"
+                label="Your Name"
                 type="text"
                 value={formData.name}
                 onChange={handleInputChange('name')}
                 variant="floating"
-                placeholder="Nhập họ và tên"
+                placeholder="Enter your full name"
               />
               {errors.name && <p className="mt-1 ml-3 text-sm text-red-500">{errors.name}</p>}
             </div>
@@ -190,7 +183,7 @@ const SignUpPage = () => {
                 value={formData.email}
                 onChange={handleInputChange('email')}
                 variant="floating"
-                placeholder="Nhập email của bạn"
+                placeholder="Enter your email"
               />
               {errors.email && <p className="mt-1 ml-3 text-sm text-red-500">{errors.email}</p>}
             </div>
@@ -198,12 +191,12 @@ const SignUpPage = () => {
             {/* Phone Field */}
             <div>
               <EditText
-                label="Số điện thoại"
+                label="Phone Number"
                 type="tel"
                 value={formData.phone}
                 onChange={handleInputChange('phone')}
                 variant="floating"
-                placeholder="Nhập số điện thoại"
+                placeholder="Enter your phone number"
               />
               {errors.phone && <p className="mt-1 ml-3 text-sm text-red-500">{errors.phone}</p>}
             </div>
@@ -211,7 +204,7 @@ const SignUpPage = () => {
             {/* Password Field */}
             <div>
               <EditText
-                label="Mật khẩu"
+                label="Password"
                 type="password"
                 value={formData.password}
                 onChange={handleInputChange('password')}
@@ -226,7 +219,7 @@ const SignUpPage = () => {
             {/* Confirm Password Field */}
             <div>
               <EditText
-                label="Xác nhận mật khẩu"
+                label="Confirm Password"
                 type="password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange('confirmPassword')}
@@ -238,7 +231,6 @@ const SignUpPage = () => {
               )}
             </div>
 
-            {/* General Error Message */}
             {errors.general && (
               <div className="p-3 mb-4 bg-red-50 rounded-md border border-red-200">
                 <p className="text-sm text-red-600">{errors.general}</p>
@@ -254,39 +246,41 @@ const SignUpPage = () => {
                 disabled={isLoading || authLoading}
                 className="w-[399px]"
               >
-                {isLoading || authLoading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
+                {isLoading || authLoading ? 'Creating Account...' : 'Sign up'}
               </Button>
             </div>
 
             {/* Divider */}
             <div className="flex items-center w-[399px] h-6 my-6">
               <div className="flex-1 h-px bg-global-7"></div>
-              <span className="px-4 text-base font-medium font-inter text-global-12">hoặc</span>
+              <span className="px-4 text-base font-medium font-inter text-global-12">or</span>
               <div className="flex-1 h-px bg-global-7"></div>
             </div>
 
-            {/* Google Sign Up */}
             <Button
               type="button"
               variant="google"
-              size="large"
               onClick={handleGoogleSignUp}
-              className="w-[399px] shadow-sm"
+              className="w-full shadow-sm"
             >
               <span className="text-lg font-semibold font-inter text-global-9">
-                Đăng ký bằng Google
+                Sign up with Google
               </span>
-              <img src="/images/img_plus.svg" alt="Google" className="ml-4 w-6 h-6" />
+              <img
+                src="/images/img_plus.svg"
+                alt="Google"
+                className="w-6 h-6 ml-4"
+              />
             </Button>
 
             {/* Sign In Link */}
             <div className="pt-6 text-center">
               <p className="text-lg font-inter text-global-11">
-                <span className="font-normal">Đã có tài khoản? </span>
+                <span className="font-normal">Already have an account? </span>
                 <button
                   type="button"
                   onClick={handleSignInRedirect}
-                  className="font-semibold underline text-button-4 hover:no-underline"
+                  className="font-semibold text-global-5 underline hover:no-underline"
                 >
                   Đăng nhập
                 </button>
@@ -297,11 +291,11 @@ const SignUpPage = () => {
       </div>
 
       {/* Right Side - Background Image */}
-      <div className="relative flex-1 w-full h-[825px] rounded-l-[24px]">
+      <div className="relative flex-1">
         <img
           src="/images/img_container.png"
           alt="Children playing in traditional clothing"
-          className="object-cover w-full h-full rounded-l-[24px]"
+          className="w-full h-full object-cover rounded-l-[24px]"
         />
       </div>
     </div>

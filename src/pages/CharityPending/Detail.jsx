@@ -223,214 +223,68 @@ const CampaignDetail = () => {
       : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50 min-h-screen">
       {/* Banner image */}
-      <div className="w-full h-[250px] bg-cover bg-center">
-        <img
-          src={campaign.image_url || '/images/cham-pending.png'}
-          alt="Campaign Banner"
-          className="object-cover w-full h-full"
-          onError={(e) => {
-            e.target.src = '/images/cham-pending.png'; // Fallback image
-          }}
-        />
+      <div className="w-full h-[250px] bg-cover bg-center"  >
+        <img src="/images/cham-pending.png" alt="Campaign Banner" className="w-full h-full object-cover" />
       </div>
-
+        
       {/* Main content */}
       <div className="max-w-5xl mx-auto p-6 bg-white shadow-md mt-[-60px] relative z-10 rounded-lg">
         {/* Header info */}
         <div className="text-center">
-          <p className="text-sm text-gray-500">{campaign.category}</p>
-          <h2 className="mt-1 text-lg font-semibold text-blue-600">
-            {campaign.charity?.name || 'Tổ chức từ thiện'}
-          </h2>
-          <h1 className="mt-3 text-2xl font-bold text-blue-700">{campaign.title}</h1>
-
-          {/* Campaign status */}
-          <div className="flex justify-center mt-2 space-x-2">
-            <span
-              className={`px-2 py-1 rounded text-xs font-semibold ${
-                campaign.status === 'active'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-yellow-100 text-yellow-800'
-              }`}
-            >
-              {campaign.status}
-            </span>
-            <span
-              className={`px-2 py-1 rounded text-xs font-semibold ${
-                campaign.approval_status === 'approved'
-                  ? 'bg-green-100 text-green-800'
-                  : campaign.approval_status === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
-              }`}
-            >
-              {campaign.approval_status}
-            </span>
-          </div>
-
-          {/* Admin Approve/Reject Buttons */}
-          {isAdmin && campaign.approval_status === 'pending' && (
-            <div className="flex gap-4 justify-center mt-4">
-              <button
-                onClick={handleApproveCampaign}
-                disabled={approveLoading || rejectLoading}
-                className={`px-6 py-2 rounded text-sm font-semibold transition-colors ${
-                  approveLoading || rejectLoading
-                    ? 'text-gray-700 bg-gray-400 cursor-not-allowed'
-                    : 'text-white bg-green-600 hover:bg-green-700'
-                }`}
-              >
-                {approveLoading ? (
-                  <div className="flex items-center">
-                    <FaSpinner className="mr-2 animate-spin" />
-                    Đang phê duyệt...
-                  </div>
-                ) : (
-                  'Phê duyệt chiến dịch'
-                )}
-              </button>
-              <button
-                onClick={handleOpenRejectModal}
-                disabled={approveLoading || rejectLoading}
-                className={`px-6 py-2 rounded text-sm font-semibold transition-colors ${
-                  approveLoading || rejectLoading
-                    ? 'text-gray-700 bg-gray-400 cursor-not-allowed'
-                    : 'text-white bg-red-600 hover:bg-red-700'
-                }`}
-              >
-                Từ chối chiến dịch
-              </button>
-            </div>
-          )}
-
-          {/* Admin Status Message */}
-          {isAdmin && campaign.approval_status === 'approved' && (
-            <div className="flex justify-center mt-4">
-              <span className="px-4 py-2 text-sm font-semibold text-green-800 bg-green-100 rounded">
-                ✓ Chiến dịch đã được phê duyệt
-              </span>
-            </div>
-          )}
-
-          {/* Admin Rejected Status Message */}
-          {isAdmin && campaign.approval_status === 'rejected' && (
-            <div className="flex justify-center mt-4">
-              <span className="px-4 py-2 text-sm font-semibold text-red-800 bg-red-100 rounded">
-                ✗ Chiến dịch đã bị từ chối
-              </span>
-            </div>
-          )}
-
-          {/* Location */}
-          {campaign.location && (
-            <div className="flex justify-center items-center mt-2 text-gray-600">
-              <FaMapMarkerAlt className="mr-1" />
-              <span className="text-sm">{campaign.location}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Fundraising Progress */}
-        <div className="p-4 mt-6 bg-gray-50 rounded-lg">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-semibold">Tiến độ gây quỹ</span>
-            <span className="text-sm text-gray-600">{progressPercentage.toFixed(1)}%</span>
-          </div>
-          <div className="w-full h-3 bg-gray-200 rounded-full">
-            <div
-              className="h-3 bg-blue-600 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-between mt-2 text-sm">
-            <span className="text-gray-600">Đã gây: {formatCurrency(campaign.current_amount)}</span>
-            <span className="text-gray-600">Mục tiêu: {formatCurrency(campaign.goal_amount)}</span>
-          </div>
+          <p className="text-sm text-gray-500">Charity Fundraising</p>
+          <h2 className="text-blue-600 font-semibold text-lg mt-1">Quỹ Vì trẻ em khuyết tật Việt Nam</h2>
+          <h1 className="text-2xl font-bold text-blue-700 mt-3">
+            Please help Chang Thi Ha cure her serious illness.
+          </h1>
         </div>
 
         {/* Content Section */}
-        <div className="flex flex-col gap-8 mt-8 lg:flex-row">
+        <div className="flex flex-col lg:flex-row gap-8 mt-8">
           {/* Left: Description */}
           <div className="lg:w-2/3">
-            <button className="px-4 py-1 mb-4 text-sm text-white bg-blue-600 rounded hover:bg-blue-700">
-              Nội dung chi tiết
+            <button className="mb-4 px-4 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+              Detailed content
             </button>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="mb-2 font-semibold text-gray-800">Mô tả</h3>
-                <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-                  {campaign.description}
-                </p>
-              </div>
-
-              {campaign.detailed_description && (
-                <div>
-                  <h3 className="mb-2 font-semibold text-gray-800">Mô tả chi tiết</h3>
-                  <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
-                    {campaign.detailed_description}
-                  </p>
-                </div>
-              )}
-
-              {campaign.beneficiaries && (
-                <div>
-                  <h3 className="mb-2 font-semibold text-gray-800">Người thụ hưởng</h3>
-                  <p className="text-sm leading-relaxed text-gray-700">{campaign.beneficiaries}</p>
-                </div>
-              )}
-
-              {campaign.expected_impact && (
-                <div>
-                  <h3 className="mb-2 font-semibold text-gray-800">Tác động dự kiến</h3>
-                  <p className="text-sm leading-relaxed text-gray-700">
-                    {campaign.expected_impact}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Gallery Images */}
-            {campaign.gallery_images && campaign.gallery_images.length > 0 && (
-              <div className="mt-6">
-                <h3 className="mb-2 font-semibold text-gray-800">Thư viện ảnh</h3>
-                <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
-                  {campaign.gallery_images.map((image, index) => (
-                    <img
-                      key={index}
-                      src={image}
-                      alt={`Gallery ${index + 1}`}
-                      className="object-cover w-full h-24 rounded"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Every child has dreams and desires to study, to integrate and have companionship. But Ha has been deprived
+              of that since birth. Ha is suffering from a rare disease that makes it difficult for her to move, talk, and
+              live normally. Every day, her family struggles to earn money to cover treatment, medicine, and basic needs.
+              <br /><br />
+              With the support from the community, Ha is undergoing treatment at the Central Pediatrics Hospital. However,
+              the costs have exceeded what the family can handle. This campaign aims to raise 200,000,000 VND to cover
+              medical fees, surgery costs, and rehabilitation.
+              <br /><br />
+              Every vote of yours helps validate the authenticity of this campaign and accelerates the approval process.
+            </p>
           </div>
 
-          {/* Right: Comments Section */}
-          <div className="p-4 bg-gray-50 rounded-md border border-gray-300 lg:w-1/3">
-            <p className="text-sm text-gray-600">
-              Thời gian chiến dịch:
-              <span className="ml-1 font-semibold text-black">
-                {new Date(campaign.start_date).toLocaleDateString()} -{' '}
-                {new Date(campaign.end_date).toLocaleDateString()}
-              </span>
-            </p>
+          {/* Right: Voting & Comments */}
+          <div className="lg:w-1/3 border border-gray-300 rounded-md p-4 bg-gray-50">
+            <p className="text-sm text-gray-600">Time left to vote: <span className="font-semibold text-black">7 days</span></p>
+            <p className="text-sm text-gray-600 mt-1">Voting Progress</p>
+
+            <div className="mt-3">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full bg-green-500 w-[70%]"></div>
+              </div>
+              <div className="flex justify-between text-sm mt-2">
+                <span className="text-green-600 font-semibold">Agree 70%</span>
+                <span className="text-red-500 font-semibold">Disagree 30%</span>
+              </div>
+              <p className="text-xs mt-1 text-gray-500">✓ 7 votes to approve<br />✗ 3 votes to disagree</p>
+            </div>
 
             <div className="mt-5">
-              <h4 className="mb-2 text-sm font-semibold">Bình luận</h4>
-              {comments.map((comment, i) => (
+              <h4 className="font-semibold mb-2 text-sm">Comments</h4>
+              {[...Array(3)].map((_, i) => (
                 <div key={i} className="mb-3">
                   <textarea
                     rows={2}
-                    placeholder="Bình luận..."
-                    value={comment}
-                    onChange={(e) => handleCommentChange(i, e.target.value)}
-                    className="px-2 py-1 w-full text-sm rounded border border-gray-300 resize-none"
-                  />
+                    placeholder="Comment..."
+                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm resize-none"
+                  ></textarea>
                   <div className="flex mt-1 space-x-1">
                     {[...Array(5)].map((_, j) => (
                       <FaRegStar
@@ -443,59 +297,23 @@ const CampaignDetail = () => {
               ))}
             </div>
 
-            <p
-              onClick={handleReport}
-              className="mt-4 text-xs text-right text-gray-400 cursor-pointer hover:underline"
-            >
-              Báo cáo / Tố cáo gian lận
-            </p>
+            <div className="flex justify-between mt-4">
+              <button className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1 rounded">AGREE</button>
+              <button className="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">DISAGREE</button>
+            </div>
+
+            <p className="text-right text-xs mt-2 text-gray-400 cursor-pointer hover:underline">Flag / Report scam</p>
           </div>
         </div>
 
         {/* User Input */}
-        <div className="pt-6 mt-8 border-t">
-          <p className="mb-2 text-sm font-semibold">Bạn biết gì về chiến dịch gây quỹ này?</p>
+        <div className="mt-8 border-t pt-6">
+          <p className="text-sm mb-2 font-semibold">What do you know about this fundraising campaign?</p>
           <textarea
             rows={3}
-            className="px-3 py-2 w-full text-sm rounded border border-gray-300 resize-none"
-            placeholder="Chia sẻ thông tin, câu chuyện hoặc mối quan tâm của bạn..."
-            value={userInsight}
-            onChange={(e) => setUserInsight(e.target.value)}
-          />
-          <div className="flex justify-end mt-2">
-            <button
-              onClick={handleShareInsight}
-              className="px-4 py-1 text-sm text-white bg-blue-600 rounded hover:bg-blue-700"
-            >
-              Chia sẻ thông tin
-            </button>
-          </div>
-        </div>
-
-        {/* Campaign Info */}
-        <div className="p-4 mt-8 bg-gray-50 rounded-lg">
-          <h3 className="mb-3 font-semibold text-gray-800">Thông tin chiến dịch</h3>
-          <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
-            <div>
-              <span className="font-semibold">Tổ chức:</span> {campaign.charity?.name}
-            </div>
-            <div>
-              <span className="font-semibold">Xác thực:</span>
-              <span
-                className={`ml-1 ${campaign.charity?.verification_status === 'verified' ? 'text-green-600' : 'text-yellow-600'}`}
-              >
-                {campaign.charity?.verification_status}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold">Tạo:</span>{' '}
-              {new Date(campaign.created_at).toLocaleDateString()}
-            </div>
-            <div>
-              <span className="font-semibold">Cập nhật:</span>{' '}
-              {new Date(campaign.updated_at).toLocaleDateString()}
-            </div>
-          </div>
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm resize-none"
+            placeholder="Share your insights, stories, or concerns..."
+          ></textarea>
         </div>
 
         {/* Reject Modal */}
