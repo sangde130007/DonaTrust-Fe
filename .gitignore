@@ -27,3 +27,10 @@ jest-test-results.json
 # Optional: if using IDEs
 .vscode/
 .idea/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local.env
