@@ -7,13 +7,14 @@ const Slider = ({
   subtitle = "Khám phá và hỗ trợ các dự án từ thiện đáng tin cậy.",
   buttonText = "KHÁM PHÁ CHIẾN DỊCH",
   backgroundImage = "/images/bacground_homepage.jpg",
-  onButtonClick
+  onButtonClick // Giữ lại để mở rộng về sau, hiện tại chưa dùng
 }) => {
   const navigate = useNavigate(); 
 
   const handleClick = () => {
     navigate('/campaigns'); 
   };
+
   return (
     <div 
       className="relative w-full h-[670px] bg-cover bg-center opacity-[100%]"
@@ -27,7 +28,12 @@ const Slider = ({
           {subtitle}
         </p>
         <div className="mt-[21px]">
-          <Button className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded font-semibold shadow-lg transition" variant="secondary" size="md" onClick={handleClick}>
+          <Button 
+            className="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded font-semibold shadow-lg transition" 
+            variant="secondary" 
+            size="md" 
+            onClick={handleClick}
+          >
             {buttonText}
           </Button>
         </div>

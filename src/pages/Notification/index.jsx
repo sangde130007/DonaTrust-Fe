@@ -54,7 +54,6 @@ const NotificationPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-global-3">
-      <Header />
       <div className="flex justify-center py-10">
         <section className="bg-white rounded-[20px] shadow-lg max-w-[900px] w-full px-[50px] py-[40px] flex flex-col gap-8">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
@@ -201,7 +200,6 @@ const NotificationPage = () => {
           )}
         </section>
       </div>
-      <Footer />
     </div>
   );
 };
