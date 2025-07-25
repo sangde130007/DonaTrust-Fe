@@ -22,7 +22,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 // ---------- AdminDashboard Component ----------
 const AdminDashboard = ({ stats }) => {
   const pieData = {
-    labels: ['Users', 'Charities', 'Campaigns', 'Donations', 'News', 'Donation Amount'],
+    labels: ['Người dùng', 'Tổ chức từ thiện', 'Chiến dịch', 'Quyên góp', 'Tin tức', 'Số tiền quyên góp'],
     datasets: [
       {
         data: [
@@ -40,10 +40,10 @@ const AdminDashboard = ({ stats }) => {
   };
 
   const barData = {
-    labels: ['Pending Charities', 'Pending Campaigns', 'Pending Approvals'],
+    labels: ['Các tổ chức từ thiện đang chờ xử lý', 'Các chiến dịch đang chờ xử lý', 'Các phê duyệt đang chờ xử lý'],
     datasets: [
       {
-        label: 'Pending',
+        label: 'Đang chờ xử lý',
         data: [stats.pendingCharities, stats.pendingCampaigns, stats.pendingApprovals],
         backgroundColor: '#f59e42',
         borderRadius: 6,
@@ -57,31 +57,31 @@ const AdminDashboard = ({ stats }) => {
   return (
     <div className="w-full bg-white min-h-screen">
       <div className="max-w-6xl mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-8 text-blue-700">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8 text-blue-700">Bảng điều khiển Admin</h1>
 
         {/* Statistic Boxes */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
           <div className="bg-blue-50 rounded-lg p-6 shadow text-center">
             <div className="text-2xl font-bold text-blue-700">{stats.totalUsers}</div>
-            <div className="text-gray-600 mt-1">Total Users</div>
+            <div className="text-gray-600 mt-1">Tổng số người dùng</div>
           </div>
           <div className="bg-green-50 rounded-lg p-6 shadow text-center">
             <div className="text-2xl font-bold text-green-700">{stats.totalCharities}</div>
-            <div className="text-gray-600 mt-1">Total Charities</div>
+            <div className="text-gray-600 mt-1">Tổng số tổ chức từ thiện</div>
           </div>
           <div className="bg-yellow-50 rounded-lg p-6 shadow text-center">
             <div className="text-2xl font-bold text-yellow-700">{stats.totalCampaigns}</div>
-            <div className="text-gray-600 mt-1">Total Campaigns</div>
+            <div className="text-gray-600 mt-1">Tổng số chiến dịch từ thiện</div>
           </div>
           <div className="bg-pink-50 rounded-lg p-6 shadow text-center">
             <div className="text-2xl font-bold text-pink-700">{stats.totalNews}</div>
-            <div className="text-gray-600 mt-1">Total News</div>
+            <div className="text-gray-600 mt-1">Tổng số tin tức</div>
           </div>
         </div>
 
         {/* Pie Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Overview Distribution</h2>
+          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Tổng quan Phân phối</h2>
           <div className="w-full max-w-xs">
             <Pie data={pieData} options={{
               plugins: {
@@ -110,21 +110,21 @@ const AdminDashboard = ({ stats }) => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-orange-50 rounded-lg p-6 shadow text-center">
             <div className="text-xl font-bold text-orange-700">{stats.pendingCharities}</div>
-            <div className="text-gray-600 mt-1">Pending Charities</div>
+            <div className="text-gray-600 mt-1">Tổ chức từ thiện đang chờ xử lý</div>
           </div>
           <div className="bg-red-50 rounded-lg p-6 shadow text-center">
             <div className="text-xl font-bold text-red-700">{stats.pendingCampaigns}</div>
-            <div className="text-gray-600 mt-1">Pending Campaigns</div>
+            <div className="text-gray-600 mt-1">Chiến dịch từ thiện đang chờ xử lý</div>
           </div>
           <div className="bg-purple-50 rounded-lg p-6 shadow text-center">
             <div className="text-xl font-bold text-purple-700">{stats.pendingApprovals}</div>
-            <div className="text-gray-600 mt-1">Pending Approvals</div>
+            <div className="text-gray-600 mt-1">Đang chờ phê duyệt</div>
           </div>
         </div>
 
         {/* Bar Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Pending Overview</h2>
+          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Tổng quan đang chờ xử lý</h2>
           <div className="w-full max-w-2xl">
             <Bar data={barData} options={{
               responsive: true,
@@ -156,11 +156,11 @@ const AdminDashboard = ({ stats }) => {
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Total Donation Amount</div>
+            <div className="text-lg font-bold text-gray-700 mb-2">Tổng số tiền quyên góp</div>
             <div className="text-2xl font-bold text-green-700">{stats.totalDonationAmount?.toLocaleString() || 0} VND</div>
           </div>
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Total Donations</div>
+            <div className="text-lg font-bold text-gray-700 mb-2">Tổng số tiền quyên góp</div>
             <div className="text-2xl font-bold text-blue-700">{stats.totalDonations}</div>
           </div>
         </div>
