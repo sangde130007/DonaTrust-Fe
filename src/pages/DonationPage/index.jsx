@@ -211,6 +211,7 @@ const DonationPage = () => {
             <button
               type="submit"
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-lg transition uppercase"
+              onClick={() => navigate("/PaymentInfo")}
             >
               Quyên góp
             </button>
