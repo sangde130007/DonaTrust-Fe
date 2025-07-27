@@ -17,6 +17,7 @@ import ProfileDashboardPage from './pages/ProfileDashboard';
 import NotificationPage from './pages/Notification';
 import DaoMemberPage from './pages/RegisterDAO';
 import DonationPage from './pages/DonationPage';
+import PaymentInfo from './pages/PaymentInfo';
 import VerifyEmailPage from './pages/VerifyEmail';
 
 import { default as NewsManagement } from './pages/Admin/NewsManagement';
@@ -72,6 +73,7 @@ const AppRoutes = () => {
           <Route path="notification" element={<NotificationPage />} />
           <Route path="registeradao" element={<DaoMemberPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
+          <Route path="paymentinfo" element={<PaymentInfo />} />
 
           {/* Protected routes - require authentication */}
           <Route
