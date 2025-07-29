@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from '../../components/common/Header';
+import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import userService from '../../services/userService';
@@ -10,16 +12,17 @@ const ProfileEdit = () => {
   const { user: authUser, isAuthenticated } = useAuth();
 
   const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    phone: '',
-    gender: '',
-    date_of_birth: '',
+    accountName: '',
+    contactEmail: '',
+    phoneNumber: '',
+    sex: '',
+    dateOfBirth: '',
     address: '',
-    district: '',
-    ward: '',
-    bio: '',
-    profile_image: '',
+    linkFacebook: '',
+    linkYoutube: '',
+    linkTiktok: '',
+    introduction: '',
+    profile_image: ''
   });
 
   const [originalData, setOriginalData] = useState({});
@@ -43,31 +46,32 @@ const ProfileEdit = () => {
       const userData = response.user || response;
 
       const profileData = {
-        full_name: userData.full_name || '',
-        email: userData.email || '',
-        phone: userData.phone || '',
-        gender: userData.gender || '',
-        date_of_birth: userData.date_of_birth || '',
+        accountName: userData.full_name || '',
+        contactEmail: userData.email || '',
+        phoneNumber: userData.phone || '',
+        sex: userData.gender || '',
+        dateOfBirth: userData.date_of_birth || '',
         address: userData.address || '',
-        district: userData.district || '',
-        ward: userData.ward || '',
-        bio: userData.bio || '',
-        profile_image: userData.profile_image || '',
+        linkFacebook: userData.link_facebook || '',
+        linkYoutube: userData.link_youtube || '',
+        linkTiktok: userData.link_tiktok || '',
+        introduction: userData.bio || '',
+        profile_image: userData.profile_image || ''
       };
 
       setFormData(profileData);
       setOriginalData(profileData);
     } catch (error) {
-      setError(error.message || 'Failed to load profile data');
+      setError(error.message || 'Không thể tải dữ liệu hồ sơ');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [field]: value,
+      [field]: value
     }));
     if (success) setSuccess(false);
   };
@@ -79,8 +83,37 @@ const ProfileEdit = () => {
 
       const changedFields = {};
       Object.keys(formData).forEach((key) => {
-        if (formData[key] !== originalData[key] && key !== 'email') {
-          changedFields[key] = formData[key];
+        if (formData[key] !== originalData[key]) {
+          switch (key) {
+            case 'accountName':
+              changedFields.full_name = formData[key];
+              break;
+            case 'contactEmail':
+              break; // Không cho phép đổi email
+            case 'phoneNumber':
+              changedFields.phone = formData[key];
+              break;
+            case 'sex':
+              changedFields.gender = formData[key];
+              break;
+            case 'dateOfBirth':
+              changedFields.date_of_birth = formData[key];
+              break;
+            case 'introduction':
+              changedFields.bio = formData[key];
+              break;
+            case 'linkFacebook':
+              changedFields.link_facebook = formData[key];
+              break;
+            case 'linkYoutube':
+              changedFields.link_youtube = formData[key];
+              break;
+            case 'linkTiktok':
+              changedFields.link_tiktok = formData[key];
+              break;
+            default:
+              changedFields[key] = formData[key];
+          }
         }
       });
 
@@ -95,7 +128,7 @@ const ProfileEdit = () => {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      setError(error.message || 'Failed to update profile');
+      setError(error.message || 'Cập nhật thông tin thất bại');
     } finally {
       setIsSaving(false);
     }
@@ -110,111 +143,153 @@ const ProfileEdit = () => {
   }
 
   return (
-    <div className="bg-white min-h-screen pt-24">
-      <div className="flex flex-col items-center">
-        <img
-          src={formData.profile_image || '/images/avt.jpg'}
-          alt="Avatar"
-          className="w-[120px] h-[120px] rounded-full border-4 border-white shadow-md object-cover"
-        />
-        <h2 className="mt-4 text-xl font-bold text-gray-800">Edit Profile</h2>
-      </div>
+    <div className="min-h-screen bg-white flex flex-col">
+      <Header />
 
-      <div className="max-w-4xl mx-auto mt-10 px-4 md:px-8">
-        {error && (
-          <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-6">
-            {error}
-          </div>
-        )}
+      <main className="flex-1 pt-28 pb-16 bg-global-3">
+        {/* Avatar và tiêu đề */}
+        <div className="flex flex-col items-center mb-10">
+          <img
+            src={formData.profile_image || '/images/avt.jpg'}
+            alt="Ảnh đại diện"
+            className="w-[120px] h-[120px] rounded-full border-4 border-white shadow-md object-cover"
+          />
+          <h2 className="mt-4 text-2xl font-bold text-global-1">
+            Chỉnh sửa thông tin cá nhân
+          </h2>
+        </div>
 
-        {success && (
-          <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-6">
-            Profile updated successfully!
-          </div>
-        )}
+        <div className="max-w-5xl mx-auto px-4 md:px-10 py-6 bg-white rounded-xl shadow-lg">
+          {error && (
+            <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-6">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <EditText
-              label="Full Name"
-              value={formData.full_name}
-              onChange={(e) => handleInputChange('full_name', e.target.value)}
-              required
-            />
-            <EditText
-              label="Phone"
-              value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-            />
-            <EditText
-              label="Gender"
-              value={formData.gender}
-              onChange={(e) => handleInputChange('gender', e.target.value)}
-              placeholder="male / female / other"
-            />
-            <EditText
-              label="Date of Birth"
-              type="date"
-              value={formData.date_of_birth}
-              onChange={(e) => handleInputChange('date_of_birth', e.target.value)}
-            />
-            <EditText
-              label="District"
-              value={formData.district}
-              onChange={(e) => handleInputChange('district', e.target.value)}
-            />
-            <EditText
-              label="Ward"
-              value={formData.ward}
-              onChange={(e) => handleInputChange('ward', e.target.value)}
-            />
-            <EditText
-              label="Address"
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
-            />
-            <EditText
-              label="Profile Image URL"
-              value={formData.profile_image}
-              onChange={(e) => handleInputChange('profile_image', e.target.value)}
-            />
-          </div>
+          {success && (
+            <div className="bg-green-100 text-green-700 px-4 py-3 rounded mb-6">
+              Cập nhật thông tin thành công!
+            </div>
+          )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bio
-            </label>
-            <textarea
-              value={formData.bio}
-              onChange={(e) => handleInputChange('bio', e.target.value)}
-              rows={4}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2"
-              maxLength={255}
-            />
-            <p className="text-sm text-gray-500 mt-1">{formData.bio.length}/255</p>
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Cột trái */}
+              <div className="space-y-5">
+                <EditText
+                  label="Tên tài khoản"
+                  value={formData.accountName}
+                  onChange={(e) => handleInputChange('accountName', e.target.value)}
+                  required
+                  className="h-[45px]"
+                />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email (cannot change)</label>
-            <input
-              type="email"
-              value={formData.email}
-              disabled
-              className="w-full border border-gray-300 bg-gray-100 rounded-lg px-3 py-2 text-gray-500"
-            />
-          </div>
+                <div>
+                  <label className="block text-sm font-medium text-global-4 mb-1">
+                    Giới tính
+                  </label>
+                  <select
+                    value={formData.sex}
+                    onChange={(e) => handleInputChange('sex', e.target.value)}
+                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base text-global-9 outline-none"
+                  >
+                    <option value="">Chọn giới tính</option>
+                    <option value="male">Nam</option>
+                    <option value="female">Nữ</option>
+                    <option value="other">Khác</option>
+                  </select>
+                </div>
 
-          <div className="flex justify-center mt-8">
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="w-48 h-12 font-bold"
-            >
-              {isSaving ? 'Saving...' : 'Update Profile'}
-            </Button>
-          </div>
-        </form>
-      </div>
+                <div>
+                  <label className="block text-sm font-medium text-global-4 mb-1">
+                    Ngày sinh
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                    className="w-full h-[45px] px-3 py-2 border border-global-8 rounded-lg bg-global-3 text-base text-global-9 outline-none"
+                  />
+                </div>
+
+                <EditText
+                  label="Số điện thoại"
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  placeholder="Nhập số điện thoại"
+                  className="h-[45px]"
+                />
+
+                <EditText
+                  label="Giới thiệu bản thân"
+                  value={formData.introduction}
+                  onChange={(e) => handleInputChange('introduction', e.target.value)}
+                  placeholder="Tối đa 255 ký tự"
+                  rows={4}
+                  maxLength={255}
+                />
+              </div>
+
+              {/* Cột phải */}
+              <div className="space-y-5">
+                <EditText
+                  label="Email (không thể thay đổi)"
+                  type="email"
+                  value={formData.contactEmail}
+                  disabled
+                  className="h-[45px] bg-gray-100 text-gray-500"
+                />
+
+                <EditText
+                  label="Link Facebook"
+                  value={formData.linkFacebook}
+                  onChange={(e) => handleInputChange('linkFacebook', e.target.value)}
+                  placeholder="Nhập link Facebook"
+                  className="h-[45px]"
+                />
+
+                <EditText
+                  label="Link Youtube"
+                  value={formData.linkYoutube}
+                  onChange={(e) => handleInputChange('linkYoutube', e.target.value)}
+                  placeholder="Nhập link Youtube"
+                  className="h-[45px]"
+                />
+
+                <EditText
+                  label="Link Tiktok"
+                  value={formData.linkTiktok}
+                  onChange={(e) => handleInputChange('linkTiktok', e.target.value)}
+                  placeholder="Nhập link Tiktok"
+                  className="h-[45px]"
+                />
+
+                <EditText
+                  label="Địa chỉ"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  placeholder="Nhập địa chỉ"
+                  className="h-[45px]"
+                />
+              </div>
+            </div>
+
+            {/* Nút cập nhật */}
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="w-[180px] h-[40px] text-sm font-bold"
+              >
+                {isSaving ? 'Đang lưu...' : 'Cập nhật thông tin'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 };

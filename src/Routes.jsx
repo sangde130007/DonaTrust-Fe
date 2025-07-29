@@ -15,7 +15,6 @@ import CampaignListPage from './pages/CampaignList';
 import ProfileEditPage from './pages/ProfileEdit';
 import ProfileDashboardPage from './pages/ProfileDashboard';
 import NotificationPage from './pages/Notification';
-import DaoMemberPage from './pages/RegisterDAO';
 import DonationPage from './pages/DonationPage';
 import PaymentInfo from './pages/PaymentInfo';
 import VerifyEmailPage from './pages/VerifyEmail';
@@ -23,6 +22,7 @@ import VerifyEmailPage from './pages/VerifyEmail';
 import { default as NewsManagement } from './pages/Admin/NewsManagement';
 import CharityPendingPage from './pages/CharityPending';
 import { CampaignDetail as AdminCampaignDetail } from './pages/CharityPending';
+import Users from './pages/Users';
 
 const AppRoutes = () => {
   return (
@@ -40,6 +40,16 @@ const AppRoutes = () => {
             <ProtectedRoute requiredRole="admin">
               <AdminLayout>
                 <NewsManagement />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminLayout>
+                <Users />
               </AdminLayout>
             </ProtectedRoute>
           }
@@ -67,11 +77,11 @@ const AppRoutes = () => {
 
         {/* Routes with layout */}
         <Route path="/" element={<Layout />}>
+          {/* Public routes */}
           <Route index element={<HomePage />} />
           <Route path="campaigns" element={<CampaignListPage />} />
           <Route path="campaign/:id" element={<CampaignDetailPage />} />
           <Route path="notification" element={<NotificationPage />} />
-          <Route path="registeradao" element={<DaoMemberPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
           <Route path="paymentinfo" element={<PaymentInfo />} />
 

@@ -5,9 +5,9 @@ import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
 import { User } from 'lucide-react';
 import api from '../../services/api';
-import ProjectCard from '../../components/ui/ProjectCard';
 import Footer from '../../components/common/Footer';
-import AdminDashboard from './AdminDashboard';
+import Header from '../../components/common/Header';
+import ProjectCard from './ProjectCard';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Profile = () => {
       avatar: '/images/img_ellipse_8_20x21.png',
       raised: '9.720.000',
       percentage: '32.4%',
-      goal: '30.000.000'
+      goal: '30.000.000 VND'
     },
     {
       id: 2,
@@ -38,7 +38,7 @@ const Profile = () => {
       avatar: '/images/img_ellipse_8_20x21.png',
       raised: '9.720.000',
       percentage: '32.4%',
-      goal: '30.000.000'
+      goal: '30.000.000 VND'
     },
     {
       id: 3,
@@ -49,7 +49,7 @@ const Profile = () => {
       avatar: '/images/img_ellipse_8_1.png',
       raised: '9.720.000',
       percentage: '32.4%',
-      goal: '30.000.000'
+      goal: '30.000.000 VND'
     }
   ];
 
@@ -107,14 +107,14 @@ const Profile = () => {
     );
   }
 
-  // Nếu là admin => render Admin Dashboard
   if (authUser?.role === 'admin') {
-    return <AdminDashboard stats={adminStats} />;
+    return <div className="w-full min-h-screen flex items-center justify-center">Admin Dashboard</div>;
   }
 
-  // Nếu là user => render giao diện profile
   return (
-    <div className="w-full bg-white">
+    <div className="min-h-screen flex flex-col bg-white">
+      <Header />
+
       {/* Cover Image */}
       <div className="w-full">
         <img
@@ -135,13 +135,15 @@ const Profile = () => {
                 className="w-[150px] h-[150px] rounded-full border-4 border-white shadow-md object-cover"
               />
             ) : (
-              <div className="w-[150px] h-[150px] flex items-center justify-center rounded-full border-4 border-white bg-gray-200 shadow-md">
-                <User className="w-16 h-16 text-gray-400" />
-              </div>
+              <img
+                src="/images/img_ellipse_43.png"
+                alt="Avatar"
+                className="w-[150px] h-[150px] rounded-full border-4 border-white shadow-md"
+              />
             )}
             <div>
               <h1 className="text-2xl font-bold text-black">{displayUser?.full_name || 'Người dùng'}</h1>
-              <p className="text-base text-gray-600">@{displayUser?.email?.split('@')[0]}</p>
+              <p className="text-base text-gray-600">@{displayUser?.email?.split('@')[0] || 'username'}</p>
               <div className="flex space-x-4 mt-2 text-sm text-gray-500">
                 <span>0 người theo dõi</span>
                 <span>0 bài viết</span>
@@ -155,6 +157,11 @@ const Profile = () => {
                 Chỉnh sửa thông tin
               </Button>
             </Link>
+            <img
+              src="/images/img_24_user_interface_image.svg"
+              alt="Chia sẻ"
+              className="w-7 h-7 cursor-pointer"
+            />
           </div>
         </div>
       </div>
@@ -177,7 +184,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Danh sách dự án đã ủng hộ */}
+      {/* Danh sách dự án */}
       <div className="text-center mb-20 px-[15%]">
         <h2 className="text-[32px] font-bold text-black mb-12">
           CÁC DỰ ÁN ĐÃ ỦNG HỘ

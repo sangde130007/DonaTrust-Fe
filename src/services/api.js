@@ -1,14 +1,15 @@
-import axios from 'axios';
 
 // Base API URL - change this to your backend URL
 // If backend runs on different port, change 5000 to your port:
 // Port 3000: 'http://localhost:3000/api'
 // Port 5000: 'http://localhost:5000/api'
-const API_BASE_URL = 'http://localhost:5000/api';
+import axios from 'axios';
+
+// Lấy từ biến môi trường (Vite)
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 console.log('🔧 API Base URL:', API_BASE_URL);
 
-// Create axios instance with base configuration
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
