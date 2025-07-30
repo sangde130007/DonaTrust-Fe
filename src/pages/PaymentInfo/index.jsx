@@ -250,7 +250,7 @@ const PaymentInfo = () => {
 
   return (
     <div className="min-h-screen bg-global-3 shadow-2xl">
-      <Header />
+      
 
       {/* Hero Section */}
       <div
@@ -368,7 +368,7 @@ const PaymentInfo = () => {
         })}
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

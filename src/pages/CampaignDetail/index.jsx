@@ -27,11 +27,12 @@ const CampaignDetail = () => {
     }
   };
 
-  const handleSubmitReview = () => {
+const handleSubmitReview = () => {
   if (reviewText.trim()) {
     alert('Cảm ơn bạn đã gửi đánh giá!');
     setReviewText('');
   }
+
  else {
       alert('Please write a review before submitting.');
     }
