@@ -40,6 +40,11 @@ const Header = () => {
     }
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'vi' ? 'en' : 'vi';
+    i18n.changeLanguage(newLang);
+  };
+
   const handleChangePassword = () => {
     setShowUserMenu(false); // Close user menu
     setShowChangePassword(true); // Open change password modal
@@ -91,6 +96,10 @@ const Header = () => {
                 >
                   Liên hệ
                 </Link>
+
+                <Link to="/notification" className="relative hover:scale-105 transition-transform">
+            <img src="/images/bell.png" alt="Thông báo" className="w-5 h-5" />
+          </Link>
               </nav>
 
               {/* Language */}

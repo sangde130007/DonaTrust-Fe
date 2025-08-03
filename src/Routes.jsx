@@ -23,6 +23,7 @@ import DaoDashboard from './pages/DaoDashboard';
 import DaoPendingCampaigns from './pages/DaoPendingCampaigns';
 import DaoMyVotes from './pages/DaoMyVotes';
 import DaoCampaignVote from './pages/DaoCampaignVote';
+import NotificationPage from './pages/Notification';
 
 const AppRoutes = () => {
   return (
@@ -95,6 +96,7 @@ const AppRoutes = () => {
           <Route index element={<HomePage />} />
           <Route path="campaigns" element={<CampaignListPage />} />
           <Route path="campaign/:id" element={<CampaignDetailPage />} />
+          <Route path="notification" element={<NotificationPage />} />
 
           {/* Protected routes - require authentication */}
           <Route
