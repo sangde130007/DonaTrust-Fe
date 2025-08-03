@@ -1,6 +1,8 @@
 import api from './api';
 
 const daoService = {
+  // === DAO MEMBER REGISTRATION ===
+
   // Đăng ký DAO member
   registerDao: async (formData) => {
     const data = new FormData();
@@ -38,6 +40,8 @@ const daoService = {
       throw error.response?.data || error;
     }
   },
+
+  // === ADMIN MANAGEMENT ===
 
   // Admin: Lấy tất cả đơn đăng ký
   getAllApplications: async (page = 1, limit = 10, status = null) => {
@@ -83,6 +87,167 @@ const daoService = {
       throw error.response?.data || error;
     }
   },
+
+  // === DAO CAMPAIGN VOTING SYSTEM ===
+
+  // Lấy danh sách campaigns chờ vote (dành cho DAO members)
+  getPendingCampaigns: async (page = 1, limit = 10) => {
+    try {
+      const response = await api.get('/dao/campaigns/pending', {
+        params: { page, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Lấy chi tiết campaign với thông tin vote (dành cho DAO members)
+  getCampaignForVoting: async (campaignId) => {
+    try {
+      const response = await api.get(`/dao/campaigns/${campaignId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Vote cho campaign (dành cho DAO members)
+  voteCampaign: async (campaignId, voteData) => {
+    try {
+      console.log('📤 Voting on campaign:', { campaignId, voteData });
+
+      const response = await api.post(`/dao/campaigns/${campaignId}/vote`, {
+        decision: voteData.vote, // 'approve' hoặc 'reject'
+        reason: voteData.reason || ''
+      });
+
+      console.log('✅ Vote submitted successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Vote submission failed:', error);
+      throw error.response?.data || error;
+    }
+  },
+
+  // Lấy lịch sử vote của tôi
+  getMyVotes: async (page = 1, limit = 10) => {
+    try {
+      const response = await api.get('/dao/my-votes', {
+        params: { page, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // === ADMIN DAO CAMPAIGN MANAGEMENT ===
+
+  // Admin: Lấy campaigns đã được DAO approve (chờ admin duyệt cuối)
+  getDaoApprovedCampaigns: async (page = 1, limit = 10) => {
+    try {
+      const response = await api.get('/dao/campaigns/dao-approved', {
+        params: { page, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Admin: Lấy campaigns bị DAO reject
+  getDaoRejectedCampaigns: async (page = 1, limit = 10) => {
+    try {
+      const response = await api.get('/dao/campaigns/dao-rejected', {
+        params: { page, limit }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // === DAO STATISTICS ===
+
+  // Lấy thống kê DAO
+  getDaoStatistics: async () => {
+    try {
+      const response = await api.get('/dao/statistics');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // Lấy thống kê vote của member
+  getMyVoteStatistics: async () => {
+    try {
+      const response = await api.get('/dao/my-vote-statistics');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
+  // === UTILITY FUNCTIONS ===
+
+  // Check if user is DAO member
+  isUserDaoMember: (user) => {
+    return user?.role === 'dao_member' && user?.status === 'active';
+  },
+
+  // Check if user can vote on campaign
+  canUserVoteOnCampaign: (campaign, userVotes = []) => {
+    // Check if user already voted on this campaign
+    const hasVoted = userVotes.some(vote => vote.campaign_id === campaign.campaign_id);
+
+    // Check if campaign is in pending status
+    const isPending = campaign.approval_status === 'pending' &&
+      (!campaign.dao_approval_status || campaign.dao_approval_status === 'pending');
+
+    return !hasVoted && isPending;
+  },
+
+  // Get vote status color for UI
+  getVoteStatusColor: (status) => {
+    switch (status) {
+      case 'dao_approved':
+        return 'text-green-600 bg-green-100';
+      case 'dao_rejected':  
+        return 'text-red-600 bg-red-100';
+      case 'pending':
+        return 'text-yellow-600 bg-yellow-100';
+      default:
+        return 'text-gray-600 bg-gray-100';
+    }
+  },
+
+  // Format vote reason for display
+  formatVoteReason: (reason) => {
+    if (!reason || reason.trim() === '') {
+      return 'Không có lý do cụ thể';
+    }
+    return reason;
+  },
+
+  // Calculate voting progress
+calculateVotingProgress: (campaign) => {
+  const stats = campaign.vote_stats || {};
+  const totalVotes = stats.total_votes || 0;
+  const approveVotes = stats.approve_votes || 0;
+  const approvalRate = totalVotes > 0 ? (approveVotes / totalVotes) * 100 : 0;
+  const needsMoreVotes = totalVotes < 5;
+
+  return {
+    totalVotes,
+    approvalRate: Math.round(approvalRate * 10) / 10,
+    needsMoreVotes,
+    canBeFinalDecision: totalVotes >= 5,
+    willBeApproved: approvalRate > 50,
+    votesLeft: Math.max(0, 5 - totalVotes)
+  };
+}
 };
 
-export default daoService; 
+export default daoService;

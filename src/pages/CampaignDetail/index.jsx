@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import Header from '../../components/common/Header';
 import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import RatingBar from '../../components/ui/RatingBar';
@@ -27,13 +26,11 @@ const CampaignDetail = () => {
     }
   };
 
-const handleSubmitReview = () => {
-  if (reviewText.trim()) {
-    alert('Cảm ơn bạn đã gửi đánh giá!');
-    setReviewText('');
-  }
-
- else {
+  const handleWriteReview = () => {
+    if (reviewText.trim()) {
+      alert('Thank you for your review!');
+      setReviewText('');
+    } else {
       alert('Please write a review before submitting.');
     }
   };
@@ -44,9 +41,6 @@ const handleSubmitReview = () => {
 
   return (
     <div className="min-h-screen bg-global-3 shadow-2xl">
-      {/* Header */}
-      <Header />
-
       {/* Hero Section */}
       <div 
         className="w-full h-[265px] relative bg-cover bg-center flex items-center justify-center"
@@ -358,7 +352,7 @@ const handleSubmitReview = () => {
           {/* Write Review Button */}
           <div className="flex justify-end">
             <Button
-              onClick={handleSubmitReview}
+              onClick={handleWriteReview}
               variant="outline"
               className="h-8 px-6 border border-button-2 text-button-2 rounded-md"
             >

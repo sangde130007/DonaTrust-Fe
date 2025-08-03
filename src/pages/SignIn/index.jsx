@@ -8,13 +8,16 @@ import { GoogleLogin } from '@react-oauth/google';
 
 const SignInPage = () => {
   const navigate = useNavigate();
+
   const {
     login,
-    googleLogin, // Use googleLogin from AuthContext
+    googleLogin,
     isAuthenticated,
     isLoading: authLoading,
     error: authError,
+    user, // Add user to check role
   } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -25,10 +28,15 @@ const SignInPage = () => {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/');
+    if (isAuthenticated && user) {
+      // Navigate based on user role
+      if (user.role === 'dao_member') {
+        navigate('/dao-dashboard');
+      } else {
+        navigate('/');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleInputChange = (field) => (e) => {
     const value = e.target.value;
@@ -82,14 +90,21 @@ const SignInPage = () => {
     setErrors({});
 
     try {
-      await login({
+      const response = await login({
         email: formData.email,
         password: formData.password,
         keepLoggedIn: formData.keepLoggedIn,
       });
 
-      // Success - user will be redirected by useEffect
-      // navigate('/') will be called automatically by useEffect when isAuthenticated becomes true
+      // Handle navigation based on user role
+      if (response.user) {
+        if (response.user.role === 'dao_member') {
+          console.log('🎯 DAO member detected, navigating to /dao-dashboard');
+          navigate('/dao-dashboard');
+        } else {
+          navigate('/');
+        }
+      }
     } catch (error) {
       // Handle specific error cases
       if (error.status === 401) {
@@ -116,7 +131,7 @@ const SignInPage = () => {
     }
   };
 
-  // Fixed Google Sign In handler - Use AuthContext
+  // Handle Google Sign In with navigation logic
   const handleGoogleSignIn = async (credentialResponse) => {
     console.log('🔍 Google OAuth Response:', credentialResponse);
     setIsLoading(true);
@@ -129,12 +144,20 @@ const SignInPage = () => {
 
       console.log('📤 Using AuthContext googleLogin...');
 
-      // Use googleLogin from AuthContext instead of authService directly
-      await googleLogin(credentialResponse.credential);
+      // Use googleLogin from AuthContext
+      const response = await googleLogin(credentialResponse.credential);
 
       console.log('✅ Google login successful via AuthContext');
 
-      // No need to navigate manually, useEffect will handle it when isAuthenticated becomes true
+      // Handle navigation based on user role
+      if (response.user) {
+        if (response.user.role === 'dao_member') {
+          console.log('🎯 DAO member detected via Google login, navigating to /dao-dashboard');
+          navigate('/dao-dashboard');
+        } else {
+          navigate('/');
+        }
+      }
     } catch (error) {
       console.error('❌ Google sign in error:', error);
       setErrors({
@@ -224,6 +247,13 @@ const SignInPage = () => {
             {errors.general && (
               <div className="p-3 mb-4 bg-red-50 rounded-md border border-red-200">
                 <p className="text-sm text-red-600">{errors.general}</p>
+              </div>
+            )}
+
+            {/* Auth Error from Context */}
+            {authError && (
+              <div className="p-3 mb-4 bg-red-50 rounded-md border border-red-200">
+                <p className="text-sm text-red-600">{authError}</p>
               </div>
             )}
 

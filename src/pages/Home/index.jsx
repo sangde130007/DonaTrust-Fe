@@ -14,15 +14,21 @@ import {
   CategoryScale,
   LinearScale,
   BarElement,
-  Title as ChartTitle
+  Title as ChartTitle,
 } from 'chart.js';
-
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
 
-// ---------- AdminDashboard Component ----------
+// Copy AdminDashboard component từ ProfileDashboard
 const AdminDashboard = ({ stats }) => {
   const pieData = {
-    labels: ['Người dùng', 'Tổ chức từ thiện', 'Chiến dịch', 'Quyên góp', 'Tin tức', 'Số tiền quyên góp'],
+    labels: [
+      'Người dùng',
+      'Tổ chức từ thiện',
+      'Chiến dịch',
+      'Quyên góp',
+      'Tin tức',
+      'Số tiền quyên góp',
+    ],
     datasets: [
       {
         data: [
@@ -33,134 +39,157 @@ const AdminDashboard = ({ stats }) => {
           stats.totalNews,
           stats.totalDonationAmount,
         ],
-        backgroundColor: ['#3b82f6', '#22c55e', '#facc15', '#ec4899', '#6366f1', '#f472b6'],
+        backgroundColor: [
+          '#3b82f6', // blue
+          '#22c55e', // green
+          '#facc15', // yellow
+          '#ec4899', // pink
+          '#6366f1', // indigo
+          '#f472b6', // rose
+        ],
         borderWidth: 1,
       },
     ],
   };
-
   const barData = {
-    labels: ['Các tổ chức từ thiện đang chờ xử lý', 'Các chiến dịch đang chờ xử lý', 'Các phê duyệt đang chờ xử lý'],
+    labels: ['Tổ chức chờ duyệt', 'Chiến dịch chờ duyệt', 'Phê duyệt chờ xử lý'],
     datasets: [
       {
-        label: 'Đang chờ xử lý',
+        label: 'Chờ duyệt',
         data: [stats.pendingCharities, stats.pendingCampaigns, stats.pendingApprovals],
         backgroundColor: '#f59e42',
         borderRadius: 6,
       },
     ],
   };
-
   const chartContainerClass =
     'rounded-2xl shadow-xl bg-gradient-to-br from-blue-50 via-white to-pink-50 p-8 flex flex-col items-center mb-10 border border-blue-100';
-
   return (
-    <div className="w-full bg-white min-h-screen">
-      <div className="max-w-6xl mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-8 text-blue-700">Bảng điều khiển Admin</h1>
-
-        {/* Statistic Boxes */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-blue-50 rounded-lg p-6 shadow text-center">
+    <div className="w-full min-h-screen bg-white">
+      <div className="px-4 py-10 mx-auto max-w-6xl">
+        <h1 className="mb-8 text-3xl font-bold text-blue-700">Bảng điều khiển quản trị</h1>
+        <div className="grid grid-cols-2 gap-6 mb-10 md:grid-cols-4">
+          <div className="p-6 text-center bg-blue-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-blue-700">{stats.totalUsers}</div>
-            <div className="text-gray-600 mt-1">Tổng số người dùng</div>
+            <div className="mt-1 text-gray-600">Tổng người dùng</div>
           </div>
-          <div className="bg-green-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-green-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-green-700">{stats.totalCharities}</div>
-            <div className="text-gray-600 mt-1">Tổng số tổ chức từ thiện</div>
+            <div className="mt-1 text-gray-600">Tổng tổ chức từ thiện</div>
           </div>
-          <div className="bg-yellow-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-yellow-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-yellow-700">{stats.totalCampaigns}</div>
-            <div className="text-gray-600 mt-1">Tổng số chiến dịch từ thiện</div>
+            <div className="mt-1 text-gray-600">Tổng chiến dịch</div>
           </div>
-          <div className="bg-pink-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-pink-50 rounded-lg shadow">
             <div className="text-2xl font-bold text-pink-700">{stats.totalNews}</div>
-            <div className="text-gray-600 mt-1">Tổng số tin tức</div>
+            <div className="mt-1 text-gray-600">Tổng tin tức</div>
           </div>
         </div>
-
-        {/* Pie Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Tổng quan Phân phối</h2>
+          <h2 className="mb-6 text-xl font-extrabold tracking-tight text-blue-700 uppercase drop-shadow">
+            Tổng quan phân phối
+          </h2>
           <div className="w-full max-w-xs">
-            <Pie data={pieData} options={{
-              plugins: {
-                legend: {
-                  position: 'bottom',
-                  labels: {
-                    font: { size: 15, weight: 'bold' },
-                    color: '#334155',
-                    padding: 18,
-                    boxWidth: 22,
-                    usePointStyle: true,
+            <Pie
+              data={pieData}
+              options={{
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                      padding: 18,
+                      boxWidth: 22,
+                      usePointStyle: true,
+                    },
+                    onHover: (e, legendItem, legend) => {
+                      e.native.target.style.cursor = 'pointer';
+                    },
                   },
-                  onHover: (e) => e.native.target.style.cursor = 'pointer'
+                  tooltip: {
+                    callbacks: {
+                      label: function (context) {
+                        let label = context.label || '';
+                        if (label) label += ': ';
+                        label += context.parsed;
+                        return label;
+                      },
+                    },
+                  },
                 },
-                tooltip: {
-                  callbacks: {
-                    label: (ctx) => `${ctx.label || ''}: ${ctx.parsed}`
-                  }
-                }
-              }
-            }} />
+              }}
+            />
           </div>
         </div>
-
-        {/* Pending Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <div className="bg-orange-50 rounded-lg p-6 shadow text-center">
+        <div className="grid grid-cols-1 gap-6 mb-10 md:grid-cols-3">
+          <div className="p-6 text-center bg-orange-50 rounded-lg shadow">
             <div className="text-xl font-bold text-orange-700">{stats.pendingCharities}</div>
-            <div className="text-gray-600 mt-1">Tổ chức từ thiện đang chờ xử lý</div>
+            <div className="mt-1 text-gray-600">Tổ chức chờ duyệt</div>
           </div>
-          <div className="bg-red-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-red-50 rounded-lg shadow">
             <div className="text-xl font-bold text-red-700">{stats.pendingCampaigns}</div>
-            <div className="text-gray-600 mt-1">Chiến dịch từ thiện đang chờ xử lý</div>
+            <div className="mt-1 text-gray-600">Chiến dịch chờ duyệt</div>
           </div>
-          <div className="bg-purple-50 rounded-lg p-6 shadow text-center">
+          <div className="p-6 text-center bg-purple-50 rounded-lg shadow">
             <div className="text-xl font-bold text-purple-700">{stats.pendingApprovals}</div>
-            <div className="text-gray-600 mt-1">Đang chờ phê duyệt</div>
+            <div className="mt-1 text-gray-600">Phê duyệt chờ xử lý</div>
           </div>
         </div>
-
-        {/* Bar Chart */}
         <div className={chartContainerClass}>
-          <h2 className="text-xl font-extrabold mb-6 text-blue-700 uppercase">Tổng quan đang chờ xử lý</h2>
+          <h2 className="mb-6 text-xl font-extrabold tracking-tight text-blue-700 uppercase drop-shadow">
+            Tổng quan chờ duyệt
+          </h2>
           <div className="w-full max-w-2xl">
-            <Bar data={barData} options={{
-              responsive: true,
-              plugins: {
-                legend: { display: false },
-                tooltip: {
-                  callbacks: {
-                    label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`
-                  }
-                }
-              },
-              scales: {
-                x: {
-                  grid: { display: false },
-                  ticks: { font: { size: 15, weight: 'bold' }, color: '#334155' }
+            <Bar
+              data={barData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: { display: false },
+                  title: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: function (context) {
+                        return `${context.dataset.label}: ${context.parsed.y}`;
+                      },
+                    },
+                  },
                 },
-                y: {
-                  beginAtZero: true,
-                  grid: { color: '#e0e7ef', borderDash: [4, 4] },
-                  ticks: { stepSize: 1, font: { size: 15, weight: 'bold' }, color: '#334155' }
-                }
-              },
-              hover: { mode: 'nearest', intersect: true },
-              animation: { duration: 900, easing: 'easeOutQuart' },
-            }} />
+                scales: {
+                  x: {
+                    grid: { display: false },
+                    ticks: {
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                    },
+                  },
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: '#e0e7ef', borderDash: [4, 4] },
+                    ticks: {
+                      stepSize: 1,
+                      font: { size: 15, family: 'inherit', weight: 'bold' },
+                      color: '#334155',
+                    },
+                  },
+                },
+                hover: { mode: 'nearest', intersect: true },
+                animation: { duration: 900, easing: 'easeOutQuart' },
+              }}
+            />
           </div>
         </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Tổng số tiền quyên góp</div>
-            <div className="text-2xl font-bold text-green-700">{stats.totalDonationAmount?.toLocaleString() || 0} VND</div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="p-6 bg-white rounded-lg shadow">
+            <div className="mb-2 text-lg font-bold text-gray-700">Tổng số tiền quyên góp</div>
+            <div className="text-2xl font-bold text-green-700">
+              {stats.totalDonationAmount?.toLocaleString() || 0} VND
+            </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-lg font-bold text-gray-700 mb-2">Tổng số tiền quyên góp</div>
+          <div className="p-6 bg-white rounded-lg shadow">
+            <div className="mb-2 text-lg font-bold text-gray-700">Tổng lượt quyên góp</div>
             <div className="text-2xl font-bold text-blue-700">{stats.totalDonations}</div>
           </div>
         </div>
@@ -182,15 +211,15 @@ const Home = () => {
 
   // Default categories fallback
   const defaultCategories = [
-    { icon: '/images/img_logo_24x27.png', label: 'THIÊN TAI' },
-    { icon: '/images/img_logo_1.png', label: 'GIÁO DỤC' },
-    { icon: '/images/img_logo_27x27.png', label: 'TRẺ EM' },
-    { icon: '/images/img_logo_2.png', label: 'NGƯỜI NGHÈO' },
-    { icon: '/images/img_logo_3.png', label: 'NGƯỜI CAO TUỔI' },
-    { icon: '/images/img_logo_4.png', label: 'NGƯỜI KHUYẾT TẬT' },
-    { icon: '/images/img_logo_5.png', label: 'BỆNH HIỂM NGHÈO' },
-    { icon: '/images/img_logo_6.png', label: 'VÙNG NÚI' },
-    { icon: '/images/img_logo_7.png', label: 'MÔI TRƯỜNG' }
+    { icon: '/images/img_logo_24x27.png', label: 'Thảm họa thiên nhiên' },
+    { icon: '/images/img_logo_1.png', label: 'Giáo dục' },
+    { icon: '/images/img_logo_27x27.png', label: 'Trẻ em' },
+    { icon: '/images/img_logo_2.png', label: 'Người nghèo' },
+    { icon: '/images/img_logo_3.png', label: 'Người già' },
+    { icon: '/images/img_logo_4.png', label: 'Người khuyết tật' },
+    { icon: '/images/img_logo_5.png', label: 'Bệnh hiểm nghèo' },
+    { icon: '/images/img_logo_6.png', label: 'Vùng núi' },
+    { icon: '/images/img_logo_7.png', label: 'Môi trường' },
   ];
 
   const organizations = [
@@ -223,14 +252,13 @@ const Home = () => {
 
         // Fetch featured campaigns and categories in parallel
         const [campaignsResponse, categoriesResponse] = await Promise.allSettled([
-          campaignService.getAllCampaigns({ featured: true }),
+          campaignService.getFeaturedCampaigns(),
           campaignService.getCategories(),
         ]);
 
         // Handle campaigns response
         if (campaignsResponse.status === 'fulfilled') {
-console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, null, 2));
-  setCampaigns(campaignsResponse.value.campaigns || []);
+          setCampaigns(campaignsResponse.value.data || []);
         } else {
           console.warn('Failed to fetch campaigns:', campaignsResponse.reason);
           setCampaigns([]); // Fallback to empty array
@@ -245,7 +273,7 @@ console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, 
         }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setError('Failed to load data. Please try again later.');
+        setError('Không thể tải dữ liệu. Vui lòng thử lại sau.');
         // Use fallback data
         setCampaigns([]);
         setCategories(defaultCategories);
@@ -260,8 +288,9 @@ console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, 
   useEffect(() => {
     if (user?.role === 'admin') {
       setIsAdminLoading(true);
-      api.get('/admin/dashboard/stats')
-        .then(res => setAdminStats(res.data))
+      api
+        .get('/admin/dashboard/stats')
+        .then((res) => setAdminStats(res.data))
         .catch(() => setAdminStats(null))
         .finally(() => setIsAdminLoading(false));
     }
@@ -306,8 +335,8 @@ console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-global-3">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="flex flex-1 justify-center items-center bg-global-3">
+        <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
       </div>
     );
   }
@@ -315,15 +344,15 @@ console.log('📦 Campaigns response:', JSON.stringify(campaignsResponse.value, 
   if (user?.role === 'admin') {
     if (isAdminLoading || !adminStats) {
       return (
-        <div className="flex-1 flex items-center justify-center bg-white min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="flex flex-1 justify-center items-center min-h-screen bg-white">
+          <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
         </div>
       );
     }
     return <AdminDashboard stats={adminStats} />;
   }
 
-  return (
+return (
     <div className="flex flex-col w-full min-h-screen bg-global-3">
       {/* Hero Section with Slider */}
       <div className="relative w-full h-[670px]">
