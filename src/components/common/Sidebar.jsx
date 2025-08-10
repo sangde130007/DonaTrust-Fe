@@ -45,6 +45,11 @@ const items = [
     url: '/admin/news',
     icon: FileText,
   },
+    {
+    title: 'Duyệt tổ chức từ thiện',
+    url: '/admin/charities/pending',
+    icon: FileText,
+  },
 ];
 
 export function AppSidebar() {

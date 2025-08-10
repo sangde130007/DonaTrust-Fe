@@ -186,7 +186,7 @@ const Header = () => {
 
                       {user?.role === 'charity' && (
                         <Link
-                          to="/charity/dashboard"
+                          to="/charity-dashboard"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setShowUserMenu(false)}
                         >
@@ -196,7 +196,7 @@ const Header = () => {
 
                       {user?.role === 'admin' && (
                         <Link
-                          to="/admin/dashboard"
+                          to="/"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setShowUserMenu(false)}
                         >

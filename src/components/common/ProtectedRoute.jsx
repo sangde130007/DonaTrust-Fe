@@ -1,11 +1,11 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const navigate = useNavigate();
 
-  // Show loading while checking authentication
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -14,9 +14,29 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  // Redirect to login if not authenticated
+  // Chưa đăng nhập
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />;
+  }
+
+  // Nếu có requiredRole mà không khớp role
+  if (requiredRole && user?.role !== requiredRole) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
+        <h2 className="text-xl font-bold text-red-600 mb-4">
+          Bạn không có quyền truy cập trang này
+        </h2>
+        <p className="mb-4">
+          Hãy đăng ký trở thành tổ chức từ thiện để truy cập chức năng này.
+        </p>
+        <button
+          onClick={() => navigate('/charity-registration')}
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          Đăng ký tổ chức từ thiện
+        </button>
+      </div>
+    );
   }
 
   return children;

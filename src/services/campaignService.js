@@ -1,131 +1,67 @@
+// services/campaignService.js
 import api from './api';
 
 class CampaignService {
-  // Get all campaigns (public)
+  // ===== PUBLIC =====
   async getAllCampaigns(filters = {}) {
-    try {
-      const params = new URLSearchParams();
+    const params = new URLSearchParams();
+    if (filters.search) params.append('search', filters.search);
+    if (filters.category) params.append('category', filters.category);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.page) params.append('page', filters.page);
+    if (filters.limit) params.append('limit', filters.limit);
 
-      // Add filter parameters
-      if (filters.search) params.append('search', filters.search);
-      if (filters.category) params.append('category', filters.category);
-      if (filters.status) params.append('status', filters.status);
-      if (filters.page) params.append('page', filters.page);
-      if (filters.limit) params.append('limit', filters.limit);
-
-      const queryString = params.toString();
-      const url = queryString ? `/campaigns?${queryString}` : '/campaigns';
-
-      const response = await api.get(url);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const qs = params.toString();
+    const url = qs ? `/campaigns?${qs}` : '/campaigns';
+    const res = await api.get(url);
+    return res.data;
   }
 
-  // Get featured campaigns (public)
   async getFeaturedCampaigns() {
-    try {
-      const response = await api.get('/campaigns/featured');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const res = await api.get('/campaigns/featured');
+    return res.data;
   }
 
-  // Get campaign categories (public)
   async getCategories() {
-    try {
-      const response = await api.get('/campaigns/categories');
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const res = await api.get('/campaigns/categories');
+    return res.data;
   }
 
-  // Get campaign by ID (public)
   async getCampaignById(id) {
-    try {
-      const response = await api.get(`/campaigns/${id}`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const res = await api.get(`/campaigns/${id}`);
+    return res.data;
   }
 
-  // Create new campaign (authenticated)
-  async createCampaign(campaignData) {
-    try {
-      const response = await api.post('/campaigns', campaignData);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+  // ===== AUTH (charity) =====
+  async createCampaign(formData /* FormData */) {
+    // BE route: POST /api/campaigns  (đã gắn multer.fields: image, images, qr_image)
+    const res = await api.post('/campaigns', formData);
+    return res.data;
   }
 
-  // Update campaign (authenticated)
-  async updateCampaign(id, campaignData) {
-    try {
-      const response = await api.put(`/campaigns/${id}`, campaignData);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+  async updateCampaign(id, data) {
+    const res = await api.put(`/campaigns/${id}`, data);
+    return res.data;
   }
 
-  // Delete campaign (authenticated)
   async deleteCampaign(id) {
-    try {
-      const response = await api.delete(`/campaigns/${id}`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+    const res = await api.delete(`/campaigns/${id}`);
+    return res.data;
   }
 
-  // Search campaigns
-  async searchCampaigns(searchTerm, filters = {}) {
-    try {
-      const params = new URLSearchParams();
-      params.append('search', searchTerm);
-
-      if (filters.category) params.append('category', filters.category);
-      if (filters.status) params.append('status', filters.status);
-      if (filters.page) params.append('page', filters.page);
-      if (filters.limit) params.append('limit', filters.limit);
-
-      const response = await api.get(`/campaigns?${params.toString()}`);
-      return response.data;
-    } catch (error) {
-      throw this.handleError(error);
-    }
+  // (tuỳ chọn) upload tách bước nếu bạn còn dùng 2 endpoint riêng
+  async uploadCoverImage(id, file) {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await api.post(`/campaigns/${id}/upload-image`, fd);
+    return res.data;
   }
 
-  // Handle API errors
-  handleError(error) {
-    if (error.response) {
-      // Server responded with error
-      const { status, data } = error.response;
-      return {
-        status,
-        message: data.message || 'An error occurred',
-        errors: data.errors || [],
-      };
-    } else if (error.request) {
-      // Request made but no response
-      return {
-        status: 0,
-        message: 'Network error. Please check your connection.',
-        errors: [],
-      };
-    } else {
-      // Something else happened
-      return {
-        status: 0,
-        message: error.message || 'An unexpected error occurred',
-        errors: [],
-      };
-    }
+  async uploadGalleryImages(id, files = []) {
+    const fd = new FormData();
+    files.forEach(f => fd.append('images', f));
+    const res = await api.post(`/campaigns/${id}/upload-images`, fd);
+    return res.data;
   }
 }
 

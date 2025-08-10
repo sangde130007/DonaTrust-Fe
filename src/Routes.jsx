@@ -3,6 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Layout from './components/common/Layout';
 import AdminLayout from './components/common/AdminLayout';
+import CharityDashboard from './pages/CharityDashboard'; // Đảm bảo đường dẫn đúng
+import CreateCampaignForm from './pages/CharityDashboard/CreateCampaignForm';
+import EditCampaignForm from './pages/CharityDashboard/EditCampaignForm';
+import AdminCharityApprovals from './pages/admin/AdminCharityApprovals';
 
 // Import page components
 import HomePage from './pages/Home';
@@ -154,8 +158,44 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/charity-dashboard/*"
+          element={
+            <ProtectedRoute requiredRole="charity">
+              <Layout>
+                <CharityDashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/charity-dashboard/create"
+          element={
+            <ProtectedRoute requiredRole="charity">
+              <Layout>
+                <CreateCampaignForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Layout />}>
+ 
+  <Route
+    path="charity-dashboard/campaigns/:id/edit"
+    element={
+      <ProtectedRoute requiredRole="charity">
+        <EditCampaignForm />
+      </ProtectedRoute>
+    }
+  />
+  <Route path="/admin/charities/pending" element={<AdminCharityApprovals />} />
+
+</Route>
+
       </Routes>
+
     </Router>
+
   );
 };
 

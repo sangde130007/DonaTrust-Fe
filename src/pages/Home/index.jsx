@@ -17,6 +17,16 @@ import {
   Title as ChartTitle,
 } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
+const API_ORIGIN = 'http://localhost:5000';
+const resolveImageUrl = (p) => {
+  if (!p) return '';
+  let url = String(p).trim().replace(/\\/g, '/');
+  if (/^https?:\/\//i.test(url)) return url;
+  url = url.replace(/^[A-Za-z]:\/.*?(\/uploads\/)/, '/uploads/');
+  if (!url.startsWith('/')) url = '/' + url;
+  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`;
+  return url;
+};
 
 // Copy AdminDashboard component từ ProfileDashboard
 const AdminDashboard = ({ stats }) => {
@@ -210,17 +220,17 @@ const Home = () => {
   const [isAdminLoading, setIsAdminLoading] = useState(true);
 
   // Default categories fallback
-  const defaultCategories = [
-    { icon: '/images/img_logo_24x27.png', label: 'Thảm họa thiên nhiên' },
-    { icon: '/images/img_logo_1.png', label: 'Giáo dục' },
-    { icon: '/images/img_logo_27x27.png', label: 'Trẻ em' },
-    { icon: '/images/img_logo_2.png', label: 'Người nghèo' },
-    { icon: '/images/img_logo_3.png', label: 'Người già' },
-    { icon: '/images/img_logo_4.png', label: 'Người khuyết tật' },
-    { icon: '/images/img_logo_5.png', label: 'Bệnh hiểm nghèo' },
-    { icon: '/images/img_logo_6.png', label: 'Vùng núi' },
-    { icon: '/images/img_logo_7.png', label: 'Môi trường' },
-  ];
+    const defaultCategories = [
+      { icon: '/images/img_logo_24x27.png', label: 'Thảm họa thiên nhiên' },
+      { icon: '/images/img_logo_1.png', label: 'Giáo dục' },
+      { icon: '/images/img_logo_27x27.png', label: 'Trẻ em' },
+      { icon: '/images/img_logo_2.png', label: 'Người nghèo' },
+      { icon: '/images/img_logo_3.png', label: 'Người già' },
+      { icon: '/images/img_logo_4.png', label: 'Người khuyết tật' },
+      { icon: '/images/img_logo_5.png', label: 'Bệnh hiểm nghèo' },
+      { icon: '/images/img_logo_6.png', label: 'Vùng núi' },
+      { icon: '/images/img_logo_7.png', label: 'Môi trường' },
+    ];
 
   const organizations = [
     {
@@ -257,12 +267,16 @@ const Home = () => {
         ]);
 
         // Handle campaigns response
-        if (campaignsResponse.status === 'fulfilled') {
-          setCampaigns(campaignsResponse.value.data || []);
-        } else {
-          console.warn('Failed to fetch campaigns:', campaignsResponse.reason);
-          setCampaigns([]); // Fallback to empty array
-        }
+// campaignsResponse.value: service đã trả res.data, KHÔNG có .data nữa
+if (campaignsResponse.status === 'fulfilled') {
+  // API /campaigns/featured thường trả { campaigns, total, ... }
+  const v = campaignsResponse.value;
+  setCampaigns(v?.campaigns || v || []);
+} else {
+  console.warn('Failed to fetch campaigns:', campaignsResponse.reason);
+  setCampaigns([]);
+}
+  
 
         // Handle categories response
         if (categoriesResponse.status === 'fulfilled') {
@@ -409,147 +423,106 @@ return (
         </div>
       </div>
 
-     {/* Featured Campaigns Section */}
+{/* Featured Campaigns Section */}
 <div className="flex flex-col items-center w-full mt-10">
   <h2 className="text-[24px] font-roboto font-bold text-global-1 text-center leading-[32px]">
     CHIẾN DỊCH GÂY QUỸ NỔI BẬT
   </h2>
 
-  {/* Error Message */}
   {error && (
     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-4 mb-6 max-w-md">
       <p className="text-red-600 text-sm text-center">{error}</p>
     </div>
   )}
 
-  {/* Campaign Slider */}
   {campaigns.length > 0 ? (
-    <div className="flex flex-row items-center w-full mt-[52px] px-[15%]">
-      {/* Previous Button */}
-      <button
-        onClick={() => handleCampaignSlideChange('prev')}
-        className="mr-[24px] hover:opacity-80"
-        disabled={currentCampaignSlide === 0}
-      >
-        <img
-          src="/images/img_vector_140.svg"
-          alt="Previous"
-          className="w-3 h-[28px]"
-        />
-      </button>
+    <div className="w-full max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8 mt-8">
+      {/* Grid giống Campaign List */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-[53px] gap-y-8 justify-items-center">
+        {campaigns.slice(0, 8).map((c) => {
+          const cover = resolveImageUrl(c.image_url) || '/images/img_image_18.png';
+          const logo  = resolveImageUrl(c.charity?.logo_url) || '/images/img_ellipse_8_20x21.png';
+          const current = Number(c.current_amount || 0);
+          const goal    = Math.max(1, Number(c.goal_amount || 1));
+          const pct     = Math.min((current / goal) * 100, 100);
 
-      {/* Campaign Cards */}
-      <div className="flex flex-row space-x-[60px] overflow-hidden">
-        {campaigns
-          .slice(currentCampaignSlide, currentCampaignSlide + 3)
-          .map((campaign, index) => (
-<div
-  key={campaign.id || index}
-  className="flex flex-col w-[280px]"
->
-  {/* Campaign Image with Category Tag */}
-  <div className="relative w-[280px] h-[220px] mb-[0px]">
-    <img
-      src={campaign.image_url || '/images/img_image_18.png'}
-      alt={campaign.title}
-      className="w-full h-full object-cover rounded-sm"
-      onError={(e) => {
-        e.target.src = '/images/img_image_18.png';
-      }}
-    />
-    <div className="absolute top-[6px] right-[7px] bg-global-4 px-2 py-1 rounded-sm text-[11px] font-inter font-semibold text-global-8 leading-[5px]">
-      {campaign.category || 'General'}
-    </div>
-    <img
-      src={campaign.charity?.logo_url || '/images/img_ellipse_8.png'}
-      alt="Organization Avatar"
-      className="absolute bottom-[-14px] left-1/2 transform -translate-x-1/2 w-[60px] h-[60px] rounded-full mb-0"
-      onError={(e) => {
-        e.target.src = '/images/img_ellipse_8.png';
-      }}
-    />
-  </div>
+          return (
+            <div key={c.campaign_id} className="relative w-[270px] bg-white rounded shadow-md flex flex-col h-[420px]">
+              {/* Ảnh campaign */}
+              <div className="relative w-full overflow-hidden rounded-t">
+                <div className="aspect-[16/9] w-full bg-white">
+                  <img
+                    src={cover}
+                    alt={c.title}
+                    className="w-full h-full object-contain"
+                    onError={(e) => { e.currentTarget.src = '/images/img_image_18.png'; }}
+                  />
+                </div>
+                <div className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-pink-500 rounded">
+                  {c.category || 'Tổng quát'}
+                </div>
+              </div>
 
-  {/* Campaign Details */}
-  <div className="bg-global-2 rounded-sm shadow-[5px_5px_5px_#abbed166] p-7 w-[280px] h-[200px]">
-    <div>
-      <p className="text-[12px] font-inter font-semibold text-global-6 text-center leading-[5px] mb-5">
-        {campaign.charity?.name || 'Unknown Organization'}
-      </p>
-      <h3 className="text-[13px] font-inter font-semibold text-global-3 text-center leading-[18px] mb-3">
-        {campaign.title}
-      </h3>
+              {/* Logo tổ chức */}
+              <img
+                src={logo}
+                alt="Organization"
+                className="w-[32px] h-[32px] object-contain bg-white rounded-full absolute -top-4 left-4 border-2 border-white"
+                onError={(e) => { e.currentTarget.src = '/images/img_ellipse_8_20x21.png'; }}
+              />
 
-      {/* Progress Bar */}
-      <div className="w-full h-3 bg-gray-200 rounded-full mb-2 overflow-hidden">
-        <div
-          className="h-full bg-blue-500 mb-1"
-          style={{
-            width: `${Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)}%`,
-          }}
-        ></div>
+              {/* Thông tin */}
+              <div className="flex flex-col flex-1 px-4 py-3">
+                <div>
+                  <p className="mb-1 text-xs text-center text-gray-500">
+                    {c.charity?.name || 'Tổ chức không xác định'}
+                  </p>
+                  <h3 className="mb-2 text-sm font-bold text-center line-clamp-2">{c.title}</h3>
+
+                  <div className="mb-1 w-full h-2 bg-gray-200 rounded">
+                    <div className="h-full bg-pink-500 rounded" style={{ width: `${pct}%` }} />
+                  </div>
+
+                  <div className="flex justify-between mb-1 text-xs">
+                    <span>{new Intl.NumberFormat('vi-VN').format(current)} VND</span>
+                    <span>{Math.round(pct)}%</span>
+                  </div>
+                  <p className="mb-4 text-xs text-gray-500">
+                    Mục tiêu: {new Intl.NumberFormat('vi-VN').format(goal)} VND
+                  </p>
+                </div>
+
+                <div className="mt-auto text-center">
+                  <button
+                    onClick={() => (window.location.href = `/campaign/${c.campaign_id}`)}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-pink-500 rounded hover:bg-pink-600"
+                  >
+                    Chi tiết
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Amount and Percentage */}
-      <div className="flex justify-between text-[13px] font-inter font-semibold text-global-6 leading-[5px] mb-3">
-        <span>
-          {new Intl.NumberFormat('vi-VN').format(campaign.current_amount || 0)} đ
-        </span>
-        <span>
-          {Math.round(((campaign.current_amount || 0) / (campaign.goal_amount || 1)) * 100)}%
-        </span>
+      {/* Xem tất cả */}
+      <div className="mt-6 flex justify-center">
+        <Button variant="tertiary" size="md" onClick={() => (window.location.href = '/campaigns')}>
+          Xem tất cả →
+        </Button>
       </div>
-
-      <p className="text-[12px] font-inter font-semibold text-global-6 leading-[5px] mb-4">
-        Mục tiêu chiến dịch: {new Intl.NumberFormat('vi-VN').format(campaign.goal_amount || 0)} đ
-      </p>
-    </div>
-
-    {/* Detail Button */}
-    <div className="flex justify-center mt-auto">
-      <button className="text-[14px] font-inter font-semibold text-global-5 leading-[9px]">
-        <span>CHI TIẾT</span>
-        <img
-          src="/images/img_24_arrows_directions_right.svg"
-          alt="Arrow Right"
-          className="w-6 h-6"
-        />
-      </button>
-    </div>
-  </div>
-</div>
-
-          ))}
-      </div>
-
-      {/* Next Button */}
-      <button
-        onClick={() => handleCampaignSlideChange('next')}
-        className="ml-[25px] hover:opacity-80"
-        disabled={currentCampaignSlide >= campaigns.length - 3}
-      >
-        <img src="/images/img_vector_140.svg" alt="Next" className="w-3 h-[40px] transform rotate-180" />
-      </button>
     </div>
   ) : (
     <div className="mt-[22px]">
       <p className="text-gray-500 mb-4">Hiện tại không có chiến dịch nổi bật nào.</p>
-      <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
+      <Button variant="tertiary" size="md" onClick={() => (window.location.href = '/campaigns')}>
         Xem tất cả →
       </Button>
     </div>
   )}
+</div>
 
-
-        {/* View All Button */}
-        {campaigns.length > 0 && (
-          <div className="mt-[22px]">
-            <Button variant="tertiary" size="md" onClick={handleViewAllClick}>
-              View all →
-            </Button>
-          </div>
-        )}
-      </div>
 
       {/* Statistics Section */}
       <div className="w-full h-[219px] bg-global-2 mt-[37px] px-[15%]">

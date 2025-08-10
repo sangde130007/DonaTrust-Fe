@@ -15,6 +15,15 @@ import {
   TrendingUp
 } from 'lucide-react';
 
+const API_ORIGIN = 'http://localhost:5000'; // phải trùng với BE
+
+const resolveImageUrl = (p) => {
+  if (!p) return '';
+  if (p.startsWith('http')) return p;                 // đã là absolute
+  if (p.startsWith('/uploads')) return `${API_ORIGIN}${p}`; // file được upload
+  return `${API_ORIGIN}/public/images/${p}`;          // fallback ảnh kiểu cũ
+};
+
 const DaoCampaignVoting = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -39,10 +48,8 @@ const DaoCampaignVoting = () => {
     try {
       setLoading(true);
       setError(null);
-
       const response = await daoService.getCampaignForVoting(id);
       setCampaign(response.campaign || response);
-
     } catch (error) {
       console.error('Error loading campaign:', error);
       setError(error.message || 'Không thể tải thông tin campaign');
@@ -53,32 +60,18 @@ const DaoCampaignVoting = () => {
 
   const handleVoteSubmit = async (e) => {
     e.preventDefault();
-
     if (!selectedVote) {
       setError('Vui lòng chọn approve hoặc reject');
       return;
     }
-
     try {
       setVoting(true);
       setError(null);
-
-      await daoService.voteCampaign(id, {
-        vote: selectedVote,
-        reason: voteReason.trim()
-      });
-
+      await daoService.voteCampaign(id, { vote: selectedVote, reason: voteReason.trim() });
       setSuccess(true);
       setShowVoteForm(false);
-
-      // Reload campaign data to show updated vote counts
       await loadCampaignDetails();
-
-      // Auto redirect after 3 seconds
-      setTimeout(() => {
-        navigate('/dao/campaigns/pending');
-      }, 3000);
-
+      setTimeout(() => navigate('/dao/campaigns/pending'), 3000);
     } catch (error) {
       console.error('Error submitting vote:', error);
       setError(error.message || 'Không thể gửi vote');
@@ -92,60 +85,27 @@ const DaoCampaignVoting = () => {
     setShowVoteForm(true);
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(amount);
-  };
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
 
-  // Calculate voting progress - FIX: Use correct data structure
-  const calculateVotingProgress = (campaign) => {
-    if (!campaign || !campaign.vote_stats) {
-      return {
-        totalVotes: 0,
-        approveVotes: 0,
-        rejectVotes: 0,
-        approvalRate: 0,
-        needsMoreVotes: true,
-        votesLeft: 5,
-        canBeFinalDecision: false,
-        willBeApproved: false
-      };
+  const calculateVotingProgress = (c) => {
+    if (!c || !c.vote_stats) {
+      return { totalVotes: 0, approveVotes: 0, rejectVotes: 0, approvalRate: 0, needsMoreVotes: true, votesLeft: 5, canBeFinalDecision: false, willBeApproved: false };
     }
-
-    const stats = campaign.vote_stats;
-    const totalVotes = stats.total_votes || 0;
-    const approveVotes = stats.approve_votes || 0;
-    const rejectVotes = stats.reject_votes || 0;
-    const approvalRate = parseFloat(stats.approval_rate || 0);
-
+    const s = c.vote_stats;
+    const totalVotes = s.total_votes || 0;
+    const approveVotes = s.approve_votes || 0;
+    const rejectVotes = s.reject_votes || 0;
+    const approvalRate = parseFloat(s.approval_rate || 0);
     const votesLeft = Math.max(0, 5 - totalVotes);
     const needsMoreVotes = totalVotes < 5;
     const canBeFinalDecision = totalVotes >= 5;
     const willBeApproved = approvalRate > 50;
-
-    return {
-      totalVotes,
-      approveVotes,
-      rejectVotes,
-      approvalRate,
-      needsMoreVotes,
-      votesLeft,
-      canBeFinalDecision,
-      willBeApproved
-    };
+    return { totalVotes, approveVotes, rejectVotes, approvalRate, needsMoreVotes, votesLeft, canBeFinalDecision, willBeApproved };
   };
 
-  // Check if user can vote - FIX: Use correct field names
-  const canUserVote = (campaign) => {
-    if (!campaign || !campaign.user_vote) {
-      return true; // User hasn't voted yet
-    }
-    return false; // User has already voted
-  };
+  const canUserVote = (c) => !c?.user_vote;
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -156,7 +116,6 @@ const DaoCampaignVoting = () => {
     );
   }
 
-  // Check if user is DAO member
   if (!daoService.isUserDaoMember(user)) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -169,7 +128,6 @@ const DaoCampaignVoting = () => {
     );
   }
 
-  // Error state
   if (error && !campaign) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -188,7 +146,6 @@ const DaoCampaignVoting = () => {
     );
   }
 
-  // No campaign found
   if (!campaign) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -216,11 +173,7 @@ const DaoCampaignVoting = () => {
       <div className="bg-white shadow-sm">
         <div className="px-6 py-4 mx-auto max-w-7xl">
           <div className="flex items-center">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/dao/campaigns/pending')}
-              className="mr-4"
-            >
+            <Button variant="outline" onClick={() => navigate('/dao/campaigns/pending')} className="mr-4">
               <ArrowLeft className="mr-2 w-4 h-4" />
               Quay lại
             </Button>
@@ -233,7 +186,7 @@ const DaoCampaignVoting = () => {
       </div>
 
       <div className="px-6 py-8 mx-auto max-w-7xl">
-        {/* Success Message */}
+        {/* Success */}
         {success && (
           <div className="p-4 mb-6 text-green-700 bg-green-50 rounded-lg border border-green-200">
             <div className="flex items-center">
@@ -246,7 +199,7 @@ const DaoCampaignVoting = () => {
           </div>
         )}
 
-        {/* Error Message */}
+        {/* Error */}
         {error && (
           <div className="p-4 mb-6 text-red-700 bg-red-50 rounded-lg border border-red-200">
             <div className="flex items-center">
@@ -257,37 +210,33 @@ const DaoCampaignVoting = () => {
         )}
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Main Campaign Content */}
+          {/* Main */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow">
               {/* Campaign Image */}
               <div className="overflow-hidden relative h-64 rounded-t-lg">
                 <img
-                  src={campaign.image_url || '/images/img_image_18.png'}
+                  src={resolveImageUrl(campaign.image_url) || '/images/img_image_18.png'}
                   alt={campaign.title}
                   className="object-cover w-full h-full"
-                  onError={(e) => {
-                    e.target.src = '/images/img_image_18.png';
-                  }}
+                  onError={(e) => { e.currentTarget.src = '/images/img_image_18.png'; }}
                 />
                 <div className="absolute top-4 right-4 px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-full">
                   {campaign.category || 'General'}
                 </div>
               </div>
 
-              {/* Campaign Details */}
+              {/* Details */}
               <div className="p-6">
                 <h1 className="mb-4 text-3xl font-bold text-gray-900">{campaign.title}</h1>
 
-                {/* Organization Info */}
+                {/* Org */}
                 <div className="flex items-center mb-4">
                   <img
-                    src={campaign.charity?.logo_url || '/images/img_ellipse_8.png'}
+                    src={resolveImageUrl(campaign.charity?.logo_url) || '/images/img_ellipse_8.png'}
                     alt="Organization"
                     className="mr-3 w-12 h-12 rounded-full"
-                    onError={(e) => {
-                      e.target.src = '/images/img_ellipse_8.png';
-                    }}
+                    onError={(e) => { e.currentTarget.src = '/images/img_ellipse_8.png'; }}
                   />
                   <div>
                     <h3 className="font-semibold text-gray-900">{campaign.charity?.name}</h3>
@@ -295,7 +244,7 @@ const DaoCampaignVoting = () => {
                   </div>
                 </div>
 
-                {/* Campaign Meta */}
+                {/* Meta */}
                 <div className="grid grid-cols-2 gap-4 mb-6 text-sm text-gray-600">
                   <div className="flex items-center">
                     <DollarSign className="mr-2 w-4 h-4" />
@@ -321,7 +270,7 @@ const DaoCampaignVoting = () => {
                   </div>
                 </div>
 
-                {/* Detailed Description */}
+                {/* Detailed */}
                 {campaign.detailed_description && (
                   <div className="mb-6">
                     <h2 className="mb-3 text-xl font-semibold text-gray-900">Chi tiết</h2>
@@ -346,11 +295,26 @@ const DaoCampaignVoting = () => {
                     <p className="text-gray-700">{campaign.expected_impact}</p>
                   </div>
                 )}
+
+                {/* QR Code */}
+                {campaign.qr_code_url && (
+                  <div className="mb-6">
+                    <h2 className="mb-3 text-xl font-semibold text-gray-900">Mã QR ủng hộ</h2>
+                    <div className="w-full max-w-xs">
+                      <img
+                        src={resolveImageUrl(campaign.qr_code_url)}
+                        alt="QR Code"
+                        className="object-contain w-full border rounded-lg"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Voting Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-6">
             {/* Voting Progress */}
             <div className="p-6 bg-white rounded-lg shadow">
@@ -405,18 +369,11 @@ const DaoCampaignVoting = () => {
               <div className="p-6 bg-white rounded-lg shadow">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">Vote của bạn</h2>
                 <div className="space-y-3">
-                  <Button
-                    onClick={() => handleVoteChoice('approve')}
-                    className="py-3 w-full text-white bg-green-600 hover:bg-green-700"
-                  >
+                  <Button onClick={() => handleVoteChoice('approve')} className="py-3 w-full text-white bg-green-600 hover:bg-green-700">
                     <CheckCircle className="mr-2 w-5 h-5" />
                     Approve Campaign
                   </Button>
-                  <Button
-                    onClick={() => handleVoteChoice('reject')}
-                    variant="outline"
-                    className="py-3 w-full text-red-600 border-red-600 hover:bg-red-50"
-                  >
+                  <Button onClick={() => handleVoteChoice('reject')} variant="outline" className="py-3 w-full text-red-600 border-red-600 hover:bg-red-50">
                     <XCircle className="mr-2 w-5 h-5" />
                     Reject Campaign
                   </Button>
@@ -449,11 +406,7 @@ const DaoCampaignVoting = () => {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        setShowVoteForm(false);
-                        setSelectedVote('');
-                        setVoteReason('');
-                      }}
+                      onClick={() => { setShowVoteForm(false); setSelectedVote(''); setVoteReason(''); }}
                       disabled={voting}
                       className="flex-1"
                     >
@@ -471,25 +424,22 @@ const DaoCampaignVoting = () => {
               </div>
             )}
 
-            {/* Already Voted - FIX: Use correct field names */}
+            {/* Already Voted */}
             {!canVote && campaign.user_vote && (
               <div className="p-6 bg-white rounded-lg shadow">
                 <h2 className="mb-4 text-lg font-semibold text-gray-900">Vote của bạn</h2>
                 <div className={`p-4 rounded-lg ${campaign.user_vote.decision === 'approve' ? 'bg-green-50' : 'bg-red-50'}`}>
                   <div className="flex items-center mb-2">
-                    {campaign.user_vote.decision === 'approve' ? (
-                      <CheckCircle className="mr-2 w-5 h-5 text-green-600" />
-                    ) : (
-                      <XCircle className="mr-2 w-5 h-5 text-red-600" />
-                    )}
+                    {campaign.user_vote.decision === 'approve'
+                      ? <CheckCircle className="mr-2 w-5 h-5 text-green-600" />
+                      : <XCircle className="mr-2 w-5 h-5 text-red-600" />
+                    }
                     <span className={`font-medium ${campaign.user_vote.decision === 'approve' ? 'text-green-700' : 'text-red-700'}`}>
                       Đã {campaign.user_vote.decision === 'approve' ? 'approve' : 'reject'}
                     </span>
                   </div>
                   {campaign.user_vote.reason && (
-                    <p className="text-sm text-gray-600">
-                      Lý do: {campaign.user_vote.reason}
-                    </p>
+                    <p className="text-sm text-gray-600">Lý do: {campaign.user_vote.reason}</p>
                   )}
                   <p className="mt-2 text-xs text-gray-500">
                     {new Date(campaign.user_vote.created_at).toLocaleString('vi-VN')}
@@ -498,7 +448,7 @@ const DaoCampaignVoting = () => {
               </div>
             )}
 
-            {/* Campaign Status */}
+            {/* Status */}
             <div className="p-6 bg-white rounded-lg shadow">
               <h2 className="mb-4 text-lg font-semibold text-gray-900">Trạng thái</h2>
               <div className="space-y-2 text-sm">
