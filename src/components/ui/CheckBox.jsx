@@ -7,8 +7,8 @@ const CheckBox = ({
   id = "checkbox"
 }) => {
   return (
-    <div className="flex flex-row items-center w-[176px] h-[25px]">
-      <div className="relative w-6 h-6">
+    <div className="flex flex-row items-start">
+      <div className="relative w-6 h-6 flex-shrink-0">
         <input
           type="checkbox"
           id={id}
@@ -29,7 +29,7 @@ const CheckBox = ({
       </div>
       <label 
         htmlFor={id}
-        className="text-base font-inter font-medium text-checkbox-1 ml-[10px] cursor-pointer"
+        className="text-base font-inter font-medium text-checkbox-1 ml-[10px] cursor-pointer leading-5 whitespace-normal"
       >
         {label}
       </label>

@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import EditText from '../../components/ui/EditText';
 import CheckBox from '../../components/ui/CheckBox';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import charityService from '../../services/charityService';
 
+// Giới hạn dung lượng file (bytes)
+const MAX_5MB = 5 * 1024 * 1024;
+const MAX_2MB = 2 * 1024 * 1024;
+
 const CharityRegistration = () => {
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
@@ -32,7 +38,7 @@ const CharityRegistration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Auto-fill user data if authenticated
+  // Tự điền thông tin người dùng nếu đã đăng nhập
   useEffect(() => {
     if (isAuthenticated && user) {
       setFormData((prev) => ({
@@ -43,84 +49,75 @@ const CharityRegistration = () => {
     }
   }, [isAuthenticated, user]);
 
+  const clearFieldError = (field) => {
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }));
+    }
+  };
+
   const handleInputChange = (field) => (e) => {
     const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    clearFieldError(field);
   };
 
   const handleCheckboxChange = (field) => (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: e.target.checked,
-    }));
-    // Clear error when user checks
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
+    setFormData((prev) => ({ ...prev, [field]: e.target.checked }));
+    clearFieldError(field);
+  };
+
+  const validateFile = (file, { maxSize, types }) => {
+    if (!file) return null;
+    if (maxSize && file.size > maxSize) return `Dung lượng vượt quá ${(maxSize / (1024 * 1024)).toFixed(0)}MB`;
+    if (types && types.length) {
+      const ok = types.some((type) => file.type.includes(type));
+      if (!ok) return 'Định dạng tệp không được hỗ trợ';
     }
+    return null;
   };
 
   const handleFileChange = (field) => (e) => {
-    const file = e.target.files[0];
-    setFiles((prev) => ({
+    const file = e.target.files?.[0];
+    let rule = { maxSize: MAX_5MB, types: ['pdf', 'msword', 'officedocument', 'jpeg', 'jpg', 'png'] };
+    if (field === 'description') rule = { maxSize: MAX_5MB, types: ['pdf', 'msword', 'officedocument'] };
+    if (field === 'logo') rule = { maxSize: MAX_2MB, types: ['svg', 'jpeg', 'jpg', 'png'] };
+
+    const err = validateFile(file, rule);
+    setFiles((prev) => ({ ...prev, [field]: file || null }));
+
+    setErrors((prev) => ({
       ...prev,
-      [field]: file,
+      [field]: err || '',
     }));
-    // Clear error when user selects file
-    if (errors[field]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: '',
-      }));
-    }
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    // Required field validation
-    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
-    if (!formData.role.trim()) newErrors.role = 'Role is required';
-    if (!formData.organizationName.trim())
-      newErrors.organizationName = 'Organization name is required';
-    if (!formData.organizationEmail.trim())
-      newErrors.organizationEmail = 'Organization email is required';
-    if (!formData.organizationPhone.trim())
-      newErrors.organizationPhone = 'Organization phone is required';
-    if (!formData.address.trim()) newErrors.address = 'Address is required';
-    if (!formData.purposeOfRegistration.trim())
-      newErrors.purposeOfRegistration = 'Purpose of registration is required';
+    const isEmail = (v) => /\S+@\S+\.\S+/.test(v);
 
-    // File validation
-    if (!files.license) newErrors.license = 'License document is required';
-    if (!files.description) newErrors.description = 'Organization description is required';
+    // Bắt buộc nhập
+    if (!formData.fullName.trim()) newErrors.fullName = 'Vui lòng nhập họ và tên';
+    if (!formData.email.trim()) newErrors.email = 'Vui lòng nhập email';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Vui lòng nhập số điện thoại';
+    if (!formData.role.trim()) newErrors.role = 'Vui lòng chọn vai trò';
+    if (!formData.organizationName.trim()) newErrors.organizationName = 'Vui lòng nhập tên tổ chức';
+    if (!formData.organizationEmail.trim()) newErrors.organizationEmail = 'Vui lòng nhập email tổ chức';
+    if (!formData.organizationPhone.trim()) newErrors.organizationPhone = 'Vui lòng nhập số điện thoại tổ chức';
+    if (!formData.address.trim()) newErrors.address = 'Vui lòng nhập địa chỉ tổ chức';
+    if (!formData.purposeOfRegistration.trim()) newErrors.purposeOfRegistration = 'Vui lòng mô tả mục đích đăng ký';
 
-    // Checkbox validation
-    if (!formData.confirmAccurate)
-      newErrors.confirmAccurate = 'Please confirm information accuracy';
-    if (!formData.agreeTerms) newErrors.agreeTerms = 'Please agree to terms and conditions';
+    // Email hợp lệ
+    if (formData.email && !isEmail(formData.email)) newErrors.email = 'Email không hợp lệ';
+    if (formData.organizationEmail && !isEmail(formData.organizationEmail)) newErrors.organizationEmail = 'Email tổ chức không hợp lệ';
 
-    // Email validation
-    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-    }
-    if (formData.organizationEmail && !/\S+@\S+\.\S+/.test(formData.organizationEmail)) {
-      newErrors.organizationEmail = 'Invalid email format';
-    }
+    // Tệp bắt buộc + hợp lệ
+    if (!files.license) newErrors.license = 'Vui lòng tải giấy phép/chứng nhận';
+    if (!files.description) newErrors.description = 'Vui lòng tải mô tả tổ chức';
+
+    // Xác nhận
+    if (!formData.confirmAccurate) newErrors.confirmAccurate = 'Vui lòng xác nhận tính chính xác của thông tin';
+    if (!formData.agreeTerms) newErrors.agreeTerms = 'Vui lòng đồng ý điều khoản sử dụng và chính sách riêng tư';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -129,13 +126,11 @@ const CharityRegistration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     if (!isAuthenticated) {
-      alert('You must be logged in to register as a charity. Please sign in first.');
-      window.location.href = '/signin';
+      alert('Bạn cần đăng nhập để đăng ký trở thành tổ chức từ thiện.');
+      navigate('/signin');
       return;
     }
 
@@ -143,23 +138,24 @@ const CharityRegistration = () => {
     setErrors({});
 
     try {
-      // Prepare form data for API
+      // Chuẩn bị dữ liệu gửi API
       const charityData = {
         representativeInfo: {
-          fullName: formData.fullName,
-          email: formData.email,
-          phoneNumber: formData.phoneNumber,
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          phoneNumber: formData.phoneNumber.trim(),
           role: formData.role,
         },
         organizationInfo: {
-          name: formData.organizationName,
-          website: formData.website || null,
-          email: formData.organizationEmail,
-          phoneNumber: formData.organizationPhone,
-          address: formData.address,
+          name: formData.organizationName.trim(),
+          website: formData.website?.trim() || null,
+          email: formData.organizationEmail.trim(),
+          phoneNumber: formData.organizationPhone.trim(),
+          address: formData.address.trim(),
         },
-        purposeOfRegistration: formData.purposeOfRegistration,
+        purposeOfRegistration: formData.purposeOfRegistration.trim(),
         documents: {
+          // Tuỳ backend: hiện đang gửi tên file. Nếu cần upload thực tế, chuyển sang FormData.
           license: files.license?.name,
           description: files.description?.name,
           logo: files.logo?.name,
@@ -168,11 +164,9 @@ const CharityRegistration = () => {
 
       await charityService.registerCharity(charityData);
 
-      alert(
-        'Charity registration submitted successfully! We will review your application and get back to you soon.'
-      );
+      alert('Gửi đăng ký tổ chức từ thiện thành công! Chúng tôi sẽ xem xét và phản hồi sớm.');
 
-      // Reset form
+      // Reset form + quay về bước 1
       setFormData({
         fullName: user?.fullName || user?.name || '',
         email: user?.email || '',
@@ -187,16 +181,10 @@ const CharityRegistration = () => {
         confirmAccurate: false,
         agreeTerms: false,
       });
-
-      setFiles({
-        license: null,
-        description: null,
-        logo: null,
-      });
+      setFiles({ license: null, description: null, logo: null });
+      setCurrentStep(1);
     } catch (error) {
-      // Handle specific error cases
-      if (error.status === 422) {
-        // Handle validation errors
+      if (error?.status === 422) {
         const validationErrors = {};
         if (error.errors) {
           error.errors.forEach((err) => {
@@ -204,14 +192,10 @@ const CharityRegistration = () => {
           });
         }
         setErrors(validationErrors);
-      } else if (error.status === 409) {
-        setErrors({
-          general: 'A charity registration already exists for this user or organization.',
-        });
+      } else if (error?.status === 409) {
+        setErrors({ general: 'Đăng ký đã tồn tại cho người dùng hoặc tổ chức này.' });
       } else {
-        setErrors({
-          general: error.message || 'Registration failed. Please try again.',
-        });
+        setErrors({ general: error?.message || 'Gửi đăng ký thất bại. Vui lòng thử lại.' });
       }
     } finally {
       setIsLoading(false);
@@ -219,10 +203,10 @@ const CharityRegistration = () => {
   };
 
   const steps = [
-    { id: 1, title: 'Representative Info', icon: '👤' },
-    { id: 2, title: 'Organization Details', icon: '🏢' },
-    { id: 3, title: 'Documents & Purpose', icon: '📄' },
-    { id: 4, title: 'Review & Submit', icon: '✅' },
+    { id: 1, title: 'Thông tin đại diện', icon: '👤' },
+    { id: 2, title: 'Chi tiết tổ chức', icon: '🏢' },
+    { id: 3, title: 'Tài liệu & Mục đích', icon: '📄' },
+    { id: 4, title: 'Xem lại & Gửi', icon: '✅' },
   ];
 
   const renderStepIndicator = () => (
@@ -235,14 +219,16 @@ const CharityRegistration = () => {
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-all duration-300 ${
                   currentStep >= step.id
                     ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-gray-200 text-gray-500'
+                    : 'bg-gray-200 text-gray-600'
                 }`}
+                aria-current={currentStep === step.id ? 'step' : undefined}
+                title={step.title}
               >
                 {step.icon}
               </div>
               <span
                 className={`mt-2 text-xs font-medium transition-colors duration-300 ${
-                  currentStep >= step.id ? 'text-blue-600' : 'text-gray-400'
+                  currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
                 }`}
               >
                 {step.title}
@@ -281,14 +267,14 @@ const CharityRegistration = () => {
           <div className="text-2xl">{files[field] ? '✅' : '📁'}</div>
           <div className="text-center">
             <p className="text-sm font-medium text-gray-700">
-              {files[field] ? files[field].name : 'Click to upload or drag and drop'}
+              {files[field] ? files[field].name : 'Nhấn để chọn hoặc kéo thả tệp'}
             </p>
             <p className="text-xs text-gray-500 mt-1">{description}</p>
           </div>
         </label>
       </div>
       {errors[field] && (
-        <p className="text-sm text-red-500 flex items-center space-x-1">
+        <p className="text-sm text-red-500 flex items-center gap-1">
           <span>⚠️</span>
           <span>{errors[field]}</span>
         </p>
@@ -299,17 +285,17 @@ const CharityRegistration = () => {
   const renderStep1 = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Representative Information</h2>
-        <p className="text-gray-600">Tell us about yourself as the organization representative</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Thông tin người đại diện</h2>
+        <p className="text-gray-600">Hãy cho chúng tôi biết về bạn với vai trò đại diện tổ chức</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Họ và tên *</label>
           <EditText
             value={formData.fullName}
             onChange={handleInputChange('fullName')}
-            placeholder="Enter your full name"
+            placeholder="Nhập họ và tên"
             required
             error={errors.fullName}
             className="w-full"
@@ -317,12 +303,12 @@ const CharityRegistration = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
           <EditText
             type="email"
             value={formData.email}
             onChange={handleInputChange('email')}
-            placeholder="Enter your email address"
+            placeholder="Nhập email"
             required
             error={errors.email}
             className="w-full"
@@ -330,12 +316,12 @@ const CharityRegistration = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Số điện thoại *</label>
           <EditText
             type="tel"
             value={formData.phoneNumber}
             onChange={handleInputChange('phoneNumber')}
-            placeholder="Enter your phone number"
+            placeholder="Nhập số điện thoại"
             required
             error={errors.phoneNumber}
             className="w-full"
@@ -343,23 +329,23 @@ const CharityRegistration = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Your Role *</label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Vai trò của bạn *</label>
           <select
             value={formData.role}
             onChange={handleInputChange('role')}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
             required
           >
-            <option value="">Select your role</option>
-            <option value="Founder">Founder</option>
-            <option value="Director">Director</option>
-            <option value="Manager">Manager</option>
-            <option value="Coordinator">Coordinator</option>
-            <option value="Representative">Representative</option>
-            <option value="Other">Other</option>
+            <option value="">Chọn vai trò</option>
+            <option value="Founder">Người sáng lập</option>
+            <option value="Director">Giám đốc</option>
+            <option value="Manager">Quản lý</option>
+            <option value="Coordinator">Điều phối viên</option>
+            <option value="Representative">Đại diện</option>
+            <option value="Other">Khác</option>
           </select>
           {errors.role && (
-            <p className="text-sm text-red-500 mt-1 flex items-center space-x-1">
+            <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
               <span>⚠️</span>
               <span>{errors.role}</span>
             </p>
@@ -372,19 +358,17 @@ const CharityRegistration = () => {
   const renderStep2 = () => (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Organization Details</h2>
-        <p className="text-gray-600">Provide information about your charity organization</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Chi tiết tổ chức</h2>
+        <p className="text-gray-600">Cung cấp thông tin về tổ chức từ thiện của bạn</p>
       </div>
 
       <div className="space-y-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Organization Name *
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Tên tổ chức *</label>
           <EditText
             value={formData.organizationName}
             onChange={handleInputChange('organizationName')}
-            placeholder="Enter organization name"
+            placeholder="Nhập tên tổ chức"
             required
             error={errors.organizationName}
             className="w-full"
@@ -392,14 +376,12 @@ const CharityRegistration = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Website (Optional)
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Website (không bắt buộc)</label>
           <EditText
             type="url"
             value={formData.website}
             onChange={handleInputChange('website')}
-            placeholder="https://your-organization.com"
+            placeholder="https://to-chuc-cua-ban.vn"
             error={errors.website}
             className="w-full"
           />
@@ -407,14 +389,12 @@ const CharityRegistration = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Organization Email *
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email tổ chức *</label>
             <EditText
               type="email"
               value={formData.organizationEmail}
               onChange={handleInputChange('organizationEmail')}
-              placeholder="contact@organization.com"
+              placeholder="lienhe@tochuc.vn"
               required
               error={errors.organizationEmail}
               className="w-full"
@@ -422,14 +402,12 @@ const CharityRegistration = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Organization Phone *
-            </label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">SĐT tổ chức *</label>
             <EditText
               type="tel"
               value={formData.organizationPhone}
               onChange={handleInputChange('organizationPhone')}
-              placeholder="Organization phone number"
+              placeholder="Số điện thoại tổ chức"
               required
               error={errors.organizationPhone}
               className="w-full"
@@ -438,19 +416,17 @@ const CharityRegistration = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Organization Address *
-          </label>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Địa chỉ tổ chức *</label>
           <textarea
             value={formData.address}
             onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
-            placeholder="Enter complete organization address"
+            placeholder="Nhập địa chỉ đầy đủ của tổ chức"
             required
             rows={3}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
           />
           {errors.address && (
-            <p className="text-sm text-red-500 mt-1 flex items-center space-x-1">
+            <p className="text-sm text-red-500 mt-1 flex items-center gap-1">
               <span>⚠️</span>
               <span>{errors.address}</span>
             </p>
@@ -463,31 +439,29 @@ const CharityRegistration = () => {
   const renderStep3 = () => (
     <div className="space-y-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Documents & Purpose</h2>
-        <p className="text-gray-600">Upload required documents and describe your purpose</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Tài liệu & Mục đích</h2>
+        <p className="text-gray-600">Tải các tài liệu bắt buộc và mô tả mục đích đăng ký</p>
       </div>
 
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-          📋 Required Documents
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">📋 Tài liệu bắt buộc</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             {renderFileUpload(
               'license',
-              'License / Certification *',
+              'Giấy phép / Chứng nhận *',
               '.pdf,.doc,.docx,.jpg,.jpeg,.png',
-              'PDF, DOC, DOCX, JPG, PNG (Max 5MB)'
+              'Hỗ trợ PDF, DOC, DOCX, JPG, PNG (Tối đa 5MB)'
             )}
           </div>
 
           <div>
             {renderFileUpload(
               'description',
-              'Organization Description *',
+              'Mô tả tổ chức *',
               '.pdf,.doc,.docx',
-              'PDF, DOC, DOCX (Max 5MB)'
+              'Hỗ trợ PDF, DOC, DOCX (Tối đa 5MB)'
             )}
           </div>
         </div>
@@ -495,28 +469,24 @@ const CharityRegistration = () => {
         <div className="md:w-1/2">
           {renderFileUpload(
             'logo',
-            'Organization Logo (Optional)',
+            'Logo tổ chức (không bắt buộc)',
             '.jpg,.jpeg,.png,.svg',
-            'JPG, PNG, SVG (Max 2MB)'
+            'Hỗ trợ JPG, PNG, SVG (Tối đa 2MB)'
           )}
         </div>
 
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-            🎯 Purpose of Registration
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">🎯 Mục đích đăng ký</h3>
           <textarea
             value={formData.purposeOfRegistration}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, purposeOfRegistration: e.target.value }))
-            }
-            placeholder="Please describe your purpose for registering with DonaTrust and how you plan to use the platform to help your community..."
+            onChange={(e) => setFormData((prev) => ({ ...prev, purposeOfRegistration: e.target.value }))}
+            placeholder="Mô tả mục đích tham gia DonaTrust và cách bạn dự định sử dụng nền tảng để giúp cộng đồng..."
             required
             rows={5}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
           />
           {errors.purposeOfRegistration && (
-            <p className="text-sm text-red-500 flex items-center space-x-1">
+            <p className="text-sm text-red-500 flex items-center gap-1">
               <span>⚠️</span>
               <span>{errors.purposeOfRegistration}</span>
             </p>
@@ -529,55 +499,55 @@ const CharityRegistration = () => {
   const renderStep4 = () => (
     <div className="space-y-8">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Review & Submit</h2>
-        <p className="text-gray-600">Please review your information and confirm submission</p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Xem lại & Gửi</h2>
+        <p className="text-gray-600">Vui lòng kiểm tra lại thông tin trước khi gửi</p>
       </div>
 
-      {/* Review Summary */}
+      {/* Tóm tắt */}
       <div className="bg-gray-50 rounded-lg p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">📋 Application Summary</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">📋 Tóm tắt hồ sơ</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <strong>Representative:</strong> {formData.fullName}
+            <strong>Người đại diện:</strong> {formData.fullName || '-'}
           </div>
           <div>
-            <strong>Email:</strong> {formData.email}
+            <strong>Email:</strong> {formData.email || '-'}
           </div>
           <div>
-            <strong>Organization:</strong> {formData.organizationName}
+            <strong>Tổ chức:</strong> {formData.organizationName || '-'}
           </div>
           <div>
-            <strong>Role:</strong> {formData.role}
+            <strong>Vai trò:</strong> {formData.role || '-'}
           </div>
         </div>
 
         <div className="mt-4">
-          <strong>Documents uploaded:</strong>
+          <strong>Tệp đã tải lên:</strong>
           <ul className="list-disc list-inside text-sm text-gray-600 mt-2">
-            <li>License: {files.license?.name || 'Not uploaded'}</li>
-            <li>Description: {files.description?.name || 'Not uploaded'}</li>
-            <li>Logo: {files.logo?.name || 'Not uploaded'}</li>
+            <li>Giấy phép: {files.license?.name || 'Chưa tải'}</li>
+            <li>Mô tả: {files.description?.name || 'Chưa tải'}</li>
+            <li>Logo: {files.logo?.name || 'Chưa tải'}</li>
           </ul>
         </div>
       </div>
 
-      {/* Confirmation Checkboxes */}
+      {/* Xác nhận */}
       <div className="space-y-4 border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">✅ Confirmation</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">✅ Xác nhận</h3>
 
         <div className="space-y-3">
           <CheckBox
             checked={formData.confirmAccurate}
             onChange={handleCheckboxChange('confirmAccurate')}
-            label="I confirm that all information provided is accurate and complete"
+            label="Tôi xác nhận toàn bộ thông tin đã cung cấp là chính xác và đầy đủ"
             error={errors.confirmAccurate}
           />
 
           <CheckBox
             checked={formData.agreeTerms}
             onChange={handleCheckboxChange('agreeTerms')}
-            label="I agree to the terms and conditions and privacy policy"
+            label="Tôi đồng ý với điều khoản sử dụng và chính sách riêng tư"
             error={errors.agreeTerms}
           />
         </div>
@@ -585,7 +555,7 @@ const CharityRegistration = () => {
 
       {errors.general && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600 flex items-center space-x-2">
+          <p className="text-red-600 flex items-center gap-2">
             <span>⚠️</span>
             <span>{errors.general}</span>
           </p>
@@ -610,18 +580,19 @@ const CharityRegistration = () => {
   };
 
   const canProceedToNext = () => {
+    const t = (s) => (s || '').toString().trim();
     switch (currentStep) {
       case 1:
-        return formData.fullName && formData.email && formData.phoneNumber && formData.role;
+        return t(formData.fullName) && t(formData.email) && t(formData.phoneNumber) && t(formData.role);
       case 2:
         return (
-          formData.organizationName &&
-          formData.organizationEmail &&
-          formData.organizationPhone &&
-          formData.address
+          t(formData.organizationName) &&
+          t(formData.organizationEmail) &&
+          t(formData.organizationPhone) &&
+          t(formData.address)
         );
       case 3:
-        return files.license && files.description && formData.purposeOfRegistration;
+        return !!(files.license && files.description && t(formData.purposeOfRegistration));
       case 4:
         return formData.confirmAccurate && formData.agreeTerms;
       default:
@@ -631,17 +602,15 @@ const CharityRegistration = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Hero Section */}
+      {/* Hero */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Join DonaTrust as a Charity</h1>
-          <p className="text-xl md:text-2xl opacity-90">
-            Connect with donors and make a real impact in your community
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Tham gia DonaTrust với tư cách Tổ chức</h1>
+          <p className="text-xl md:text-2xl opacity-90">Kết nối với nhà hảo tâm và tạo tác động thực sự cho cộng đồng</p>
         </div>
       </div>
 
-      {/* Main Form */}
+      {/* Form chính */}
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
           {renderStepIndicator()}
@@ -649,26 +618,26 @@ const CharityRegistration = () => {
           <form onSubmit={handleSubmit} className="space-y-8">
             {renderCurrentStep()}
 
-            {/* Navigation Buttons */}
+            {/* Nút điều hướng */}
             <div className="flex justify-between items-center pt-8 border-t border-gray-200">
               <button
                 type="button"
-                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+                onClick={() => setCurrentStep((s) => Math.max(1, s - 1))}
                 disabled={currentStep === 1}
-                className="px-6 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ← Previous
+                ← Quay lại
               </button>
 
               <div className="flex space-x-4">
                 {currentStep < 4 ? (
                   <button
                     type="button"
-                    onClick={() => setCurrentStep(Math.min(4, currentStep + 1))}
+                    onClick={() => setCurrentStep((s) => Math.min(4, s + 1))}
                     disabled={!canProceedToNext()}
                     className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   >
-                    Next →
+                    Tiếp tục →
                   </button>
                 ) : (
                   <button
@@ -677,12 +646,12 @@ const CharityRegistration = () => {
                     className="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg"
                   >
                     {isLoading ? (
-                      <span className="flex items-center space-x-2">
+                      <span className="flex items-center gap-2">
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>Submitting...</span>
+                        <span>Đang gửi...</span>
                       </span>
                     ) : (
-                      '🚀 Submit Application'
+                      '🚀 Gửi hồ sơ'
                     )}
                   </button>
                 )}
