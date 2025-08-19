@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import charityService from '../../services/charityService';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import charityService from "../../services/charityService";
+import { useNavigate } from "react-router-dom";
 
-const API_ORIGIN = 'http://localhost:5000';
+const API_ORIGIN = "http://localhost:5000";
 
 const resolveImageUrl = (p) => {
-  if (!p) return '';
-  let url = String(p).trim().replace(/\\/g, '/');
+  if (!p) return "";
+  let url = String(p).trim().replace(/\\/g, "/");
   if (/^https?:\/\//i.test(url)) return url;
-  url = url.replace(/^[A-Za-z]:\/.*?(\/uploads\/)/, '/uploads/');
-  if (!url.startsWith('/')) url = '/' + url;
-  if (url.startsWith('/uploads/')) return `${API_ORIGIN}${url}`;
+  url = url.replace(/^[A-Za-z]:\/.*?(\/uploads\/)/, "/uploads/");
+  if (!url.startsWith("/")) url = "/" + url;
+  if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
   return url;
 };
 
@@ -23,7 +23,7 @@ const CharityDashboard = () => {
     charityService
       .getMyCampaigns()
       .then((res) => {
-        setCampaigns(res.campaigns || res.data || []); // hỗ trợ nhiều kiểu trả dữ liệu
+        setCampaigns(res.campaigns || res.data || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -32,85 +32,133 @@ const CharityDashboard = () => {
       });
   }, []);
 
-  if (loading) return <p>Đang tải chiến dịch...</p>;
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+
+  // ========== Thống kê ==========
+  const total = campaigns.length;
+  const active = campaigns.filter((c) => c.status === "active").length;
+  const ended = campaigns.filter((c) => c.status === "ended").length;
+  const totalRaised = campaigns.reduce(
+    (sum, c) => sum + (Number(c.current_amount) || 0),
+    0
+  );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Chiến dịch của bạn</h1>
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-violet-700">
+          Charity Dashboard
+        </h1>
         <button
-          onClick={() => navigate('/charity-dashboard/create')}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          onClick={() => navigate("/charity-dashboard/create")}
+          className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-semibold shadow"
         >
           + Tạo chiến dịch mới
         </button>
       </div>
 
-      {campaigns.length === 0 ? (
-        <p>Chưa có chiến dịch nào.</p>
-      ) : (
-        <ul className="space-y-3">
-          {campaigns.map((c) => {
-            const cover =
-              resolveImageUrl(
-                c.image_url || c.cover_image || c.image || c.thumbnail_url
-              ) || '/images/img_image_18.png';
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white shadow rounded-xl p-4 border-l-4 border-violet-500">
+          <p className="text-sm text-gray-500">Tổng chiến dịch</p>
+          <p className="text-2xl font-bold text-violet-700">{total}</p>
+        </div>
+        <div className="bg-white shadow rounded-xl p-4 border-l-4 border-green-500">
+          <p className="text-sm text-gray-500">Đang hoạt động</p>
+          <p className="text-2xl font-bold text-green-600">{active}</p>
+        </div>
+        <div className="bg-white shadow rounded-xl p-4 border-l-4 border-gray-400">
+          <p className="text-sm text-gray-500">Đã kết thúc</p>
+          <p className="text-2xl font-bold text-gray-600">{ended}</p>
+        </div>
+        <div className="bg-white shadow rounded-xl p-4 border-l-4 border-yellow-500">
+          <p className="text-sm text-gray-500">Tổng quyên góp</p>
+          <p className="text-2xl font-bold text-yellow-600">
+            {totalRaised.toLocaleString("vi-VN")} VND
+          </p>
+        </div>
+      </div>
 
-            return (
-              <li
-                key={c.campaign_id}
-                className="p-4 border rounded shadow flex gap-4 items-start"
-              >
-                {/* Ảnh chiến dịch */}
-                <div className="w-28 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                  <img
-                    src={cover}
-                    alt={c.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.src = '/images/img_image_18.png'; }}
-                    loading="lazy"
-                  />
-                </div>
+      {/* Campaign list */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4 text-violet-700">
+          Danh sách chiến dịch
+        </h2>
+        {campaigns.length === 0 ? (
+          <p className="text-gray-500">Chưa có chiến dịch nào.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {campaigns.map((c) => {
+              const cover =
+                resolveImageUrl(
+                  c.image_url || c.cover_image || c.image || c.thumbnail_url
+                ) || "/images/img_image_18.png";
 
-                {/* Nội dung */}
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-semibold truncate">{c.title}</h2>
-                  <p className="text-sm text-gray-600 line-clamp-2">{c.description}</p>
+              return (
+                <div
+                  key={c.campaign_id}
+                  className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
+                >
+                  {/* Ảnh */}
+                  <div className="h-40 w-full rounded-lg overflow-hidden bg-gray-100 mb-3">
+                    <img
+                      src={cover}
+                      alt={c.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) =>
+                        (e.currentTarget.src = "/images/img_image_18.png")
+                      }
+                      loading="lazy"
+                    />
+                  </div>
 
-                  <div className="mt-2 flex gap-2">
+                  {/* Nội dung */}
+                  <h3 className="text-lg font-semibold text-violet-700 truncate">
+                    {c.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {c.description}
+                  </p>
+
+                  {/* Actions */}
+                  <div className="mt-auto flex gap-2 pt-3">
                     <button
                       onClick={() =>
-                        navigate(`/charity-dashboard/campaigns/${c.campaign_id}/edit`)
+                        navigate(
+                          `/charity-dashboard/campaigns/${c.campaign_id}/edit`
+                        )
                       }
-                      className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500"
+                      className="flex-1 px-3 py-1 bg-violet-500 text-white rounded-lg hover:bg-violet-600 text-sm font-medium"
                     >
                       Sửa
                     </button>
-
                     <button
                       onClick={() => {
-                        if (confirm('Xác nhận xoá?')) {
+                        if (confirm("Xác nhận xoá?")) {
                           charityService
                             .deleteMyCampaign(c.campaign_id)
                             .then(() => {
                               setCampaigns((prev) =>
-                                prev.filter((item) => item.campaign_id !== c.campaign_id)
+                                prev.filter(
+                                  (item) => item.campaign_id !== c.campaign_id
+                                )
                               );
                             })
                             .catch((err) => alert(err.message));
                         }
                       }}
-                      className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      className="flex-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm font-medium"
                     >
                       Xoá
                     </button>
                   </div>
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
