@@ -214,7 +214,7 @@ const daoService = {
     switch (status) {
       case 'dao_approved':
         return 'text-green-600 bg-green-100';
-      case 'dao_rejected':  
+      case 'dao_rejected':
         return 'text-red-600 bg-red-100';
       case 'pending':
         return 'text-yellow-600 bg-yellow-100';
@@ -232,22 +232,20 @@ const daoService = {
   },
 
   // Calculate voting progress
-calculateVotingProgress: (campaign) => {
-  const stats = campaign.vote_stats || {};
-  const totalVotes = stats.total_votes || 0;
-  const approveVotes = stats.approve_votes || 0;
-  const approvalRate = totalVotes > 0 ? (approveVotes / totalVotes) * 100 : 0;
-  const needsMoreVotes = totalVotes < 5;
+  calculateVotingProgress: (campaign) => {
+    const totalVotes = (campaign.approve_votes || 0) + (campaign.reject_votes || 0);
+    const approvalRate = totalVotes > 0 ? ((campaign.approve_votes || 0) / totalVotes) * 100 : 0;
+    const needsMoreVotes = totalVotes < 5; // Minimum 5 votes needed
 
-  return {
-    totalVotes,
-    approvalRate: Math.round(approvalRate * 10) / 10,
-    needsMoreVotes,
-    canBeFinalDecision: totalVotes >= 5,
-    willBeApproved: approvalRate > 50,
-    votesLeft: Math.max(0, 5 - totalVotes)
-  };
-}
+    return {
+      totalVotes,
+      approvalRate: Math.round(approvalRate * 10) / 10, // Round to 1 decimal
+      needsMoreVotes,
+      canBeFinalDecision: totalVotes >= 5,
+      willBeApproved: approvalRate > 50,
+      votesLeft: Math.max(0, 5 - totalVotes)
+    };
+  }
 };
 
 export default daoService;
