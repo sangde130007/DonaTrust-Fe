@@ -26,17 +26,17 @@ const SignInPage = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-useEffect(() => {
-  if (isAuthenticated && user) {
-    if (user.role === 'dao_member') {
-      navigate('/dao-dashboard');
-    } else if (user.role === 'charity') {
-      navigate('/charity-dashboard');
-    } else {
-      navigate('/');
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'dao_member') {
+        navigate('/dao-dashboard');
+      } else if (user.role === 'charity') {
+        navigate('/charity-dashboard');
+      } else {
+        navigate('/');
+      }
     }
-  }
-}, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleInputChange = (field) => (e) => {
     const value = e.target.value;
@@ -97,17 +97,17 @@ useEffect(() => {
       });
 
       // Handle navigation based on user role
-if (response.user) {
-  if (response.user.role === 'dao_member') {
-    navigate('/dao-dashboard');
-  } else if (response.user.role === 'charity') {
-    navigate('/charity-dashboard');
-  } else {
-    navigate('/');
-  }
-}
+      if (response.user) {
+        if (response.user.role === 'dao_member') {
+          navigate('/dao-dashboard');
+        } else if (response.user.role === 'charity') {
+          navigate('/charity-dashboard');
+        } else {
+          navigate('/');
+        }
+      }
 
-      
+
     } catch (error) {
       // Handle specific error cases
       if (error.status === 401) {
@@ -234,7 +234,18 @@ if (response.user) {
               {errors.password && (
                 <p className="mt-1 ml-3 text-sm text-red-500">{errors.password}</p>
               )}
+              {/* 👉 Forgot Password link */}
+              <div className="mt-2 text-right">
+                <button
+                  type="button"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-sm font-medium text-blue-600 hover:underline"
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
             </div>
+
 
             {/* Keep me logged in */}
             <div className="pt-2">

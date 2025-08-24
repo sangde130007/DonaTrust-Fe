@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('loading'); // loading, success, error
+  const [status, setStatus] = useState('loading'); // loading | success | error
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -17,27 +17,33 @@ const VerifyEmail = () => {
       return;
     }
 
-    verifyEmail(token);
+    const run = async () => {
+      try {
+        await authService.verifyEmail(token);
+        setStatus('success');
+        setMessage('Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.');
+      } catch (err) {
+        const msg =
+          err?.response?.data?.message ||
+          err?.message ||
+          'Có lỗi xảy ra khi xác thực email';
+
+        // ✅ Nếu email đã được xác thực trước đó, coi như success
+        if (msg.toLowerCase().includes('đã được xác thực')) {
+          setStatus('success');
+          setMessage('Email của bạn đã được xác thực trước đó. Bạn có thể đăng nhập ngay bây giờ.');
+        } else {
+          setStatus('error');
+          setMessage(msg);
+        }
+      }
+    };
+
+    run();
   }, [searchParams]);
 
-  const verifyEmail = async (token) => {
-    try {
-      await authService.verifyEmail(token);
-      setStatus('success');
-      setMessage('Email đã được xác thực thành công! Bạn có thể đăng nhập ngay bây giờ.');
-    } catch (error) {
-      setStatus('error');
-      setMessage(error.message || 'Có lỗi xảy ra khi xác thực email');
-    }
-  };
-
-  const handleGoToLogin = () => {
-    navigate('/sign-in');
-  };
-
-  const handleGoToHome = () => {
-    navigate('/');
-  };
+  const handleGoToLogin = () => navigate('/signin'); // ✅ đúng path
+  const handleGoToHome = () => navigate('/');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -45,7 +51,7 @@ const VerifyEmail = () => {
         <div className="text-center">
           {status === 'loading' && (
             <>
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Đang xác thực email</h2>
               <p className="text-gray-600">Vui lòng chờ...</p>
             </>
@@ -53,19 +59,14 @@ const VerifyEmail = () => {
 
           {status === 'success' && (
             <>
-              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="h-6 w-6 text-green-600"
+                  className="h-6 w-6 text-purple-700"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Xác thực thành công!</h2>
@@ -73,7 +74,7 @@ const VerifyEmail = () => {
               <div className="space-y-3">
                 <Button
                   onClick={handleGoToLogin}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   Đăng nhập ngay
                 </Button>
@@ -93,12 +94,7 @@ const VerifyEmail = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Xác thực thất bại</h2>
@@ -106,7 +102,7 @@ const VerifyEmail = () => {
               <div className="space-y-3">
                 <Button
                   onClick={handleGoToLogin}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   Đăng nhập
                 </Button>
