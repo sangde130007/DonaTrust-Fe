@@ -19,6 +19,8 @@ import NotificationPage from './pages/Notification';
 import DonationPage from './pages/DonationPage';
 import ProfileEditPage from './pages/ProfileEdit';
 import ProfileDashboardPage from './pages/ProfileDashboard';
+import OrganizerPage from './pages/OrganizerPage';
+import Introduce from './pages/Introduce';
 
 /* ===== Registrations ===== */
 import CharityRegistrationPage from './pages/CharityRegistration';
@@ -41,6 +43,8 @@ import DaoDashboard from './pages/DaoDashboard';
 import DaoPendingCampaigns from './pages/DaoPendingCampaigns';
 import DaoCampaignVote from './pages/DaoCampaignVote';
 import DaoMyVotes from './pages/DaoMyVotes';
+import ReportCampaign from './pages/ReportCampaign';
+import DaoProfile from './pages/DaoProfile';
 
 // Optional 404
 // import NotFoundPage from './pages/NotFound';
@@ -137,6 +141,8 @@ const AppRoutes = () => {
           <Route path="campaign/:id" element={<CampaignDetailPage />} />
           <Route path="notification" element={<NotificationPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
+          <Route path="organizerinfor" element={<OrganizerPage />} />
+          <Route path="introduce" element={<Introduce />} />
 
           {/* Registrations */}
           <Route
@@ -212,6 +218,22 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute requiredRole="dao_member">
                 <DaoMyVotes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="dao-dashboard/reportcampaign"
+            element={
+              <ProtectedRoute requiredRole="dao_member">
+                <ReportCampaign />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="dao-dashboard/daoprofile"
+            element={
+              <ProtectedRoute requiredRole="dao_member">
+                <DaoProfile />
               </ProtectedRoute>
             }
           />
