@@ -94,11 +94,16 @@ const CharityDashboard = () => {
                 resolveImageUrl(
                   c.image_url || c.cover_image || c.image || c.thumbnail_url
                 ) || "/images/img_image_18.png";
+                
+              const handleViewDetails = () => {
+                navigate(`/charity-dashboard/campaigns/${c.campaign_id}`);
+              };
 
               return (
                 <div
                   key={c.campaign_id}
-                  className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col"
+                  className="bg-white rounded-xl shadow hover:shadow-lg transition p-4 flex flex-col cursor-pointer"
+                  onClick={handleViewDetails}
                 >
                   {/* Ảnh */}
                   <div className="h-40 w-full rounded-lg overflow-hidden bg-gray-100 mb-3">
@@ -124,17 +129,19 @@ const CharityDashboard = () => {
                   {/* Actions */}
                   <div className="mt-auto flex gap-2 pt-3">
                     <button
-                      onClick={() =>
+                      onClick={(e) => {
+                        e.stopPropagation();
                         navigate(
                           `/charity-dashboard/campaigns/${c.campaign_id}/edit`
-                        )
-                      }
+                        );
+                      }}
                       className="flex-1 px-3 py-1 bg-violet-500 text-white rounded-lg hover:bg-violet-600 text-sm font-medium"
                     >
                       Sửa
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm("Xác nhận xoá?")) {
                           charityService
                             .deleteMyCampaign(c.campaign_id)
