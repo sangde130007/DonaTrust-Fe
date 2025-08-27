@@ -35,20 +35,31 @@ const ChatButton = ({
       }
 
       if (response.status === 'success') {
+        console.log('Chat join successful:', response.data);
         setRoomData(response.data);
+        setIsChatOpen(true);
+      } else {
+        // Handle case where response doesn't have expected structure
+        console.log('Chat join response:', response);
+        setRoomData(response);
         setIsChatOpen(true);
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      setError('Không thể bắt đầu chat. Vui lòng thử lại.');
-
-      // Show user-friendly error message
+      
+      // Show user-friendly error message based on error type
       if (error.response?.status === 404) {
-        setError('Không tìm thấy thông tin để chat.');
+        setError('Không tìm thấy thông tin để chat. Vui lòng thử lại sau.');
       } else if (error.response?.status === 401) {
-        setError('Vui lòng đăng nhập để sử dụng tính năng chat.');
+        setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      } else if (error.response?.status === 403) {
+        setError('Bạn không có quyền truy cập chat này.');
+      } else if (error.response?.status === 500) {
+        setError('Lỗi server. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.');
+      } else if (error.code === 'NETWORK_ERROR' || error.message?.includes('Network Error')) {
+        setError('Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet.');
       } else {
-        setError('Lỗi kết nối. Vui lòng thử lại sau.');
+        setError('Không thể bắt đầu chat. Vui lòng thử lại sau.');
       }
     } finally {
       setIsLoading(false);
@@ -66,6 +77,10 @@ const ChatButton = ({
       return `Chat - ${roomData.campaign.title}`;
     } else if (type === 'charity' && roomData?.charity) {
       return `Chat - ${roomData.charity.name}`;
+    } else if (type === 'campaign' && entityData?.title) {
+      return `Chat - ${entityData.title}`;
+    } else if (type === 'charity' && entityData?.name) {
+      return `Chat - ${entityData.name}`;
     }
     return 'Chat với tổ chức';
   };
@@ -75,6 +90,8 @@ const ChatButton = ({
       return roomData.campaign.charity.name;
     } else if (type === 'charity' && roomData?.charity) {
       return 'Tổ chức từ thiện';
+    } else if (type === 'campaign' && entityData?.charity?.name) {
+      return entityData.charity.name;
     }
     return '';
   };
@@ -122,6 +139,7 @@ export const FloatingChatButton = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [roomData, setRoomData] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleStartChat = async () => {
     if (!user) {
@@ -131,6 +149,7 @@ export const FloatingChatButton = ({
 
     try {
       setIsLoading(true);
+      setError(null);
 
       let response;
       if (type === 'campaign') {
@@ -142,10 +161,18 @@ export const FloatingChatButton = ({
       if (response.status === 'success') {
         setRoomData(response.data);
         setIsChatOpen(true);
+      } else {
+        setRoomData(response);
+        setIsChatOpen(true);
       }
     } catch (error) {
       console.error('Error starting chat:', error);
-      alert('Không thể bắt đầu chat. Vui lòng thử lại.');
+      
+      if (error.response?.status === 500) {
+        setError('Lỗi server. Vui lòng thử lại sau.');
+      } else {
+        setError('Không thể bắt đầu chat. Vui lòng thử lại.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -154,6 +181,7 @@ export const FloatingChatButton = ({
   const handleCloseChat = () => {
     setIsChatOpen(false);
     setRoomData(null);
+    setError(null);
   };
 
   const getChatTitle = () => {
@@ -161,6 +189,10 @@ export const FloatingChatButton = ({
       return `Chat - ${roomData.campaign.title}`;
     } else if (type === 'charity' && roomData?.charity) {
       return `Chat - ${roomData.charity.name}`;
+    } else if (type === 'campaign' && entityData?.title) {
+      return `Chat - ${entityData.title}`;
+    } else if (type === 'charity' && entityData?.name) {
+      return `Chat - ${entityData.name}`;
     }
     return 'Chat với tổ chức';
   };
@@ -170,6 +202,8 @@ export const FloatingChatButton = ({
       return roomData.campaign.charity.name;
     } else if (type === 'charity' && roomData?.charity) {
       return 'Tổ chức từ thiện';
+    } else if (type === 'campaign' && entityData?.charity?.name) {
+      return entityData.charity.name;
     }
     return '';
   };
@@ -189,6 +223,12 @@ export const FloatingChatButton = ({
         >
           <FiMessageCircle size={24} />
         </button>
+      )}
+
+      {error && (
+        <div className="fixed bottom-20 left-4 z-50 p-3 text-sm text-red-700 bg-red-100 rounded border border-red-300 max-w-xs">
+          {error}
+        </div>
       )}
 
       {/* Chat Window */}
