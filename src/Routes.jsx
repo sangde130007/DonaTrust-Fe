@@ -21,7 +21,8 @@ import ProfileEditPage from './pages/ProfileEdit';
 import ProfileDashboardPage from './pages/ProfileDashboard';
 import OrganizerPage from './pages/OrganizerPage';
 import Introduce from './pages/Introduce';
-
+import NewsList from './pages/News/NewsList.jsx';
+import NewsDetail from './pages/News/NewsDetail';
 /* ===== Registrations ===== */
 import CharityRegistrationPage from './pages/CharityRegistration';
 import DaoRegistrationPage from './pages/DaoRegistration';
@@ -143,7 +144,9 @@ const AppRoutes = () => {
           <Route path="donationinfor" element={<DonationPage />} />
           <Route path="organizerinfor" element={<OrganizerPage />} />
           <Route path="introduce" element={<Introduce />} />
-
+  {/* News */}
+  <Route path="news" element={<NewsList />} />
+  <Route path="news/:id" element={<NewsDetail />} />
           {/* Registrations */}
           <Route
             path="charity-registration"
@@ -260,6 +263,7 @@ const AppRoutes = () => {
         {/* 404 (optional) */}
         {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
+
     </Router>
   );
 };

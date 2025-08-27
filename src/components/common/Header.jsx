@@ -96,7 +96,12 @@ const Header = () => {
                 >
                   Liên hệ
                 </Link>
-
+                <Link
+                  to="/news"
+                  className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
+                >
+                  Tin tức
+                </Link>
                 <Link to="/notification" className="relative hover:scale-105 transition-transform">
             <img src="/images/bell.png" alt="Thông báo" className="w-5 h-5" />
           </Link>
@@ -251,7 +256,7 @@ const Header = () => {
         )}
       </div>
 
-      {/* Change Password Modal */}
+      {/* Change Password Modal */} 
       <ChangePasswordModal
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}
