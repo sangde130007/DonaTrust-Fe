@@ -154,7 +154,7 @@ const CampaignListPage = () => {
 
           <div className="mt-auto text-center">
             <Link to={`/campaign/${campaign.campaign_id}`}>
-              <button className="px-4 py-2 text-xs font-semibold text-white bg-pink-500 rounded hover:bg-pink-600">
+              <button className="px-4 py-2 text-xs font-semibold text-white bg-violet-500 rounded hover:bg-violet-600">
                 Chi tiết
               </button>
             </Link>
@@ -284,7 +284,7 @@ const CampaignListPage = () => {
           ].map((c) => {
             const isSel = selectedCategory === c.id;
             const base = 'flex items-center gap-2 px-3 py-2 rounded-full border text-sm transition-colors';
-            const on  = 'bg-pink-50 text-pink-600 border-pink-500';
+            const on  = 'bg-violet-50 text-pink-600 border-violet-500';
             const off = 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50';
             return (
               <button

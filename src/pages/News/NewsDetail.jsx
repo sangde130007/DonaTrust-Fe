@@ -75,7 +75,11 @@ export default function NewsDetail() {
     };
     load();
   }, [id, navigate]);
-
+useEffect(() => {
+  if (!id) return;
+  // Gọi POST (hoặc PUT) để đếm view
+  api.post(`/news/${id}/view`).catch(() => {});
+}, [id]);
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
