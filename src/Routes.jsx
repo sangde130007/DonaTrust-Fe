@@ -38,6 +38,7 @@ import Users from './pages/Users';
 import CharityDashboard from './pages/CharityDashboard';
 import CreateCampaignForm from './pages/CharityDashboard/CreateCampaignForm';
 import EditCampaignForm from './pages/CharityDashboard/EditCampaignForm';
+import StatementTable from './pages/StatementTable';
 
 /* ===== DAO ===== */
 import DaoDashboard from './pages/DaoDashboard';
@@ -179,6 +180,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute requiredRole="charity">
                 <CreateCampaignForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="charity-dashboard/campaigns/:id"
+            element={
+              <ProtectedRoute requiredRole="charity">
+                <StatementTable />
               </ProtectedRoute>
             }
           />
