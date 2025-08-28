@@ -76,7 +76,7 @@ export default function NewsDetail() {
     load();
   }, [id, navigate]);
 useEffect(() => {
-  if (!id) return;
+  if (!id) return;  
   // Gọi POST (hoặc PUT) để đếm view
   api.post(`/news/${id}/view`).catch(() => {});
 }, [id]);
