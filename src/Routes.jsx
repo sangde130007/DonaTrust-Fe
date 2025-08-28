@@ -12,6 +12,7 @@ import SignUpPage from './pages/SignUp';
 import VerifyEmailPage from './pages/VerifyEmail';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import ResetPassword from './pages/ForgotPassword/ResetPassword';
+
 /* ===== Common ===== */
 import CampaignListPage from './pages/CampaignList';
 import CampaignDetailPage from './pages/CampaignDetail';
@@ -23,6 +24,7 @@ import OrganizerPage from './pages/OrganizerPage';
 import Introduce from './pages/Introduce';
 import NewsList from './pages/News/NewsList.jsx';
 import NewsDetail from './pages/News/NewsDetail';
+
 /* ===== Registrations ===== */
 import CharityRegistrationPage from './pages/CharityRegistration';
 import DaoRegistrationPage from './pages/DaoRegistration';
@@ -61,6 +63,7 @@ const AppRoutes = () => {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+
         {/* === Admin (use AdminLayout) === */}
         <Route
           path="/admin/news"
@@ -144,13 +147,15 @@ const AppRoutes = () => {
           <Route path="notification" element={<NotificationPage />} />
           <Route path="donationinfor" element={<DonationPage />} />
           <Route path="organizerinfor" element={<OrganizerPage />} />
+          {/* removed duplicate donation/:id */}
           <Route path="donation/:id" element={<DonationPage />} />
-<Route path="donation/:id" element={<DonationPage />} />
 
           <Route path="introduce" element={<Introduce />} />
-  {/* News */}
-  <Route path="news" element={<NewsList />} />
-  <Route path="news/:id" element={<NewsDetail />} />
+
+          {/* News */}
+          <Route path="news" element={<NewsList />} />
+          <Route path="news/:id" element={<NewsDetail />} />
+
           {/* Registrations */}
           <Route
             path="charity-registration"
@@ -203,7 +208,7 @@ const AppRoutes = () => {
             }
           />
 
-          {/* DAO */}
+          {/* DAO Dashboard (canonical) */}
           <Route
             path="dao-dashboard"
             element={
@@ -253,6 +258,34 @@ const AppRoutes = () => {
             }
           />
 
+          {/* === DAO aliases for /dao/... === */}
+          <Route path="dao">
+            <Route
+              path="campaigns/pending"
+              element={
+                <ProtectedRoute requiredRole="dao_member">
+                  <DaoPendingCampaigns />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="campaigns/:id"
+              element={
+                <ProtectedRoute requiredRole="dao_member">
+                  <DaoCampaignVote />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="my-votes"
+              element={
+                <ProtectedRoute requiredRole="dao_member">
+                  <DaoMyVotes />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
           {/* Profile */}
           <Route
             path="profile"
@@ -275,7 +308,6 @@ const AppRoutes = () => {
         {/* 404 (optional) */}
         {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
-
     </Router>
   );
 };
