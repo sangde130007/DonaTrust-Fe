@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import socketService from '../../services/socketService';
+import chatService from '../../services/chatService';
 import { FiSend, FiUsers, FiX, FiMessageCircle } from 'react-icons/fi';
 import AuthContext from '@/context/AuthContext';
 
@@ -17,6 +18,7 @@ const ChatWindow = ({
   const [participantCount, setParticipantCount] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
@@ -45,24 +47,50 @@ const ChatWindow = ({
   const initializeChat = async () => {
     try {
       setIsLoading(true);
+      setError(null);
 
       // Connect socket if not connected
       if (!socketService.getConnectionStatus().isConnected) {
-        const token = localStorage.getItem('token');
-        socketService.connect(token);
+        const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+        const socketResult = socketService.connect(token);
+        
+        if (!socketResult) {
+          console.warn('Socket connection failed, will use fallback mode');
+        }
       }
 
       // Setup event listeners
       setupSocketListeners();
 
       // Join room
-      const token = localStorage.getItem('token');
-      await socketService.joinRoom(roomData.roomId, user.user_id, token);
+      const token = localStorage.getItem('accessToken') || localStorage.getItem('token');
+      try {
+        await socketService.joinRoom(roomData.roomId, user.user_id, token);
+        console.log('Successfully joined room:', roomData.roomId);
+      } catch (joinError) {
+        console.warn('Socket join room failed, will use fallback mode:', joinError);
+        // Don't fail the entire chat initialization for this
+      }
 
+      // Load existing messages if available
+      if (roomData.roomId) {
+        try {
+          const messagesResponse = await chatService.getChatMessages(roomData.roomId, 1, 50);
+          if (messagesResponse.data) {
+            setMessages(messagesResponse.data);
+          }
+        } catch (msgError) {
+          console.warn('Could not load existing messages:', msgError);
+          // Don't fail the entire chat initialization for this
+        }
+      }
+
+      // Mark as connected even if socket fails (fallback mode)
       setIsConnected(true);
+      console.log('Chat initialized successfully');
     } catch (error) {
       console.error('Error initializing chat:', error);
-      alert('Không thể kết nối chat. Vui lòng thử lại.');
+      setError('Không thể kết nối chat. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -105,19 +133,35 @@ const ChatWindow = ({
     setTypingUsers([]);
     setIsConnected(false);
     setParticipantCount(0);
+    setError(null);
   };
 
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     e.preventDefault();
 
     if (!newMessage.trim() || !isConnected) {
       return;
     }
 
-    const success = socketService.sendMessage(roomData.roomId, newMessage.trim());
-    if (success) {
-      setNewMessage('');
-      handleStopTyping();
+    try {
+      // Try to send via socket first
+      const socketSuccess = socketService.sendMessage(roomData.roomId, newMessage.trim());
+      
+      if (socketSuccess) {
+        // If socket succeeds, clear input immediately for better UX
+        setNewMessage('');
+        handleStopTyping();
+      } else {
+        // Fallback to REST API if socket fails
+        if (roomData.roomId) {
+          await chatService.sendMessage(roomData.roomId, newMessage.trim());
+          setNewMessage('');
+          handleStopTyping();
+        }
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setError('Không thể gửi tin nhắn. Vui lòng thử lại.');
     }
   };
 
@@ -202,12 +246,19 @@ const ChatWindow = ({
         </div>
       </div>
 
-      {/* Connection Status */}
+      {/* Connection Status & Error */}
       <div className="px-3 py-1 text-xs bg-gray-50 border-b">
-        <span className={`inline-flex items-center ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-          <span className={`w-2 h-2 rounded-full mr-1 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
-          {isLoading ? 'Đang kết nối...' : isConnected ? 'Đã kết nối' : 'Mất kết nối'}
-        </span>
+        {error ? (
+          <span className="inline-flex items-center text-red-600">
+            <span className="w-2 h-2 rounded-full mr-1 bg-red-500"></span>
+            {error}
+          </span>
+        ) : (
+          <span className={`inline-flex items-center ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
+            <span className={`w-2 h-2 rounded-full mr-1 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></span>
+            {isLoading ? 'Đang kết nối...' : isConnected ? 'Đã kết nối' : 'Mất kết nối'}
+          </span>
+        )}
       </div>
 
       {/* Messages Area */}

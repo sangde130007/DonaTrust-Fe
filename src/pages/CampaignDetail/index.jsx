@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import campaignService from '../../services/campaignService';
+import ChatButton from '../../components/ui/ChatButton';
 import axios from 'axios';
 
 // const { user, getToken } = useAuth?.() || {}; // nếu có AuthContext thì thay bằng project của bạn
@@ -207,7 +208,7 @@ const CampaignDetailPage = () => {
           charity_id: u.charity_id || u?.charity?.charity_id || null,
         };
       }
-    } catch {}
+    } catch { }
 
     // Fallback: JWT
     try {
@@ -223,7 +224,7 @@ const CampaignDetailPage = () => {
           charity_id: p.charity_id || p?.charity?.charity_id || null,
         };
       }
-    } catch {}
+    } catch { }
     return { user_id: null, role: null, charity_id: null };
   }, []);
 
@@ -331,7 +332,7 @@ const CampaignDetailPage = () => {
           const u = JSON.parse(userRaw);
           token = u?.token || u?.accessToken || null;
         }
-      } catch {}
+      } catch { }
     }
 
     if (!token) {
@@ -428,17 +429,17 @@ const CampaignDetailPage = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-10">Đang tải chiến dịch...</div>;
-  if (!campaign) return <div className="text-center py-10 text-red-500">Không tìm thấy chiến dịch.</div>;
+  if (loading) return <div className="py-10 text-center">Đang tải chiến dịch...</div>;
+  if (!campaign) return <div className="py-10 text-center text-red-500">Không tìm thấy chiến dịch.</div>;
 
   const mainImage = campaign.image_url || (campaign.gallery_images?.[0] ?? '');
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="flex flex-col lg:flex-row gap-8">
+    <div className="container px-4 py-10 mx-auto">
+      <div className="flex flex-col gap-8 lg:flex-row">
         {/* LEFT */}
         <div className="w-full lg:w-2/3">
-          <h1 className="text-3xl font-bold mb-4">{campaign.title}</h1>
+          <h1 className="mb-4 text-3xl font-bold">{campaign.title}</h1>
 
           {mainImage && (
             <img
@@ -452,7 +453,7 @@ const CampaignDetailPage = () => {
           {/* GALLERY (cuộn ngang + lightbox) */}
           {Array.isArray(campaign.gallery_images) && campaign.gallery_images.length > 0 && (
             <div className="mt-4">
-              <h2 className="text-xl font-semibold mb-3">Thư viện ảnh</h2>
+              <h2 className="mb-3 text-xl font-semibold">Thư viện ảnh</h2>
 
               <div className="relative">
                 {/* Nút trái */}
@@ -460,9 +461,7 @@ const CampaignDetailPage = () => {
                   <button
                     type="button"
                     onClick={() => scrollByAmount(-1)}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10
-                               w-10 h-10 rounded-full bg-purple-200/90 hover:bg-purple-200
-                               shadow flex items-center justify-center"
+                    className="flex absolute left-0 top-1/2 z-10 justify-center items-center w-10 h-10 rounded-full shadow -translate-y-1/2 bg-purple-200/90 hover:bg-purple-200"
                     aria-label="Cuộn trái"
                     title="Cuộn trái"
                   >
@@ -473,7 +472,7 @@ const CampaignDetailPage = () => {
                 {/* Track cuộn */}
                 <div
                   ref={stripRef}
-                  className="overflow-x-auto scrollbar-none flex gap-3 snap-x snap-mandatory scroll-px-2 px-12"
+                  className="flex overflow-x-auto gap-3 px-12 scrollbar-none snap-x snap-mandatory scroll-px-2"
                   style={{ scrollBehavior: 'smooth' }}
                 >
                   {campaign.gallery_images.map((img, idx) => (
@@ -488,8 +487,7 @@ const CampaignDetailPage = () => {
                         src={resolveImageUrl(img)}
                         alt={`Gallery ${idx + 1}`}
                         loading="lazy"
-                        className="w-48 h-32 md:w-56 md:h-36 object-cover rounded-2xl border
-                                   transition-transform duration-200 hover:scale-105"
+                        className="object-cover w-48 h-32 rounded-2xl border transition-transform duration-200 md:w-56 md:h-36 hover:scale-105"
                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                     </button>
@@ -501,9 +499,7 @@ const CampaignDetailPage = () => {
                   <button
                     type="button"
                     onClick={() => scrollByAmount(1)}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10
-                               w-10 h-10 rounded-full bg-purple-200/90 hover:bg-purple-200
-                               shadow flex items-center justify-center"
+                    className="flex absolute right-0 top-1/2 z-10 justify-center items-center w-10 h-10 rounded-full shadow -translate-y-1/2 bg-purple-200/90 hover:bg-purple-200"
                     aria-label="Cuộn phải"
                     title="Cuộn phải"
                   >
@@ -512,35 +508,35 @@ const CampaignDetailPage = () => {
                 )}
 
                 {/* Fades mép */}
-                <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-white to-transparent rounded-l-2xl" />
-                <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent rounded-r-2xl" />
+                <div className="absolute top-0 left-0 w-10 h-full bg-gradient-to-r from-white to-transparent rounded-l-2xl pointer-events-none" />
+                <div className="absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white to-transparent rounded-r-2xl pointer-events-none" />
               </div>
             </div>
           )}
         </div>
 
         {/* RIGHT */}
-        <div className="w-full lg:w-1/3 bg-white rounded-xl shadow-lg p-6 space-y-5">
+        <div className="p-6 space-y-5 w-full bg-white rounded-xl shadow-lg lg:w-1/3">
           <div className="text-sm text-gray-500">Tiền ủng hộ được chuyển đến</div>
-          <div className="font-bold text-xl text-green-600">
+          <div className="text-xl font-bold text-green-600">
             {campaign.charity?.name || 'Đơn vị tiếp nhận'}
           </div>
 
-          <div className="border-t pt-4 space-y-2">
+          <div className="pt-4 space-y-2 border-t">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Mục tiêu</span>
               <span className="font-semibold">{formatCurrency(campaign.goal_amount)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Thời gian còn lại</span>
-              <span className="text-green-600 font-semibold">{daysLeft()} ngày</span>
+              <span className="font-semibold text-green-600">{daysLeft()} ngày</span>
             </div>
           </div>
 
           {/* Progress */}
           <div>
-            <div className="w-full bg-gray-200 h-3 rounded-full">
-              <div className="bg-green-500 h-3 rounded-full" style={{ width: `${getProgress()}%` }} />
+            <div className="w-full h-3 bg-gray-200 rounded-full">
+              <div className="h-3 bg-green-500 rounded-full" style={{ width: `${getProgress()}%` }} />
             </div>
             <div className="flex justify-between mt-1 text-sm text-gray-600">
               <span>Đã đạt được</span>
@@ -554,24 +550,24 @@ const CampaignDetailPage = () => {
           <div className="flex gap-2">
             <button
               onClick={handleDonate}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold"
+              className="flex-1 py-2 font-semibold text-white bg-green-500 rounded-lg hover:bg-green-600"
             >
               Ủng hộ
             </button>
-            <button className="flex-1 border border-green-500 text-green-500 hover:bg-green-100 py-2 rounded-lg font-semibold">
+            <button className="flex-1 py-2 font-semibold text-green-500 rounded-lg border border-green-500 hover:bg-green-100">
               Đồng hành gây quỹ
             </button>
           </div>
 
           {campaign.qr_code_url && (
-            <div className="text-center pt-4">
+            <div className="pt-4 text-center">
               <img
                 src={resolveImageUrl(campaign.qr_code_url)}
                 alt="QR code"
-                className="mx-auto w-full max-w-xs rounded-lg border object-contain"
+                className="object-contain mx-auto w-full max-w-xs rounded-lg border"
                 onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
-              <div className="text-sm mt-2 text-gray-600">Ủng hộ qua mã QR</div>
+              <div className="mt-2 text-sm text-gray-600">Ủng hộ qua mã QR</div>
             </div>
           )}
         </div>
@@ -597,17 +593,23 @@ const CampaignDetailPage = () => {
         >
           Danh sách ủng hộ
         </button>
+        <button
+          onClick={() => setActiveTab('chat')}
+          className={`px-6 py-2 rounded-t-lg ${activeTab === 'chat' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Chat
+        </button>
       </div>
 
       {/* Tab Content */}
-      <div className="border-t border-gray-300 pt-6">
+      <div className="pt-6 border-t border-gray-300">
         {activeTab === 'detailed' && (
           <div className="py-8">
-            <p className="text-lg text-gray-700 mb-6">{campaign.description}</p>
+            <p className="mb-6 text-lg text-gray-700">{campaign.description}</p>
             {campaign.detailed_description && (
               <div className="mt-4">
-                <h2 className="text-2xl font-semibold mb-4">Câu chuyện</h2>
-                <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                <h2 className="mb-4 text-2xl font-semibold">Câu chuyện</h2>
+                <p className="leading-relaxed text-gray-800 whitespace-pre-line">
                   {campaign.detailed_description}
                 </p>
               </div>
@@ -620,28 +622,28 @@ const CampaignDetailPage = () => {
           <div className="py-8 space-y-6">
             {/* Form tạo cập nhật (chỉ chủ chiến dịch) */}
             {isOwner && (
-              <div className="bg-white border rounded-xl shadow p-5">
-                <h3 className="text-xl font-semibold mb-3">Đăng cập nhật mới</h3>
+              <div className="p-5 bg-white rounded-xl border shadow">
+                <h3 className="mb-3 text-xl font-semibold">Đăng cập nhật mới</h3>
 
                 {formError && (
-                  <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                  <div className="p-2 mb-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
                     {formError}
                   </div>
                 )}
 
                 <form onSubmit={handleSubmitUpdate} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề (tuỳ chọn)</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Tiêu đề (tuỳ chọn)</label>
                     <input
                       value={updateTitle}
                       onChange={(e) => setUpdateTitle(e.target.value)}
-                      className="w-full border rounded-lg px-3 py-2"
+                      className="px-3 py-2 w-full rounded-lg border"
                       placeholder="VD: Cập nhật tuần 2 – phát quà tại xã A"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nội dung</label>
+                    <label className="block mb-1 text-sm font-medium text-gray-700">Nội dung</label>
                     <textarea
                       value={updateContent}
                       onChange={(e) => setUpdateContent(e.target.value)}
@@ -651,32 +653,32 @@ const CampaignDetailPage = () => {
                   </div>
 
                   {/* Chi tiêu */}
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Tổng chi (VND, tuỳ chọn)</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Tổng chi (VND, tuỳ chọn)</label>
                       <input
                         value={spentAmount}
                         onChange={(e) => setSpentAmount(e.target.value)}
-                        className="w-full border rounded-lg px-3 py-2"
+                        className="px-3 py-2 w-full rounded-lg border"
                         placeholder="VD: 2500000"
                         inputMode="numeric"
                       />
                     </div>
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Chi tiết khoản chi (tuỳ chọn)</label>
+                      <label className="block mb-1 text-sm font-medium text-gray-700">Chi tiết khoản chi (tuỳ chọn)</label>
                       <div className="space-y-2">
                         {spentItems.map((it, i) => (
                           <div key={i} className="flex gap-2">
                             <input
                               value={it.label}
                               onChange={(e) => updateSpentItem(i, 'label', e.target.value)}
-                              className="flex-1 border rounded-lg px-3 py-2"
+                              className="flex-1 px-3 py-2 rounded-lg border"
                               placeholder="Nội dung chi (VD: Mua gạo)"
                             />
                             <input
                               value={it.amount}
                               onChange={(e) => updateSpentItem(i, 'amount', e.target.value)}
-                              className="w-40 border rounded-lg px-3 py-2"
+                              className="px-3 py-2 w-40 rounded-lg border"
                               placeholder="Số tiền"
                               inputMode="numeric"
                             />
@@ -703,7 +705,7 @@ const CampaignDetailPage = () => {
 
                   {/* Ảnh */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block mb-1 text-sm font-medium text-gray-700">
                       Ảnh minh hoạ (tối đa {MAX_UPDATE_IMAGES} ảnh, ≤ {MAX_IMG_MB}MB/ảnh)
                     </label>
                     <input
@@ -713,7 +715,7 @@ const CampaignDetailPage = () => {
                       onChange={(e) => onPickImages(e.target.files)}
                     />
                     {updateImages.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-3">
+                      <div className="flex flex-wrap gap-3 mt-3">
                         {updateImages.map((f, idx) => {
                           const url = URL.createObjectURL(f);
                           return (
@@ -721,11 +723,11 @@ const CampaignDetailPage = () => {
                               <img
                                 src={url}
                                 alt={`picked-${idx}`}
-                                className="h-24 w-32 object-cover rounded-lg border"
+                                className="object-cover w-32 h-24 rounded-lg border"
                               />
                               <button
                                 type="button"
-                                className="absolute -top-2 -right-2 bg-white border rounded-full w-7 h-7 shadow"
+                                className="absolute -top-2 -right-2 w-7 h-7 bg-white rounded-full border shadow"
                                 title="Xoá ảnh"
                                 onClick={() => removePicked(idx)}
                               >
@@ -764,10 +766,10 @@ const CampaignDetailPage = () => {
                   {activities.map((u) => {
                     const uid = u.id || u.update_id;
                     return (
-                      <div key={uid} className="bg-white rounded-xl shadow p-4 border">
-                        <div className="flex items-center justify-between mb-1">
+                      <div key={uid} className="p-4 bg-white rounded-xl border shadow">
+                        <div className="flex justify-between items-center mb-1">
                           <h3 className="text-lg font-semibold">{u.title || 'Cập nhật'}</h3>
-                          <div className="flex items-center gap-3">
+                          <div className="flex gap-3 items-center">
                             <span className="text-sm text-gray-500">
                               {new Date(u.created_at || u.date || u.createdAt).toLocaleString('vi-VN')}
                             </span>
@@ -788,14 +790,14 @@ const CampaignDetailPage = () => {
                         <p className="text-gray-800 whitespace-pre-line">{u.content}</p>
 
                         {(u.spent_amount || (u.spent_items && u.spent_items.length)) && (
-                          <div className="mt-3 bg-purple-50 border border-purple-100 rounded p-3">
+                          <div className="p-3 mt-3 bg-purple-50 rounded border border-purple-100">
                             {u.spent_amount != null && (
                               <div className="font-medium text-purple-700">
                                 Tổng chi: {Number(u.spent_amount).toLocaleString('vi-VN')} VND
                               </div>
                             )}
                             {u.spent_items?.length > 0 && (
-                              <ul className="mt-1 list-disc pl-5 text-sm text-purple-900">
+                              <ul className="pl-5 mt-1 text-sm list-disc text-purple-900">
                                 {u.spent_items.map((it, i) => (
                                   <li key={i}>{it.label}: {Number(it.amount).toLocaleString('vi-VN')} VND</li>
                                 ))}
@@ -805,7 +807,7 @@ const CampaignDetailPage = () => {
                         )}
 
                         {Array.isArray(u.images) && u.images.length > 0 && (
-                          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
+                          <div className="flex overflow-x-auto gap-2 mt-3 scrollbar-none">
                             {u.images.map((img, idx) => (
                               <button
                                 key={idx}
@@ -818,7 +820,7 @@ const CampaignDetailPage = () => {
                                   src={resolveImageUrl(img)}
                                   alt=""
                                   loading="lazy"
-                                  className="h-28 w-40 object-cover rounded-lg border"
+                                  className="object-cover w-40 h-28 rounded-lg border"
                                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                                 />
                               </button>
@@ -834,7 +836,7 @@ const CampaignDetailPage = () => {
                 <div className="flex justify-center mt-4 space-x-2">
                   <button
                     onClick={() => handleActPageChange(actPage - 1)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
                     disabled={actPage === 1}
                   >
                     Trước
@@ -844,7 +846,7 @@ const CampaignDetailPage = () => {
                   </span>
                   <button
                     onClick={() => handleActPageChange(actPage + 1)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
                     disabled={actPage === actTotalPages}
                   >
                     Sau
@@ -868,21 +870,21 @@ const CampaignDetailPage = () => {
                   <table className="w-full text-sm text-gray-700">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th className="py-2 px-4 text-left">Tên</th>
-                        <th className="py-2 px-4 text-left">Email</th>
-                        <th className="py-2 px-4 text-left">Lời chúc</th>
-                        <th className="py-2 px-4 text-left">Số tiền</th>
-                        <th className="py-2 px-4 text-left">Thời gian</th>
+                        <th className="px-4 py-2 text-left">Tên</th>
+                        <th className="px-4 py-2 text-left">Email</th>
+                        <th className="px-4 py-2 text-left">Lời chúc</th>
+                        <th className="px-4 py-2 text-left">Số tiền</th>
+                        <th className="px-4 py-2 text-left">Thời gian</th>
                       </tr>
                     </thead>
                     <tbody>
                       {donationHistory.map((donation, index) => (
                         <tr key={index} className="border-t border-gray-300">
-                          <td className="py-2 px-4">{donation.name || 'Ẩn danh'}</td>
-                          <td className="py-2 px-4">{donation.email || 'Ẩn danh'}</td>
-                          <td className="py-2 px-4">{donation.message}</td>
-                          <td className="py-2 px-4">{formatCurrency(donation.amount)}</td>
-                          <td className="py-2 px-4">{new Date(donation.created_at).toLocaleString('vi-VN')}</td>
+                          <td className="px-4 py-2">{donation.name || 'Ẩn danh'}</td>
+                          <td className="px-4 py-2">{donation.email || 'Ẩn danh'}</td>
+                          <td className="px-4 py-2">{donation.message}</td>
+                          <td className="px-4 py-2">{formatCurrency(donation.amount)}</td>
+                          <td className="px-4 py-2">{new Date(donation.created_at).toLocaleString('vi-VN')}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -893,7 +895,7 @@ const CampaignDetailPage = () => {
                 <div className="flex justify-center mt-4 space-x-2">
                   <button
                     onClick={() => handlePageChange(page - 1)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
                     disabled={page === 1}
                   >
                     Trước
@@ -903,7 +905,7 @@ const CampaignDetailPage = () => {
                   </span>
                   <button
                     onClick={() => handlePageChange(page + 1)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
                     disabled={page === totalPages}
                   >
                     Sau
@@ -913,17 +915,49 @@ const CampaignDetailPage = () => {
             )}
           </div>
         )}
+
+        {/* ===== Tab Chat ===== */}
+        {activeTab === 'chat' && (
+          <div className="py-8">
+            <div className="p-6 bg-white rounded-xl border shadow">
+              <div className="mb-6 text-center">
+                <h3 className="mb-2 text-2xl font-semibold text-gray-800">
+                  Chat với tổ chức từ thiện
+                </h3>
+                <p className="text-gray-600">
+                  Hãy đặt câu hỏi hoặc trao đổi với tổ chức về chiến dịch này
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <ChatButton
+                  type="campaign"
+                  entityId={id}
+                  entityData={campaign}
+                  buttonText="Bắt đầu chat"
+                  className="px-6 py-3 text-lg"
+                />
+              </div>
+
+              <div className="mt-6 text-sm text-center text-gray-500">
+                <p>• Chat trực tiếp với tổ chức từ thiện</p>
+                <p>• Hỏi đáp về chiến dịch và tiến độ</p>
+                <p>• Nhận thông báo cập nhật mới nhất</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* LIGHTBOX MODAL */}
       {isLightboxOpen && lightboxImages.length > 0 && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          className="flex fixed inset-0 z-50 justify-center items-center p-4 bg-black/80"
           role="dialog"
           aria-modal="true"
           onClick={closeLightbox}
         >
-          <div className="relative max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
             <img
               src={resolveImageUrl(lightboxImages[lightboxIndex])}
               alt={`Ảnh ${lightboxIndex + 1}`}
@@ -933,7 +967,7 @@ const CampaignDetailPage = () => {
 
             <button
               onClick={closeLightbox}
-              className="absolute -top-3 -right-3 bg-white/90 hover:bg-white text-gray-800 rounded-full w-9 h-9 shadow flex items-center justify-center"
+              className="flex absolute -top-3 -right-3 justify-center items-center w-9 h-9 text-gray-800 rounded-full shadow bg-white/90 hover:bg-white"
               aria-label="Đóng"
               title="Đóng"
             >
@@ -942,7 +976,7 @@ const CampaignDetailPage = () => {
 
             <button
               onClick={gotoPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full w-10 h-10 shadow flex items-center justify-center"
+              className="flex absolute left-0 top-1/2 justify-center items-center w-10 h-10 text-gray-900 rounded-full shadow -translate-y-1/2 bg-white/90 hover:bg-white"
               aria-label="Ảnh trước"
               title="Ảnh trước"
             >
@@ -950,14 +984,14 @@ const CampaignDetailPage = () => {
             </button>
             <button
               onClick={gotoNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full w-10 h-10 shadow flex items-center justify-center"
+              className="flex absolute right-0 top-1/2 justify-center items-center w-10 h-10 text-gray-900 rounded-full shadow -translate-y-1/2 bg-white/90 hover:bg-white"
               aria-label="Ảnh sau"
               title="Ảnh sau"
             >
               ›
             </button>
 
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-white/90 text-sm">
+            <div className="absolute bottom-2 left-1/2 text-sm -translate-x-1/2 text-white/90">
               {lightboxIndex + 1} / {lightboxImages.length}
             </div>
           </div>

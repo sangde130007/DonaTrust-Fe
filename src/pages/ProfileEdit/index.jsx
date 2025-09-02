@@ -4,6 +4,7 @@ import Button from '../../components/ui/Button';
 import EditText from '../../components/ui/EditText';
 import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
+const API_ORIGIN = import.meta.env.VITE_API_ORIGIN || 'http://localhost:5000';
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
