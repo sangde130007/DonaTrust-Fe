@@ -227,6 +227,7 @@ const CampaignDetailPage = () => {
     } catch { }
     return { user_id: null, role: null, charity_id: null };
   }, []);
+  
 
   const isOwner = useMemo(() => {
     if (!campaign) return false;
@@ -434,6 +435,9 @@ const CampaignDetailPage = () => {
 
   const mainImage = campaign.image_url || (campaign.gallery_images?.[0] ?? '');
 
+  const handleReportClick = () => {
+    navigate(`/reportcampaign/${id}`);
+  };
   return (
     <div className="container px-4 py-10 mx-auto">
       <div className="flex flex-col gap-8 lg:flex-row">
@@ -547,15 +551,23 @@ const CampaignDetailPage = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <button
+                onClick={handleDonate}
+                className="flex-1 py-2 font-semibold text-white bg-green-500 rounded-lg hover:bg-green-600"
+              >
+                Ủng hộ
+              </button>
+              <button className="flex-1 py-2 font-semibold text-green-500 rounded-lg border border-green-500 hover:bg-green-100">
+                Đồng hành gây quỹ
+              </button>
+            </div>
             <button
-              onClick={handleDonate}
-              className="flex-1 py-2 font-semibold text-white bg-green-500 rounded-lg hover:bg-green-600"
-            >
-              Ủng hộ
-            </button>
-            <button className="flex-1 py-2 font-semibold text-green-500 rounded-lg border border-green-500 hover:bg-green-100">
-              Đồng hành gây quỹ
+            onClick={handleReportClick}
+            className="flex justify-center items-center gap-2 w-full py-2 text-sm font-semibold text-gray-500 rounded-lg border hover:bg-gray-100">
+              <span role="img" aria-label="flag">🚩</span>
+              Báo cáo chiến dịch gây quỹ
             </button>
           </div>
 
