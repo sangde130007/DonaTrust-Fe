@@ -156,6 +156,13 @@ const AppRoutes = () => {
           <Route path="news" element={<NewsList />} />
           <Route path="news/:id" element={<NewsDetail />} />
 
+          <Route
+            path="reportcampaign/:id"
+            element={
+                <ReportCampaign />
+            }
+          />
+
           {/* Registrations */}
           <Route
             path="charity-registration"

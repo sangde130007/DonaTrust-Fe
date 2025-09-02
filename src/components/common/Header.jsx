@@ -57,7 +57,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="flex flex-row w-full h-[61px] bg-global-3 shadow-[0px_2px_5px_#abbed166]">
+      <div className="sticky top-0 z-50 flex flex-row w-full h-[61px] bg-global-3 shadow-[0px_2px_5px_#abbed166]">
         <div className="flex flex-row w-full h-full items-center justify-between px-[70px]">
           {/* Logo */}
           <Link to="/" className="flex items-center">
