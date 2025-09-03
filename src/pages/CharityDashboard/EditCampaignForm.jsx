@@ -11,7 +11,7 @@ const MAX_GALLERY_COUNT = 10;
 const API_ORIGIN =
   (typeof import.meta !== 'undefined' &&
     import.meta.env &&
-    import.meta.env.VITE_API_ORIGIN) ||
+    import.meta.env.VITE_API_BASE_URL) ||
   'http://localhost:5000';
 
 /* ============== Helpers ============== */

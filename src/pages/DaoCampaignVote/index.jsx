@@ -15,7 +15,8 @@ import {
   TrendingUp
 } from 'lucide-react';
 
-const API_ORIGIN = 'http://localhost:5000'; // phải trùng với BE
+const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+ // phải trùng với BE
 
 const resolveImageUrl = (p) => {
   if (!p) return '';

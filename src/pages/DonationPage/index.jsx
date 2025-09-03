@@ -4,6 +4,7 @@ import axios from "axios";
 import { usePayOS } from "payos-checkout";
 
 const donationAmounts = [50000, 100000, 200000, 500000];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 const DonationPage = () => {
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ const DonationPage = () => {
     const fetchCampaign = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/campaigns/${id}`);
+        const response = await axios.get(`${API_BASE_URL}/campaigns/${id}`);
         const campaignData = response.data;
 
         const endDate = new Date(campaignData.end_date);
@@ -97,7 +98,7 @@ const DonationPage = () => {
         email,
         anonymous,
       };
-      const response = await axios.post("http://localhost:5000/api/donations", donationData);
+      const response = await axios.post(`${API_BASE_URL}/donations`, donationData);
       console.log("API Response:", response.data); // Kiểm tra phản hồi
       const { paymentUrl, qrCode, bankName, accountNumber, accountName, amount: paymentAmount, description } = response.data;
       if (!qrCode) {

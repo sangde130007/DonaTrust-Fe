@@ -19,6 +19,7 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
 const AdminDashboard = ({ stats }) => {
   // Simple bar chart for demo (pending vs total)
   const pieData = {
@@ -306,7 +307,7 @@ const Profile = () => {
                     src={
                       displayUser.profile_image.startsWith('http')
                         ? displayUser.profile_image
-                        : `http://localhost:5000${displayUser.profile_image}`
+                        : `${API_BASE_URL}${displayUser.profile_image}`
                     }
                     alt="Avatar"
                     className="object-cover w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg"

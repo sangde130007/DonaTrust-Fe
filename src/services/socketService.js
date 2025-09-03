@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 class SocketService {
   constructor() {
     this.socket = null;
@@ -12,7 +12,7 @@ class SocketService {
   }
 
   // Initialize socket connection
-  connect(token, apiUrl = 'http://localhost:5000') {
+   connect(token, apiUrl = SOCKET_URL) {
     if (this.socket) {
       this.disconnect();
     }
@@ -21,10 +21,13 @@ class SocketService {
       this.socket = io(apiUrl, {
         transports: ['websocket', 'polling'],
         autoConnect: true,
-        timeout: 10000, // Increased timeout
+        timeout: 10000,
         reconnection: true,
         reconnectionAttempts: 3,
-        reconnectionDelay: 1000
+        reconnectionDelay: 1000,
+        auth: {
+          token, // 👈 gửi token cho server auth socket
+        },
       });
 
       this.socket.on('connect', () => {
