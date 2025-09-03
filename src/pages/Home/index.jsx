@@ -17,7 +17,7 @@ import {
   Title as ChartTitle,
 } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
-const API_ORIGIN = 'http://localhost:5000';
+const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 const resolveImageUrl = (p) => {
   if (!p) return '';
   let url = String(p).trim().replace(/\\/g, '/');

@@ -4,7 +4,8 @@ import Footer from '../../components/common/Footer';
 import Button from '../../components/ui/Button';
 import campaignService from '../../services/campaignService';
 
-const API_ORIGIN = 'http://localhost:5000';
+const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 
 /** Chuẩn hoá URL ảnh từ BE */
 const resolveImageUrl = (p) => {

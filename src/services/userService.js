@@ -201,7 +201,7 @@ class UserService {
     }
 
     // Add base URL for relative paths
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_ASSET_URL|| 'http://localhost:5000';
     return `${baseUrl}${imagePath}`;
   }
 
