@@ -28,6 +28,7 @@ import NewsDetail from './pages/News/NewsDetail';
 /* ===== Registrations ===== */
 import CharityRegistrationPage from './pages/CharityRegistration';
 import DaoRegistrationPage from './pages/DaoRegistration';
+import AdminCharityApprovals from './pages/Admin/AdminCharityApprovals';
 
 /* ===== Admin ===== */
 import { default as NewsManagement } from './pages/Admin/NewsManagement';
@@ -35,6 +36,7 @@ import CharityPending from './pages/CharityPending';
 import CharityPendingDetail from './pages/CharityPending/Detail';
 import CampaignPendingDetail from './pages/CampaignPendingDetail';
 import Users from './pages/Users';
+import AdminReportedCampaigns from './pages/admin/AdminReportedCampaigns';
 
 /* ===== Charity Dashboard ===== */
 import CharityDashboard from './pages/CharityDashboard';
@@ -105,6 +107,26 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+  path="/admin/charity-approvals"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <AdminLayout>
+        <AdminCharityApprovals />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/admin/report-campaigns"
+  element={
+    <ProtectedRoute requiredRole="admin">
+      <AdminLayout>
+        <AdminReportedCampaigns />
+      </AdminLayout>
+    </ProtectedRoute>
+  }
+/>
         <Route
           path="/admin/campaigns/:id"
           element={

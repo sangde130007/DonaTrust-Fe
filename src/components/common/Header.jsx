@@ -4,6 +4,7 @@ import SearchView from '../ui/SearchView';
 import Button from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import ChangePasswordModal from '../ui/ChangePasswordModal';
+import NotificationBell from './NotificationBell';
 
 const Header = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -19,7 +20,7 @@ const Header = () => {
           full_name: user.full_name,
           role: user.role,
           profile_image: user.profile_image,
-          avatar: user.avatar, // Check both fields
+          avatar: user.avatar,
         }
       : null,
   });
@@ -40,17 +41,11 @@ const Header = () => {
     }
   };
 
-  const toggleLanguage = () => {
-    const newLang = i18n.language === 'vi' ? 'en' : 'vi';
-    i18n.changeLanguage(newLang);
-  };
-
   const handleChangePassword = () => {
-    setShowUserMenu(false); // Close user menu
-    setShowChangePassword(true); // Open change password modal
+    setShowUserMenu(false);
+    setShowChangePassword(true);
   };
 
-  // Get user avatar - check both profile_image and avatar fields
   const getUserAvatar = () => {
     return user?.profile_image || '/images/img_avatar.png';
   };
@@ -91,87 +86,75 @@ const Header = () => {
                   Giới thiệu
                 </Link>
                 <Link
-                  to="/contact"
-                  className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
-                >
-                  Liên hệ
-                </Link>
-                <Link
                   to="/news"
                   className="text-base font-medium font-inter text-global-4 hover:text-blue-600"
                 >
                   Tin tức
                 </Link>
-                <Link to="/notification" className="relative hover:scale-105 transition-transform">
-            <img src="/images/bell.png" alt="Thông báo" className="w-5 h-5" />
-          </Link>
-              </nav>
 
-              {/* Language */}
-              <div className="flex flex-row items-center">
-                <span className="text-xs font-medium font-roboto text-global-4">VI</span>
-                <img
-                  src="/images/img_expand.svg"
-                  alt="Language Dropdown"
-                  className="ml-1 w-4 h-4"
-                />
-              </div>
+                {/* 🔔 BỎ icon bell cũ (Link tới /notification) */}
+                {/* <Link to="/notification" className="relative hover:scale-105 transition-transform">
+                  <img src="/images/bell.png" alt="Thông báo" className="w-5 h-5" />
+                </Link> */}
+              </nav>
             </div>
           )}
 
-          {/* Auth Section */}
+          {/* Auth Section (bên phải) */}
           <div className="flex flex-row items-center space-x-3">
             {isAuthenticated ? (
-              // User Menu
-              <div className="relative">
-                <button
-                  onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center p-2 space-x-2 rounded-lg transition-colors hover:bg-gray-100"
-                >
-                  <img
-                    src={getUserAvatar()}
-                    alt="User Avatar"
-                    className="object-cover w-8 h-8 rounded-full"
-                    onError={(e) => {
-                      console.log('🖼️ Avatar load failed, using fallback');
-                      e.target.src = '/images/img_avatar.png';
-                    }}
-                  />
-                  <span className="text-sm font-medium text-global-4">
-                    {user?.full_name || 'Người dùng'}
-                  </span>
-                  <img src="/images/img_expand.svg" alt="Menu" className="w-4 h-4" />
-                </button>
+              <>
+                {/* 🔔 NotificationBell: badge + dropdown + link "Xem tất cả" tới /notifications */}
+                <NotificationBell />
 
-                {/* Dropdown Menu */}
-                {showUserMenu && (
-                  <div className="absolute right-0 top-full z-50 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg">
-                    <div className="py-2">
-                      {/* User Info Header */}
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
-                        <p className="text-xs text-blue-600 capitalize">{user?.role}</p>
-                      </div>
+                {/* User Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center p-2 space-x-2 rounded-lg transition-colors hover:bg-gray-100"
+                  >
+                    <img
+                      src={getUserAvatar()}
+                      alt="User Avatar"
+                      className="object-cover w-8 h-8 rounded-full"
+                      onError={(e) => {
+                        console.log('🖼️ Avatar load failed, using fallback');
+                        e.target.src = '/images/img_avatar.png';
+                      }}
+                    />
+                    <span className="text-sm font-medium text-global-4">
+                      {user?.full_name || 'Người dùng'}
+                    </span>
+                    <img src="/images/img_expand.svg" alt="Menu" className="w-4 h-4" />
+                  </button>
 
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Bảng điều khiển cá nhân
-                      </Link>
-                      <Link
-                        to="/profile/edit"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        Chỉnh sửa hồ sơ
-                      </Link>
+                  {/* Dropdown Menu */}
+                  {showUserMenu && (
+                    <div className="absolute right-0 top-full z-50 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg">
+                      <div className="py-2">
+                        {/* User Info Header */}
+                        <div className="px-4 py-2 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
+                          <p className="text-xs text-gray-500">{user?.email}</p>
+                          <p className="text-xs text-blue-600 capitalize">{user?.role}</p>
+                        </div>
 
-                      {/* Show role-specific options */}
-                      {user?.role === 'donor' && (
-                        <>
+                        <Link
+                          to="/profile"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Bảng điều khiển cá nhân
+                        </Link>
+                        <Link
+                          to="/profile/edit"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          Chỉnh sửa hồ sơ
+                        </Link>
+
+                        {user?.role === 'donor' && (
                           <Link
                             to="/charity-registration"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -179,55 +162,47 @@ const Header = () => {
                           >
                             Đăng ký tổ chức từ thiện
                           </Link>
+                        )}
+
+                        {user?.role === 'charity' && (
                           <Link
-                            to="/dao-registration"
+                            to="/charity-dashboard"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                             onClick={() => setShowUserMenu(false)}
                           >
-                            Tham gia DAO
+                            Bảng điều khiển từ thiện
                           </Link>
-                        </>
-                      )}
+                        )}
 
-                      {user?.role === 'charity' && (
-                        <Link
-                          to="/charity-dashboard"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setShowUserMenu(false)}
+                        {user?.role === 'admin' && (
+                          <Link
+                            to="/"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            Bảng điều khiển quản trị
+                          </Link>
+                        )}
+
+                        <button
+                          onClick={handleChangePassword}
+                          className="block px-4 py-2 w-full text-sm text-left text-gray-700 hover:bg-gray-100"
                         >
-                          Bảng điều khiển từ thiện
-                        </Link>
-                      )}
-
-                      {user?.role === 'admin' && (
-                        <Link
-                          to="/"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setShowUserMenu(false)}
+                          Đổi mật khẩu
+                        </button>
+                        <hr className="my-2" />
+                        <button
+                          onClick={handleLogout}
+                          className="block px-4 py-2 w-full text-sm text-left text-red-600 hover:bg-gray-100"
                         >
-                          Bảng điều khiển quản trị
-                        </Link>
-                      )}
-
-                      <button
-                        onClick={handleChangePassword}
-                        className="block px-4 py-2 w-full text-sm text-left text-gray-700 hover:bg-gray-100"
-                      >
-                        Đổi mật khẩu
-                      </button>
-                      <hr className="my-2" />
-                      <button
-                        onClick={handleLogout}
-                        className="block px-4 py-2 w-full text-sm text-left text-red-600 hover:bg-gray-100"
-                      >
-                        Đăng xuất
-                      </button>
+                          Đăng xuất
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              </>
             ) : (
-              // Login/Register buttons
               <>
                 <Link to="/signin">
                   <Button variant="login" size="small">
@@ -256,7 +231,7 @@ const Header = () => {
         )}
       </div>
 
-      {/* Change Password Modal */} 
+      {/* Change Password Modal */}
       <ChangePasswordModal
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}

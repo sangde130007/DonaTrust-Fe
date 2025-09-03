@@ -3,15 +3,21 @@ import api from './api';
 
 const isFormData = (v) => typeof FormData !== 'undefined' && v instanceof FormData;
 
+export const toAbsoluteUrl = (path) => {
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  const base = (import.meta?.env?.VITE_API_ORIGIN || '').replace(/\/+$/, '');
+  return path ? `${base}/${path.replace(/^\/+/, '')}` : null;
+};
+
 class CharityService {
-  // ===== Public =====
+  /* ===================== Public ===================== */
   async getAllCharities(filters = {}) {
     const params = new URLSearchParams();
     if (filters.search) params.append('search', filters.search);
     if (filters.category) params.append('category', filters.category);
     if (filters.page) params.append('page', filters.page);
     if (filters.limit) params.append('limit', filters.limit);
-
     const url = params.toString() ? `/charities?${params}` : '/charities';
     const res = await api.get(url);
     return res.data;
@@ -22,19 +28,82 @@ class CharityService {
     return res.data;
   }
 
-  // ===== Authenticated: Charity profile =====
-  async registerCharity(charityData) {
+  /* ===================== Auth: Charity profile ===================== */
+
+  /**
+   * Đăng ký tổ chức từ thiện
+   * - Nếu truyền FormData: gửi thẳng (PHẢI là các field phẳng, không có 'data')
+   * - Nếu truyền object + có File/Blob: tự build FormData phẳng đúng field BE
+   * - Nếu không có file: gửi JSON
+   */
+  async registerCharity(input) {
+    // 1) Caller đã đưa sẵn FormData -> gửi thẳng
+    if (isFormData(input)) {
+      const res = await (api.postForm
+        ? api.postForm('/charities/register', input)
+        : api.post('/charities/register', input, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }));
+      return res.data;
+    }
+
+    // 2) Object có file -> tự đóng FormData (phẳng)
+    const org = input?.organizationInfo || {};
+    const docs = input?.documents || {};
+
+    const hasFiles =
+      (typeof File !== 'undefined' &&
+        (docs.license instanceof File ||
+         docs.description instanceof File ||
+         docs.logo instanceof File)) ||
+      (typeof Blob !== 'undefined' &&
+        (docs.license instanceof Blob ||
+         docs.description instanceof Blob ||
+         docs.logo instanceof Blob));
+
+    if (hasFiles) {
+      const fd = new FormData();
+
+      // TEXT (tên field khớp BE)
+      const purpose = (input?.purposeOfRegistration || '').toString();
+      fd.append('name', org.name || input?.organizationName || '');
+      fd.append('description', purpose);
+      fd.append('mission', purpose);
+      fd.append('license_number', docs.licenseNumber || docs.license_number || 'TMP-' + Date.now());
+      fd.append('address', org.address || '');
+      fd.append('city', org.city || 'Unknown');
+      fd.append('phone', org.phoneNumber || org.phone || '');
+      fd.append('email', org.email || '');
+      if (org.website) fd.append('website_url', org.website);
+
+      // FILES (tên field khớp BE)
+      if (docs.license)     fd.append('license', docs.license);
+      if (docs.description) fd.append('description', docs.description);
+      if (docs.logo)        fd.append('logo', docs.logo);
+
+      const res = await (api.postForm
+        ? api.postForm('/charities/register', fd)
+        : api.post('/charities/register', fd, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }));
+      return res.data;
+    }
+
+    // 3) Không có file -> JSON
     const payload = {
-      name: charityData?.organizationInfo?.name || charityData?.organizationName,
-      description: charityData?.purposeOfRegistration,
-      mission: charityData?.purposeOfRegistration,
-      license_number: charityData?.documents?.license || 'pending_upload',
-      license_document: charityData?.documents?.license || 'pending_upload',
-      address: charityData?.organizationInfo?.address,
-      city: charityData?.organizationInfo?.city || 'Unknown',
-      phone: charityData?.organizationInfo?.phoneNumber || charityData?.organizationInfo?.phone,
-      email: charityData?.organizationInfo?.email,
-      website_url: charityData?.organizationInfo?.website || null,
+      name: org.name || input?.organizationName,
+      description: input?.purposeOfRegistration || '',
+      mission: input?.purposeOfRegistration || '',
+      license_number: docs.licenseNumber || docs.license_number || 'TMP-' + Date.now(),
+      address: org.address || '',
+      city: org.city || 'Unknown',
+      phone: org.phoneNumber || org.phone || '',
+      email: org.email || '',
+      website_url: org.website || null,
+      // nếu đã có URL sẵn (upload nơi khác)
+      license_url: docs.license_url || '',
+      description_url: docs.description_url || '',
+      logo_url: docs.logo_url || '',
     };
     const res = await api.post('/charities/register', payload);
     return res.data;
@@ -55,11 +124,15 @@ class CharityService {
     return res.data;
   }
 
-  // ===== Campaigns =====
+  /* ===================== Campaigns ===================== */
+
   async createCampaign(data) {
-    // Hỗ trợ cả JSON (chỉ text) và FormData (có file)
     if (isFormData(data)) {
-      const res = await api.postForm('/charities/campaigns', data);
+      const res = await (api.postForm
+        ? api.postForm('/charities/campaigns', data)
+        : api.post('/charities/campaigns', data, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }));
       return res.data;
     }
     const res = await api.post('/charities/campaigns', data);
@@ -71,7 +144,6 @@ class CharityService {
     if (filters.status) params.append('status', filters.status);
     if (filters.page) params.append('page', filters.page);
     if (filters.limit) params.append('limit', filters.limit);
-
     const url = params.toString() ? `/charities/campaigns?${params}` : '/charities/campaigns';
     const res = await api.get(url);
     return res.data;
@@ -83,9 +155,12 @@ class CharityService {
   }
 
   async updateMyCampaign(id, data) {
-    // QUAN TRỌNG: dùng putForm khi là FormData
     if (isFormData(data)) {
-      const res = await api.putForm(`/charities/campaigns/${id}`, data);
+      const res = await (api.putForm
+        ? api.putForm(`/charities/campaigns/${id}`, data)
+        : api.put(`/charities/campaigns/${id}`, data, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }));
       return res.data;
     }
     const res = await api.put(`/charities/campaigns/${id}`, data);
@@ -107,7 +182,8 @@ class CharityService {
     return res.data;
   }
 
-  // ===== Financial reports =====
+  /* ===================== Financial reports ===================== */
+
   async createFinancialReport(reportData) {
     const res = await api.post('/charities/financial-reports', reportData);
     return res.data;
@@ -119,11 +195,9 @@ class CharityService {
     if (filters.status) params.append('status', filters.status);
     if (filters.page) params.append('page', filters.page);
     if (filters.limit) params.append('limit', filters.limit);
-
     const url = params.toString()
       ? `/charities/financial-reports?${params}`
       : '/charities/financial-reports';
-
     const res = await api.get(url);
     return res.data;
   }

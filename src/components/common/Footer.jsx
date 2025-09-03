@@ -20,18 +20,18 @@ const Footer = () => {
 
         <div className="flex flex-col text-sm font-inter">
           <h3 className="text-base font-semibold text-global-8">Ủng hộ</h3>
-          <Link to="/about" className="text-xs mt-4 hover:text-pink-500">Chiến dịch</Link>
-          <Link to="/blog" className="text-xs mt-2 hover:text-pink-500">Tổ chức gây quỹ</Link>
-          <Link to="/contact" className="text-xs mt-2 hover:text-pink-500">Người ủng hộ</Link>
+          <Link to="/" className="text-xs mt-4 hover:text-pink-500">Chiến dịch</Link>
+          <Link to="/" className="text-xs mt-2 hover:text-pink-500">Tổ chức gây quỹ</Link>
+          <Link to="/" className="text-xs mt-2 hover:text-pink-500">Người ủng hộ</Link>
 
         </div>
 
         <div className="flex flex-col text-sm font-inter">
           <h3 className="text-base font-semibold text-global-8">Giới thiệu</h3>
-          <Link to="/help" className="text-xs mt-4 hover:text-pink-500">Về chúng tôi</Link>
-          <Link to="/terms" className="text-xs mt-2 hover:text-pink-500">Hỏi đáp</Link>
-          <Link to="/legal" className="text-xs mt-2 hover:text-pink-500">Điều khoản sử dụng</Link>
-          <Link to="/privacy" className="text-xs mt-2 hover:text-pink-500">Chính sách bảo mật</Link>
+          <Link to="/" className="text-xs mt-4 hover:text-pink-500">Về chúng tôi</Link>
+          <Link to="/" className="text-xs mt-2 hover:text-pink-500">Hỏi đáp</Link>
+          <Link to="/" className="text-xs mt-2 hover:text-pink-500">Điều khoản sử dụng</Link>
+          <Link to="/" className="text-xs mt-2 hover:text-pink-500">Chính sách bảo mật</Link>
         </div>
 
         {/* Đăng ký nhận thông tin */}

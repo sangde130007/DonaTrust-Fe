@@ -1,9 +1,5 @@
 {
-  "compilerOptions": {
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+  "scripts": {
+    "dev": "vite --host --port 4028"
   }
 }

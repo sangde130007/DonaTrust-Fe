@@ -258,26 +258,8 @@ const SignUpPage = () => {
               </Button>
             </div>
 
-            {/* Divider */}
-            <div className="flex items-center w-[399px] h-6 my-6">
-              <div className="flex-1 h-px bg-global-7"></div>
-              <span className="px-4 text-base font-medium font-inter text-global-12">hoặc</span>
-              <div className="flex-1 h-px bg-global-7"></div>
-            </div>
 
-            {/* Google Sign Up */}
-            <Button
-              type="button"
-              variant="google"
-              size="large"
-              onClick={handleGoogleSignUp}
-              className="w-[399px] shadow-sm"
-            >
-              <span className="text-lg font-semibold font-inter text-global-9">
-                Đăng ký bằng Google
-              </span>
-              <img src="/images/img_plus.svg" alt="Google" className="ml-4 w-6 h-6" />
-            </Button>
+
 
             {/* Sign In Link */}
             <div className="pt-6 text-center">

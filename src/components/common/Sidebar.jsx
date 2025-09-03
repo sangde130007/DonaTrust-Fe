@@ -30,11 +30,7 @@ const items = [
     url: '/campaigns',
     icon: Heart,
   },
-  {
-    title: 'Chiến dịch chờ duyệt',
-    url: '/charity-pending',
-    icon: FileText,
-  },
+
   {
     title: 'Hồ sơ',
     url: '/profile',
@@ -47,7 +43,12 @@ const items = [
   },
     {
     title: 'Duyệt tổ chức từ thiện',
-    url: '/admin/charities/pending',
+    url: '/admin/charity-approvals',
+    icon: FileText,
+  },
+      {
+    title: 'Chiến dịch bị báo cáo',
+    url: '/admin/report-campaigns',
     icon: FileText,
   },
 ];

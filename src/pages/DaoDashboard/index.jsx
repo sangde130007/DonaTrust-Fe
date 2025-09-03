@@ -1,9 +1,36 @@
+// src/pages/dao/DaoDashboard.jsx – synced voting progress with DaoCampaignVoting
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import daoService from '../../services/daoService';
 import Button from '../../components/ui/Button';
 import { Vote, Calendar, TrendingUp, Users, CheckCircle, XCircle, Clock } from 'lucide-react';
+
+// ---- Helpers to mirror DaoCampaignVoting ----
+const calculateVotingProgress = (c) => {
+  if (!c || !c.vote_stats) {
+    return {
+      totalVotes: 0,
+      approveVotes: 0,
+      rejectVotes: 0,
+      approvalRate: 0,
+      needsMoreVotes: true,
+      votesLeft: 5,
+      canBeFinalDecision: false,
+      willBeApproved: false,
+    };
+  }
+  const s = c.vote_stats;
+  const totalVotes = s.total_votes || 0;
+  const approveVotes = s.approve_votes || 0;
+  const rejectVotes = s.reject_votes || 0;
+  const approvalRate = parseFloat(s.approval_rate || 0);
+  const votesLeft = Math.max(0, 5 - totalVotes);
+  const needsMoreVotes = totalVotes < 5;
+  const canBeFinalDecision = totalVotes >= 5;
+  const willBeApproved = approvalRate > 50;
+  return { totalVotes, approveVotes, rejectVotes, approvalRate, needsMoreVotes, votesLeft, canBeFinalDecision, willBeApproved };
+};
 
 const DaoDashboard = () => {
   const { user } = useAuth();
@@ -18,6 +45,7 @@ const DaoDashboard = () => {
     if (daoService.isUserDaoMember(user)) {
       loadDashboardData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadDashboardData = async () => {
@@ -25,56 +53,35 @@ const DaoDashboard = () => {
       setLoading(true);
       setError(null);
 
-      // Load all dashboard data in parallel
-      const [
-        statisticsResponse,
-        myVoteStatsResponse,
-        pendingCampaignsResponse,
-        recentVotesResponse
-      ] = await Promise.allSettled([
+      const [statisticsResponse, myVoteStatsResponse, pendingCampaignsResponse, recentVotesResponse] = await Promise.allSettled([
         daoService.getDaoStatistics(),
         daoService.getMyVoteStatistics(),
-        daoService.getPendingCampaigns(1, 5), // Get first 5 pending campaigns
-        daoService.getMyVotes(1, 5) // Get last 5 votes
+        daoService.getPendingCampaigns(1, 5), // first 5 pending
+        daoService.getMyVotes(1, 5), // last 5 votes
       ]);
 
-      // Handle responses
-      if (statisticsResponse.status === 'fulfilled') {
-        setStatistics(statisticsResponse.value);
-      }
-
-      if (myVoteStatsResponse.status === 'fulfilled') {
-        setMyVoteStats(myVoteStatsResponse.value);
-      }
-
-      if (pendingCampaignsResponse.status === 'fulfilled') {
-        setPendingCampaigns(pendingCampaignsResponse.value.campaigns || []);
-      }
-
-      if (recentVotesResponse.status === 'fulfilled') {
-        setRecentVotes(recentVotesResponse.value.votes || []);
-      }
-
-    } catch (error) {
-      console.error('Error loading DAO dashboard:', error);
+      if (statisticsResponse.status === 'fulfilled') setStatistics(statisticsResponse.value);
+      if (myVoteStatsResponse.status === 'fulfilled') setMyVoteStats(myVoteStatsResponse.value);
+      if (pendingCampaignsResponse.status === 'fulfilled') setPendingCampaigns(pendingCampaignsResponse.value.campaigns || []);
+      if (recentVotesResponse.status === 'fulfilled') setRecentVotes(recentVotesResponse.value.votes || []);
+    } catch (err) {
+      console.error('Error loading DAO dashboard:', err);
       setError('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="flex justify-center items-center py-20">
-          <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin"></div>
+          <div className="w-12 h-12 rounded-full border-b-2 border-blue-500 animate-spin" />
         </div>
       </div>
     );
   }
 
-  // Check if user is DAO member
   if (!daoService.isUserDaoMember(user)) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -85,9 +92,7 @@ const DaoDashboard = () => {
             <p className="text-gray-600">Bạn cần là thành viên DAO để truy cập trang này.</p>
           </div>
           <Link to="/dao-registration">
-            <Button className="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-              Đăng ký thành viên DAO
-            </Button>
+            <Button className="px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Đăng ký thành viên DAO</Button>
           </Link>
         </div>
       </div>
@@ -123,68 +128,45 @@ const DaoDashboard = () => {
       </div>
 
       <div className="px-6 py-8 mx-auto max-w-7xl">
-        {/* Error Message */}
         {error && (
           <div className="p-4 mb-6 text-red-700 bg-red-50 rounded-lg border border-red-200">
             <p>{error}</p>
-            <button
-              onClick={loadDashboardData}
-              className="mt-2 text-red-600 underline hover:no-underline"
-            >
-              Thử lại
-            </button>
+            <button onClick={loadDashboardData} className="mt-2 text-red-600 underline hover:no-underline">Thử lại</button>
           </div>
         )}
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Total Votes Cast */}
           <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Vote className="w-6 h-6 text-blue-600" />
-              </div>
+              <div className="p-3 bg-blue-100 rounded-lg"><Vote className="w-6 h-6 text-blue-600" /></div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Tổng votes của tôi</p>
                 <p className="text-2xl font-bold text-gray-900">{myVoteStats?.totalVotes || 0}</p>
               </div>
             </div>
           </div>
-
-          {/* Approval Rate */}
           <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
+              <div className="p-3 bg-green-100 rounded-lg"><TrendingUp className="w-6 h-6 text-green-600" /></div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Tỷ lệ approve</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {myVoteStats?.approvalRate ? `${myVoteStats.approvalRate}%` : '0%'}
-                </p>
+                <p className="text-2xl font-bold text-gray-900">{myVoteStats?.approvalRate ? `${myVoteStats.approvalRate}%` : '0%'}</p>
               </div>
             </div>
           </div>
-
-          {/* Pending Campaigns */}
           <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 bg-yellow-100 rounded-lg">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
+              <div className="p-3 bg-yellow-100 rounded-lg"><Clock className="w-6 h-6 text-yellow-600" /></div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Campaigns chờ vote</p>
                 <p className="text-2xl font-bold text-gray-900">{statistics?.pendingCampaigns || 0}</p>
               </div>
             </div>
           </div>
-
-          {/* DAO Members */}
           <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
+              <div className="p-3 bg-purple-100 rounded-lg"><Users className="w-6 h-6 text-purple-600" /></div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">DAO Members</p>
                 <p className="text-2xl font-bold text-gray-900">{statistics?.totalDaoMembers || 0}</p>
@@ -199,12 +181,7 @@ const DaoDashboard = () => {
           <div className="bg-white rounded-lg shadow">
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Campaigns chờ vote</h2>
-              <Link
-                to="/dao/campaigns/pending"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
-              >
-                Xem tất cả →
-              </Link>
+              <Link to="/dao/campaigns/pending" className="text-sm font-medium text-blue-600 hover:text-blue-700">Xem tất cả →</Link>
             </div>
 
             <div className="p-6">
@@ -216,38 +193,47 @@ const DaoDashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {pendingCampaigns.map((campaign) => {
-                    const progress = daoService.calculateVotingProgress(campaign);
-
+                    const progress = calculateVotingProgress(campaign); // <-- synced
                     return (
                       <div key={campaign.campaign_id} className="p-4 rounded-lg border border-gray-200">
                         <div className="flex justify-between items-start mb-2">
                           <h3 className="font-medium text-gray-900 line-clamp-2">{campaign.title}</h3>
-                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${daoService.getVoteStatusColor('pending')}`}>
-                            Pending
-                          </span>
+                          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${daoService.getVoteStatusColor('pending')}`}>Pending</span>
                         </div>
-
                         <p className="mb-3 text-sm text-gray-600">{campaign.charity?.name}</p>
 
-                        {/* Voting Progress */}
+                        {/* Voting Progress (synced UI) */}
                         <div className="mb-3">
                           <div className="flex justify-between mb-1 text-sm">
                             <span>Votes: {progress.totalVotes}/5</span>
-                            <span>Approval: {progress.approvalRate}%</span>
+                            <span className={progress.willBeApproved ? 'text-green-600' : 'text-red-600'}>
+                              {progress.approvalRate}% approve
+                            </span>
                           </div>
-                          <div className="w-full h-2 bg-gray-200 rounded-full">
+                          <div className="w-full h-2.5 bg-gray-200 rounded-full">
                             <div
-                              className="h-2 bg-blue-600 rounded-full"
+                              className="h-2.5 bg-blue-600 rounded-full"
                               style={{ width: `${(progress.totalVotes / 5) * 100}%` }}
                             />
                           </div>
+                          <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                            <div className="flex items-center">
+                              <CheckCircle className="mr-2 w-4 h-4 text-green-600" />
+                              <span>Approve: {progress.approveVotes}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <XCircle className="mr-2 w-4 h-4 text-red-600" />
+                              <span>Reject: {progress.rejectVotes}</span>
+                            </div>
+                          </div>
+                          {progress.needsMoreVotes && (
+                            <p className="mt-2 text-sm text-gray-600">Cần thêm {progress.votesLeft} vote để ra quyết định cuối</p>
+                          )}
                         </div>
 
                         <div className="flex justify-end">
                           <Link to={`/dao/campaigns/${campaign.campaign_id}`}>
-                            <Button size="small" className="px-4 py-1 text-sm">
-                              Vote ngay
-                            </Button>
+                            <Button size="small" className="px-4 py-1 text-sm">Vote ngay</Button>
                           </Link>
                         </div>
                       </div>
@@ -262,14 +248,8 @@ const DaoDashboard = () => {
           <div className="bg-white rounded-lg shadow">
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">Votes gần đây</h2>
-              <Link
-                to="/dao/my-votes"
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
-              >
-                Xem tất cả →
-              </Link>
+              <Link to="/dao/my-votes" className="text-sm font-medium text-blue-600 hover:text-blue-700">Xem tất cả →</Link>
             </div>
-
             <div className="p-6">
               {recentVotes.length === 0 ? (
                 <div className="py-8 text-center">
@@ -281,29 +261,15 @@ const DaoDashboard = () => {
                   {recentVotes.map((vote) => (
                     <div key={vote.vote_id} className="flex items-center p-4 rounded-lg border border-gray-200">
                       <div className="mr-3">
-                        {vote.vote === 'approve' ? (
-                          <CheckCircle className="w-6 h-6 text-green-600" />
-                        ) : (
-                          <XCircle className="w-6 h-6 text-red-600" />
-                        )}
+                        {vote.vote === 'approve' ? <CheckCircle className="w-6 h-6 text-green-600" /> : <XCircle className="w-6 h-6 text-red-600" />}
                       </div>
-
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 line-clamp-1">
-                          {vote.campaign?.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {vote.vote === 'approve' ? 'Approved' : 'Rejected'} • {vote.charity?.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(vote.created_at).toLocaleDateString('vi-VN')}
-                        </p>
+                        <h4 className="font-medium text-gray-900 line-clamp-1">{vote.campaign?.title}</h4>
+                        <p className="text-sm text-gray-600">{vote.vote === 'approve' ? 'Approved' : 'Rejected'} • {vote.charity?.name}</p>
+                        <p className="text-xs text-gray-500">{new Date(vote.created_at).toLocaleDateString('vi-VN')}</p>
                       </div>
-
                       <Link to={`/dao/campaigns/${vote.campaign_id}`}>
-                        <Button variant="outline" size="small" className="px-3 py-1 text-xs">
-                          Xem
-                        </Button>
+                        <Button variant="outline" size="small" className="px-3 py-1 text-xs">Xem</Button>
                       </Link>
                     </div>
                   ))}
@@ -323,17 +289,6 @@ const DaoDashboard = () => {
               <p className="text-sm text-gray-600">Đánh giá các campaign mới</p>
             </Link>
 
-            <Link to="/dao/statistics" className="p-4 text-center rounded-lg border border-gray-200 hover:bg-gray-50">
-              <TrendingUp className="mx-auto mb-2 w-8 h-8 text-green-600" />
-              <h3 className="font-medium text-gray-900">Thống kê</h3>
-              <p className="text-sm text-gray-600">Xem chi tiết hiệu suất vote</p>
-            </Link>
-
-            <Link to="/dao/guidelines" className="p-4 text-center rounded-lg border border-gray-200 hover:bg-gray-50">
-              <Users className="mx-auto mb-2 w-8 h-8 text-purple-600" />
-              <h3 className="font-medium text-gray-900">DAO Guidelines</h3>
-              <p className="text-sm text-gray-600">Hướng dẫn vote hiệu quả</p>
-            </Link>
           </div>
         </div>
       </div>
