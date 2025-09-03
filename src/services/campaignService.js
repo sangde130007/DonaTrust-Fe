@@ -34,7 +34,6 @@ class CampaignService {
 
   // ===== AUTH (charity) =====
   async createCampaign(formData /* FormData */) {
-    // BE route: POST /api/campaigns  (đã gắn multer.fields: image, images, qr_image)
     const res = await api.post('/campaigns', formData);
     return res.data;
   }
@@ -61,6 +60,15 @@ class CampaignService {
     const fd = new FormData();
     files.forEach(f => fd.append('images', f));
     const res = await api.post(`/campaigns/${id}/upload-images`, fd);
+    return res.data;
+  }
+
+  async reportCampaign(id, formData) {
+    const res = await api.post(`/campaigns/${id}/report`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return res.data;
   }
 }
