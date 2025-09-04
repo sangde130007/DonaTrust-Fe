@@ -17,7 +17,7 @@ import {
   Title as ChartTitle,
 } from 'chart.js';
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, ChartTitle);
-const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL.replace("/api", "");
 const resolveImageUrl = (p) => {
   if (!p) return '';
   let url = String(p).trim().replace(/\\/g, '/');
@@ -493,12 +493,11 @@ return (
                 </div>
 
                 <div className="mt-auto text-center">
-                  <button
-                    onClick={() => (window.location.href = `/campaign/${c.campaign_id}`)}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-pink-500 rounded hover:bg-pink-600"
-                  >
-                    Chi tiết
-                  </button>
+                  <Link to={`/campaign/${campaign.campaign_id}`}>
+                    <button className="px-4 py-2 text-xs font-semibold text-white bg-violet-500 rounded hover:bg-violet-600">
+                      Chi tiết
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
