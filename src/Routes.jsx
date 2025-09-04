@@ -36,7 +36,7 @@ import CharityPending from './pages/CharityPending';
 import CharityPendingDetail from './pages/CharityPending/Detail';
 import CampaignPendingDetail from './pages/CampaignPendingDetail';
 import Users from './pages/Users';
-import AdminReportedCampaigns from './pages/admin/AdminReportedCampaigns';
+import AdminReportedCampaigns from './pages/Admin/AdminReportedCampaigns';
 
 /* ===== Charity Dashboard ===== */
 import CharityDashboard from './pages/CharityDashboard';
