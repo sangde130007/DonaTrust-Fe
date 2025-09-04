@@ -493,11 +493,12 @@ return (
                 </div>
 
                 <div className="mt-auto text-center">
-                  <Link to={`/campaign/${campaign.campaign_id}`}>
-                    <button className="px-4 py-2 text-xs font-semibold text-white bg-violet-500 rounded hover:bg-violet-600">
-                      Chi tiết
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => (window.location.href = `/campaign/${c.campaign_id}`)}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-pink-500 rounded hover:bg-pink-600"
+                  >
+                    Chi tiết
+                  </button>
                 </div>
               </div>
             </div>
