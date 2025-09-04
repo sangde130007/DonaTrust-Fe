@@ -126,7 +126,7 @@ const CampaignDetailPage = () => {
     const fetchDonationHistory = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_ORIGIN}/api/donations/history?page=${page}&limit=5`, {
+        const response = await axios.get(`${API_ORIGIN}/donations/history?page=${page}&limit=5`, {
           params: { campaign_id: id },
         });
         setDonationHistory(response.data.data);
