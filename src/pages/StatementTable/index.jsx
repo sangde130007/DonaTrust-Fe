@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from 'axios';
 import campaignService from '../../services/campaignService';
 
-const API_ORIGIN = 'http://localhost:5000';
+const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const StatementTable = () => {
   const { id } = useParams();
@@ -37,8 +37,8 @@ const StatementTable = () => {
     setError(null);
     try {
       const [donationsRes, activitiesRes] = await Promise.all([
-        axios.get(`${API_ORIGIN}/api/donations/history`, { params: { campaign_id: id } }),
-        axios.get(`${API_ORIGIN}/api/campaigns/${id}/updates`),
+        axios.get(`${API_ORIGIN}/donations/history`, { params: { campaign_id: id } }),
+        axios.get(`${API_ORIGIN}/campaigns/${id}/updates`),
       ]);
 
       const incomeTransactions = (donationsRes.data.data || []).map(tx => ({

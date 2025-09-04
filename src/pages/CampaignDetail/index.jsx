@@ -123,29 +123,57 @@ const CampaignDetailPage = () => {
 
   // ===== Fetch donations =====
   useEffect(() => {
-    const fetchDonationHistory = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_ORIGIN}/donations/history?page=${page}&limit=5`, {
-          params: { campaign_id: id },
-        });
-        setDonationHistory(response.data.data);
-        setTotalPages(response.data.totalPages);
-      } catch (err) {
-        setError('Không thể tải lịch sử quyên góp');
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (activeTab === 'donations') fetchDonationHistory();
-  }, [activeTab, id, page]);
+  let scrollPosition = 0;
+
+  // Lưu vị trí cuộn trước khi tải dữ liệu
+  const saveScrollPosition = () => {
+    scrollPosition = window.scrollY || window.pageYOffset;
+  };
+
+  // Khôi phục vị trí cuộn
+  const restoreScrollPosition = () => {
+    window.scrollTo(0, scrollPosition);
+  };
+
+const fetchDonationHistory = async () => {
+    setLoading(true);
+    saveScrollPosition(); // Lưu vị trí trước khi tải
+    try {
+      const response = await axios.get(`${API_ORIGIN}/donations/history?page=${page}&limit=5`, {
+        params: { campaign_id: id },
+      });
+      console.log('Dữ liệu API:', response.data.data);
+      const formattedData = response.data.data.map(d => ({
+        donation_id: d.donation_id,
+        campaign_id: d.campaign_id,
+        amount: Number(d.amount) || 0,
+        message: d.message || '',
+        anonymous: d.is_anonymous || false,
+        status: d.status || 'unknown',
+        created_at: d.created_at || null,
+        name: d.is_anonymous ? null : (d.name || null),
+        email: d.is_anonymous ? null : (d.email || null),
+      }));
+      console.log('Dữ liệu đã format:', formattedData);
+      setDonationHistory(formattedData);
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      console.error('Lỗi tải dữ liệu:', err);
+      setError('Không thể tải lịch sử quyên góp');
+    } finally {
+      setLoading(false);
+      setTimeout(restoreScrollPosition, 0);
+    }
+  };
+  if (activeTab === 'donations') fetchDonationHistory();
+}, [activeTab, id, page]);
 
   // ===== Fetch activities =====
   const loadActivities = async (pageToLoad = actPage) => {
     setActLoading(true);
     setActError(null);
     try {
-      const { data } = await axios.get(`${API_ORIGIN}/api/campaigns/${id}/updates`, {
+      const { data } = await axios.get(`${API_ORIGIN}/campaigns/${id}/updates`, {
         params: { page: pageToLoad, limit: 5 },
       });
       setActivities(data.updates || data.data || []);
@@ -175,7 +203,27 @@ const CampaignDetailPage = () => {
     }
   };
 
-  const formatCurrency = (val) => Number(val || 0).toLocaleString('vi-VN') + ' VND';
+  const formatCurrency = (val) => {
+  const num = Number(val);
+  if (isNaN(num) || val == null) {
+    return '0 VND';
+  }
+  return num.toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' VND';
+};
+const formatDate = (dateStr) => {
+  if (!dateStr || isNaN(new Date(dateStr))) {
+    return 'Không xác định';
+  }
+  return new Date(dateStr).toLocaleString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+};
   const getProgress = () => {
     const percent = (Number(campaign?.current_amount) / Number(campaign?.goal_amount || 1)) * 100;
     return Math.min(100, percent).toFixed(1);
@@ -375,7 +423,7 @@ const CampaignDetailPage = () => {
       if (spentItemsClean.length > 0) form.append('spent_items', JSON.stringify(spentItemsClean));
       updateImages.forEach((file) => form.append('images', file));
 
-      await axios.post(`${API_ORIGIN}/api/campaigns/${id}/updates`, form, {
+      await axios.post(`${API_ORIGIN}/campaigns/${id}/updates`, form, {
         withCredentials: false,
         headers: {
           ...getAuthHeaders(),
@@ -414,7 +462,7 @@ const CampaignDetailPage = () => {
 
     try {
       setDeletingId(updateId);
-      await axios.delete(`${API_ORIGIN}/api/campaigns/${id}/updates/${updateId}`, {
+      await axios.delete(`${API_ORIGIN}/campaigns/${id}/updates/${updateId}`, {
         headers: { ...getAuthHeaders() },
         withCredentials: false,
       });
@@ -870,64 +918,63 @@ const CampaignDetailPage = () => {
           </div>
         )}
 
-        {activeTab === 'donations' && (
-          <div className="py-8">
-            {loading && <p className="text-center text-gray-600">Đang tải...</p>}
-            {error && <p className="text-center text-red-500">{error}</p>}
-            {!loading && !error && donationHistory.length === 0 && (
-              <p className="text-center text-gray-600">Chưa có quyên góp nào.</p>
-            )}
-            {!loading && !error && donationHistory.length > 0 && (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-gray-700">
-                    <thead className="bg-gray-100">
-                      <tr>
-                        <th className="px-4 py-2 text-left">Tên</th>
-                        <th className="px-4 py-2 text-left">Email</th>
-                        <th className="px-4 py-2 text-left">Lời chúc</th>
-                        <th className="px-4 py-2 text-left">Số tiền</th>
-                        <th className="px-4 py-2 text-left">Thời gian</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {donationHistory.map((donation, index) => (
-                        <tr key={index} className="border-t border-gray-300">
-                          <td className="px-4 py-2">{donation.name || 'Ẩn danh'}</td>
-                          <td className="px-4 py-2">{donation.email || 'Ẩn danh'}</td>
-                          <td className="px-4 py-2">{donation.message}</td>
-                          <td className="px-4 py-2">{formatCurrency(donation.amount)}</td>
-                          <td className="px-4 py-2">{new Date(donation.created_at).toLocaleString('vi-VN')}</td>
+          {activeTab === 'donations' && (
+            <div className="py-8">
+              {loading && <p className="text-center text-gray-600">Đang tải...</p>}
+              {error && <p className="text-center text-red-500">{error}</p>}
+              {!loading && !error && donationHistory.length === 0 && (
+                <p className="text-center text-gray-600">Chưa có quyên góp nào.</p>
+              )}
+              {!loading && !error && donationHistory.length > 0 && (
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-gray-700">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-2 text-left">Tên</th>
+                          <th className="px-4 py-2 text-left">Email</th>
+                          <th className="px-4 py-2 text-left">Lời chúc</th>
+                          <th className="px-4 py-2 text-left">Số tiền</th>
+                          <th className="px-4 py-2 text-left">Thời gian</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {donationHistory.map((donation, index) => (
+                          <tr key={index} className="border-t border-gray-300">
+                            <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.name || 'Ẩn danh')}</td>
+                            <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.email || 'Ẩn danh')}</td>
+                            <td className="px-4 py-2">{donation.message || ''}</td>
+                            <td className="px-4 py-2">{formatCurrency(donation.amount)}</td>
+                            <td className="px-4 py-2">{formatDate(donation.created_at)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                {/* Pagination */}
-                <div className="flex justify-center mt-4 space-x-2">
-                  <button
-                    onClick={() => handlePageChange(page - 1)}
-                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
-                    disabled={page === 1}
-                  >
-                    Trước
-                  </button>
-                  <span className="flex items-center text-gray-600">
-                    Trang {page} / {totalPages}
-                  </span>
-                  <button
-                    onClick={() => handlePageChange(page + 1)}
-                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
-                    disabled={page === totalPages}
-                  >
-                    Sau
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+                  <div className="flex justify-center mt-4 space-x-2">
+                    <button
+                      onClick={() => handlePageChange(page - 1)}
+                      className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                      disabled={page === 1}
+                    >
+                      Trước
+                    </button>
+                    <span className="flex items-center text-gray-600">
+                      Trang {page} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() => handlePageChange(page + 1)}
+                      className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                      disabled={page === totalPages}
+                    >
+                      Sau
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
         {/* ===== Tab Chat ===== */}
         {activeTab === 'chat' && (
