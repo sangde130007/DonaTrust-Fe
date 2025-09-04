@@ -3,14 +3,23 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import notificationService from '../../services/notificationService';
+// ⚠️ nếu bạn chưa cấu hình alias "@", đổi lại: '../../lib/socket' và '../../context/AuthContext'
+import { getSocket } from '../../lib/socket';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 
-const POLL_MS = 30000; // 30s: có thể tăng/giảm hoặc tắt nếu dùng websocket
+const POLL_MS = 30000;
 
 const NotificationBell = () => {
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
   const [latest, setLatest] = useState([]);
+  const [pollingEnabled, setPollingEnabled] = useState(true);
   const dropdownRef = useRef(null);
+
+  const { user } = useAuth();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const userId = user?.user_id;
 
   const loadCountAndLatest = async () => {
     try {
@@ -20,27 +29,75 @@ const NotificationBell = () => {
       const listRes = await notificationService.getMine({ page: 1, limit: 5, order: 'newest' });
       setLatest(listRes?.items || []);
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.error('Load notifications failed', e);
     }
   };
 
+  // 1) Luôn fetch ban đầu (đừng phụ thuộc token), service thường tự gắn Authorization qua interceptor
   useEffect(() => {
     loadCountAndLatest();
-
-    // Polling nhẹ nếu chưa dùng socket
-    const t = setInterval(loadCountAndLatest, POLL_MS);
-    return () => clearInterval(t);
   }, []);
 
-  // Cập nhật chéo khi trang NotificationPage thao tác (bắn CustomEvent)
+  // 2) Polling fallback (khi socket không connect)
+  useEffect(() => {
+    if (!pollingEnabled) return;
+    const t = setInterval(loadCountAndLatest, POLL_MS);
+    return () => clearInterval(t);
+  }, [pollingEnabled]);
+
+  // 3) Socket realtime
+  useEffect(() => {
+    if (!userId) return; // cần user_id để join room
+    const s = getSocket(userId, token);
+
+    const handleConnect = () => {
+      console.log('[socket] connected', s.id);
+      // đảm bảo join đúng room
+      s.emit('auth:hello', { userId: String(userId) });
+      // có socket thì tắt polling
+      setPollingEnabled(false);
+    };
+
+    const handleDisconnect = () => {
+      console.log('[socket] disconnected');
+      // mất socket thì bật polling
+      setPollingEnabled(true);
+    };
+
+    const handleNew = (noti) => {
+      console.log('[socket] notification:new', noti);
+      setUnread((prev) => prev + 1);
+      setLatest((prev) => [noti, ...prev].slice(0, 5));
+      toast(`${noti.title}\n${noti.content}`, { duration: 5000 });
+      window.dispatchEvent(new CustomEvent('notifications:updated'));
+    };
+
+    const handleHint = (data) => {
+      const delta = Number(data?.delta || 0);
+      setUnread((prev) => Math.max(0, prev + delta));
+    };
+
+    s.on('connect', handleConnect);
+    s.on('disconnect', handleDisconnect);
+    s.on('notification:new', handleNew);
+    s.on('notification:hint', handleHint);
+
+    return () => {
+      s.off('connect', handleConnect);
+      s.off('disconnect', handleDisconnect);
+      s.off('notification:new', handleNew);
+      s.off('notification:hint', handleHint);
+    };
+  }, [userId, token]);
+
+  // 4) Đồng bộ khi trang /notification thao tác
   useEffect(() => {
     const handler = () => loadCountAndLatest();
     window.addEventListener('notifications:updated', handler);
     return () => window.removeEventListener('notifications:updated', handler);
   }, []);
 
-  // click outside to close
+  // 5) Click outside để đóng dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (open && dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -68,7 +125,6 @@ const NotificationBell = () => {
         )}
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-[340px] bg-white border border-global-6 rounded-xl shadow-lg overflow-hidden z-50">
           <div className="px-4 py-3 border-b border-global-6 flex items-center justify-between">
@@ -90,9 +146,7 @@ const NotificationBell = () => {
                 <Link
                   key={n.noti_id || n.id}
                   to="/notification"
-                  className={`block px-4 py-3 hover:bg-global-3 transition ${
-                    !n.is_read ? 'bg-global-3/40' : ''
-                  }`}
+                  className={`block px-4 py-3 hover:bg-global-3 transition ${!n.is_read ? 'bg-global-3/40' : ''}`}
                   onClick={() => setOpen(false)}
                 >
                   <div className="text-[13px] font-semibold text-global-1 line-clamp-2">
@@ -117,3 +171,4 @@ const NotificationBell = () => {
 };
 
 export default NotificationBell;
+  
