@@ -17,7 +17,7 @@ const toAbsUrl = (u) => {
 };
 
 const isImageUrl = (u = '') => /\.(png|jpe?g|gif|webp|svg)$/i.test(u.split('?')[0]);
-const isPdfUrl   = (u = '') => /\.pdf$/i.test(u.split('?')[0]);
+const isPdfUrl = (u = '') => /\.pdf$/i.test(u.split('?')[0]);
 
 const FilePreview = ({ url }) => {
   const abs = toAbsUrl(url);
@@ -28,18 +28,20 @@ const FilePreview = ({ url }) => {
       <img
         src={abs}
         alt="Tài liệu"
-        className="w-full max-h-[420px] object-contain rounded-xl border border-violet-200"
+        className="w-full max-h-[60vh] object-contain rounded-xl border border-violet-200"
         onError={(e) => (e.currentTarget.style.display = 'none')}
       />
     );
   }
   if (isPdfUrl(abs)) {
     return (
-      <iframe
-        title="PDF preview"
-        src={abs}
-        className="w-full h-[480px] rounded-xl border border-violet-200"
-      />
+      <div className="w-full rounded-xl border border-violet-200 overflow-hidden">
+        <iframe
+          title="PDF preview"
+          src={abs}
+          className="w-full h-[60vh]"
+        />
+      </div>
     );
   }
   return (
@@ -60,7 +62,7 @@ const FilePreview = ({ url }) => {
   );
 };
 
-/* ===== Beautiful Custom Buttons ===== */
+/* ===== Custom Buttons ===== */
 const PrimaryButton = ({ children, onClick, disabled, type = 'button', className = '' }) => (
   <button
     type={type}
@@ -208,7 +210,7 @@ const AdminCharityApprovals = () => {
       {/* Filters */}
       <form onSubmit={onSearch} className="mb-5 rounded-2xl border border-violet-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-          <div className="">
+          <div>
             <label className="block mb-1 text-xs font-medium text-slate-600">Tìm kiếm</label>
             <input
               value={search}
@@ -217,7 +219,7 @@ const AdminCharityApprovals = () => {
               className="px-3 py-2 w-full rounded-xl border border-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-400"
             />
           </div>
-          <div className="">
+          <div>
             <label className="block mb-1 text-xs font-medium text-slate-600">Thành phố</label>
             <input
               value={city}
@@ -228,9 +230,7 @@ const AdminCharityApprovals = () => {
           </div>
           <div className="flex gap-2">
             <PrimaryButton type="submit">Lọc</PrimaryButton>
-            <TertiaryButton
-              onClick={() => { setSearch(''); setCity(''); setPage(1); fetchData(); }}
-            >
+            <TertiaryButton onClick={() => { setSearch(''); setCity(''); setPage(1); fetchData(); }}>
               Xoá lọc
             </TertiaryButton>
           </div>
@@ -252,11 +252,7 @@ const AdminCharityApprovals = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr>
-                <td className="p-6 text-center text-slate-500" colSpan={6}>
-                  Đang tải…
-                </td>
-              </tr>
+              <tr><td className="p-6 text-center text-slate-500" colSpan={6}>Đang tải…</td></tr>
             ) : charities.length === 0 ? (
               <tr>
                 <td className="p-10" colSpan={6}>
@@ -285,11 +281,7 @@ const AdminCharityApprovals = () => {
                           <div className="font-semibold text-slate-800">{c.name}</div>
                           <div className="text-slate-500 line-clamp-1">{c.mission}</div>
                           <div className="mt-1">
-                            <button
-                              type="button"
-                              onClick={() => setSelected(c)}
-                              className="text-xs text-violet-700 hover:underline"
-                            >
+                            <button type="button" onClick={() => setSelected(c)} className="text-xs text-violet-700 hover:underline">
                               Xem chi tiết
                             </button>
                           </div>
@@ -300,12 +292,7 @@ const AdminCharityApprovals = () => {
                       <div className="text-slate-800">{c.email}</div>
                       <div className="text-slate-500">{c.phone}</div>
                       {c.website_url && (
-                        <a
-                          className="text-xs text-violet-700 hover:underline"
-                          href={c.website_url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
+                        <a href={c.website_url} target="_blank" rel="noreferrer noopener" className="text-xs text-violet-700 hover:underline">
                           Website
                         </a>
                       )}
@@ -313,51 +300,27 @@ const AdminCharityApprovals = () => {
                     <td className="p-3 align-top">
                       <div className="text-slate-800">{c.address}</div>
                       <div className="text-slate-500">{[c.ward, c.district, c.city].filter(Boolean).join(', ')}</div>
-                      {c.city && (
-                        <div className="mt-1"><Badge>{c.city}</Badge></div>
-                      )}
+                      {c.city && <div className="mt-1"><Badge>{c.city}</Badge></div>}
                     </td>
                     <td className="p-3 align-top">
                       <div className="text-slate-800">{c.license_number}</div>
-                      {/* Thumbnail nếu là ảnh */}
                       {docUrl && isImageUrl(docUrl) ? (
-                        <button
-                          type="button"
-                          onClick={() => setSelected(c)}
-                          className="mt-1 block"
-                          title="Xem hình"
-                        >
-                          <img
-                            src={docUrl}
-                            alt="Giấy phép"
-                            className="mt-1 h-12 w-16 object-cover rounded-lg border border-violet-200"
-                            onError={(e) => (e.currentTarget.style.display = 'none')}
-                          />
+                        <button type="button" onClick={() => setSelected(c)} className="mt-1 block" title="Xem hình">
+                          <img src={docUrl} alt="Giấy phép" className="mt-1 h-12 w-16 object-cover rounded-lg border border-violet-200"
+                               onError={(e) => (e.currentTarget.style.display = 'none')} />
                         </button>
                       ) : docUrl ? (
-                        <a
-                          className="text-xs text-violet-700 hover:underline"
-                          href={docUrl}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
+                        <a href={docUrl} target="_blank" rel="noreferrer noopener" className="text-xs text-violet-700 hover:underline">
                           {isPdfUrl(docUrl) ? 'Mở PDF' : 'Tài liệu'}
                         </a>
-                      ) : (
-                        <span className="text-slate-500 text-xs">—</span>
-                      )}
+                      ) : <span className="text-slate-500 text-xs">—</span>}
                     </td>
                     <td className="p-3 align-top">
-                      <div className="text-slate-800">
-                        {c.created_at ? new Date(c.created_at).toLocaleString() : '—'}
-                      </div>
+                      <div className="text-slate-800">{c.created_at ? new Date(c.created_at).toLocaleString() : '—'}</div>
                     </td>
                     <td className="p-3 text-right align-top">
                       <div className="flex gap-2 justify-end items-center">
-                        <PrimaryButton
-                          onClick={() => approve(c.charity_id)}
-                          disabled={actionLoadingId === c.charity_id}
-                        >
+                        <PrimaryButton onClick={() => approve(c.charity_id)} disabled={actionLoadingId === c.charity_id}>
                           {actionLoadingId === c.charity_id ? 'Đang duyệt…' : 'Duyệt'}
                         </PrimaryButton>
                         <input
@@ -366,10 +329,7 @@ const AdminCharityApprovals = () => {
                           placeholder="Lý do từ chối"
                           className="px-2 py-1 w-44 text-xs rounded-lg border border-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-400"
                         />
-                        <DangerButton
-                          onClick={() => reject(c.charity_id)}
-                          disabled={actionLoadingId === c.charity_id}
-                        >
+                        <DangerButton onClick={() => reject(c.charity_id)} disabled={actionLoadingId === c.charity_id}>
                           {actionLoadingId === c.charity_id ? 'Đang xử lý…' : 'Từ chối'}
                         </DangerButton>
                       </div>
@@ -393,79 +353,38 @@ const AdminCharityApprovals = () => {
         </div>
       </div>
 
-      {/* Quick detail modal with preview */}
+      {/* Detail modal */}
       {selected && (
-        <div className="flex fixed inset-0 z-50 justify-center items-center bg-black/50 backdrop-blur-sm">
-          <div className="relative p-6 w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-violet-200">
-            <button
-              className="absolute top-3 right-3 h-8 w-8 inline-grid place-items-center rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200"
-              onClick={() => setSelected(null)}
-              title="Đóng"
-            >
-              ✕
-            </button>
-            <div className="mb-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+<div className="relative mx-auto w-full max-w-3xl sm:max-w-4xl rounded-2xl border border-violet-200 bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button className="absolute top-3 right-3 h-8 w-8 inline-grid place-items-center rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200"
+                    onClick={() => setSelected(null)} title="Đóng">✕</button>
+
+            <div className="mb-4 sticky top-0 bg-white/90 backdrop-blur-sm pb-2">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-50 text-violet-700 border border-violet-200">
                 <span className="text-lg">🏛️</span>
                 <h3 className="text-lg font-semibold">{selected.name}</h3>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-slate-500">Email</div>
-                <div className="font-medium">{selected.email}</div>
-              </div>
-              <div>
-                <div className="text-slate-500">Điện thoại</div>
-                <div className="font-medium">{selected.phone}</div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div><div className="text-slate-500">Email</div><div className="font-medium">{selected.email}</div></div>
+              <div><div className="text-slate-500">Điện thoại</div><div className="font-medium">{selected.phone}</div></div>
               <div className="col-span-2">
                 <div className="text-slate-500">Địa chỉ</div>
-                <div className="font-medium">
-                  {selected.address} — {[selected.ward, selected.district, selected.city].filter(Boolean).join(', ')}
-                </div>
+                <div className="font-medium">{selected.address} — {[selected.ward, selected.district, selected.city].filter(Boolean).join(', ')}</div>
               </div>
-              <div className="col-span-2">
-                <div className="text-slate-500">Sứ mệnh</div>
-                <div className="font-medium whitespace-pre-wrap">{selected.mission}</div>
-              </div>
+              <div className="col-span-2"><div className="text-slate-500">Sứ mệnh</div><div className="font-medium whitespace-pre-wrap">{selected.mission}</div></div>
               {selected.description && (
-                <div className="col-span-2">
-                  <div className="text-slate-500">Mô tả</div>
-                  <div className="font-medium whitespace-pre-wrap">{selected.description}</div>
-                </div>
+                <div className="col-span-2"><div className="text-slate-500">Mô tả</div><div className="font-medium whitespace-pre-wrap">{selected.description}</div></div>
               )}
-              <div>
-                <div className="text-slate-500">Số giấy phép</div>
-                <div className="font-medium">{selected.license_number}</div>
-              </div>
-              <div>
-                <div className="text-slate-500">Giấy phép</div>
-                {selected.license_document ? (
-                  <a
-                    href={selected.license_document}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="text-violet-700 hover:underline"
-                  >
-                    Mở trong tab mới
-                  </a>
-                ) : (
-                  <span className="font-medium">—</span>
-                )}
-              </div>
+              <div><div className="text-slate-500">Số giấy phép</div><div className="font-medium">{selected.license_number}</div></div>
+              <div><div className="text-slate-500">Giấy phép</div>{selected.license_document ? (
+                <a href={selected.license_document} target="_blank" rel="noreferrer noopener" className="text-violet-700 hover:underline">Mở trong tab mới</a>
+              ) : (<span className="font-medium">—</span>)}</div>
               {selected.website_url && (
-                <div className="col-span-2">
-                  <div className="text-slate-500">Website</div>
-                  <a
-                    href={selected.website_url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="text-violet-700 hover:underline"
-                  >
-                    {selected.website_url}
-                  </a>
+                <div className="col-span-2"><div className="text-slate-500">Website</div>
+                  <a href={selected.website_url} target="_blank" rel="noreferrer noopener" className="text-violet-700 hover:underline">{selected.website_url}</a>
                 </div>
               )}
             </div>
@@ -477,19 +396,11 @@ const AdminCharityApprovals = () => {
               </div>
             )}
 
-            <div className="flex gap-2 justify-end items-center mt-6">
-              <PrimaryButton onClick={() => approve(selected.charity_id)} disabled={actionLoadingId}>
-                Duyệt
-              </PrimaryButton>
-              <input
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="Lý do từ chối"
-                className="px-3 py-2 w-56 text-sm rounded-xl border border-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-400"
-              />
-              <DangerButton onClick={() => reject(selected.charity_id)} disabled={actionLoadingId}>
-                Từ chối
-              </DangerButton>
+            <div className="flex gap-2 justify-end items-center mt-6 sticky bottom-0 bg-white/90 backdrop-blur-sm pt-3">
+              <PrimaryButton onClick={() => approve(selected.charity_id)} disabled={actionLoadingId}>Duyệt</PrimaryButton>
+              <input value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Lý do từ chối"
+                     className="px-3 py-2 w-56 text-sm rounded-xl border border-violet-200 focus:outline-none focus:ring-2 focus:ring-violet-400"/>
+              <DangerButton onClick={() => reject(selected.charity_id)} disabled={actionLoadingId}>Từ chối</DangerButton>
             </div>
           </div>
         </div>
