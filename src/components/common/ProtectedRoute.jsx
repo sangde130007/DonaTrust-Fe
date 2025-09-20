@@ -26,15 +26,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
         <h2 className="text-xl font-bold text-red-600 mb-4">
           Bạn không có quyền truy cập trang này
         </h2>
-        <p className="mb-4">
-          Hãy đăng ký trở thành tổ chức từ thiện để truy cập chức năng này.
-        </p>
-        <button
-          onClick={() => navigate('/charity-registration')}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          Đăng ký tổ chức từ thiện
-        </button>
       </div>
     );
   }
