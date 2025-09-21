@@ -119,7 +119,7 @@ const DaoPendingCampaigns = () => {
                 <RefreshCw className={`mr-2 w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Làm mới
               </Button>
-              <Link to="/dao/dashboard">
+              <Link to="/dao-dashboard">
                 <Button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Dashboard</Button>
               </Link>
             </div>
