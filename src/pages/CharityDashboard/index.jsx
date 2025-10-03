@@ -143,6 +143,17 @@ const CharityDashboard = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        navigate(
+                          `/campaign/${c.campaign_id}`
+                        );
+                      }}
+                      className="flex-1 px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium"
+                    >
+                      Tạo Chi Tiêu
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         if (confirm("Xác nhận xoá?")) {
                           charityService
                             .deleteMyCampaign(c.campaign_id)

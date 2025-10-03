@@ -56,6 +56,12 @@ const CampaignDetailPage = () => {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
+  const [transactions, setTransactions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const itemsPerPage = 10;
+
   const updateScrollButtons = () => {
     const el = stripRef.current;
     if (!el) return;
@@ -123,50 +129,50 @@ const CampaignDetailPage = () => {
 
   // ===== Fetch donations =====
   useEffect(() => {
-  let scrollPosition = 0;
+    let scrollPosition = 0;
 
-  // Lưu vị trí cuộn trước khi tải dữ liệu
-  const saveScrollPosition = () => {
-    scrollPosition = window.scrollY || window.pageYOffset;
-  };
+    // Lưu vị trí cuộn trước khi tải dữ liệu
+    const saveScrollPosition = () => {
+      scrollPosition = window.scrollY || window.pageYOffset;
+    };
 
-  // Khôi phục vị trí cuộn
-  const restoreScrollPosition = () => {
-    window.scrollTo(0, scrollPosition);
-  };
+    // Khôi phục vị trí cuộn
+    const restoreScrollPosition = () => {
+      window.scrollTo(0, scrollPosition);
+    };
 
-const fetchDonationHistory = async () => {
-    setLoading(true);
-    saveScrollPosition(); // Lưu vị trí trước khi tải
-    try {
-      const response = await axios.get(`${API_ORIGIN}/donations/history?page=${page}&limit=5`, {
-        params: { campaign_id: id },
-      });
-      console.log('Dữ liệu API:', response.data.data);
-      const formattedData = response.data.data.map(d => ({
-        donation_id: d.donation_id,
-        campaign_id: d.campaign_id,
-        amount: Number(d.amount) || 0,
-        message: d.message || '',
-        anonymous: d.is_anonymous || false,
-        status: d.status || 'unknown',
-        created_at: d.created_at || null,
-        name: d.is_anonymous ? null : (d.name || null),
-        email: d.is_anonymous ? null : (d.email || null),
-      }));
-      console.log('Dữ liệu đã format:', formattedData);
-      setDonationHistory(formattedData);
-      setTotalPages(response.data.totalPages);
-    } catch (err) {
-      console.error('Lỗi tải dữ liệu:', err);
-      setError('Không thể tải lịch sử quyên góp');
-    } finally {
-      setLoading(false);
-      setTimeout(restoreScrollPosition, 0);
-    }
-  };
-  if (activeTab === 'donations') fetchDonationHistory();
-}, [activeTab, id, page]);
+    const fetchDonationHistory = async () => {
+      setLoading(true);
+      saveScrollPosition(); // Lưu vị trí trước khi tải
+      try {
+        const response = await axios.get(`${API_ORIGIN}/donations/history?page=${page}&limit=5`, {
+          params: { campaign_id: id },
+        });
+        console.log('Dữ liệu API:', response.data.data);
+        const formattedData = response.data.data.map(d => ({
+          donation_id: d.donation_id,
+          campaign_id: d.campaign_id,
+          amount: Number(d.amount) || 0,
+          message: d.message || '',
+          anonymous: d.is_anonymous || false,
+          status: d.status || 'unknown',
+          created_at: d.created_at || null,
+          name: d.is_anonymous ? null : (d.name || null),
+          email: d.is_anonymous ? null : (d.email || null),
+        }));
+        console.log('Dữ liệu đã format:', formattedData);
+        setDonationHistory(formattedData);
+        setTotalPages(response.data.totalPages);
+      } catch (err) {
+        console.error('Lỗi tải dữ liệu:', err);
+        setError('Không thể tải lịch sử quyên góp');
+      } finally {
+        setLoading(false);
+        setTimeout(restoreScrollPosition, 0);
+      }
+    };
+    if (activeTab === 'donations') fetchDonationHistory();
+  }, [activeTab, id, page]);
 
   // ===== Fetch activities =====
   const loadActivities = async (pageToLoad = actPage) => {
@@ -204,26 +210,26 @@ const fetchDonationHistory = async () => {
   };
 
   const formatCurrency = (val) => {
-  const num = Number(val);
-  if (isNaN(num) || val == null) {
-    return '0 VND';
-  }
-  return num.toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' VND';
-};
-const formatDate = (dateStr) => {
-  if (!dateStr || isNaN(new Date(dateStr))) {
-    return 'Không xác định';
-  }
-  return new Date(dateStr).toLocaleString('vi-VN', {
-    timeZone: 'Asia/Ho_Chi_Minh',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  });
-};
+    const num = Number(val);
+    if (isNaN(num) || val == null) {
+      return '0 VND';
+    }
+    return num.toLocaleString('vi-VN', { maximumFractionDigits: 0 }) + ' VND';
+  };
+  const formatDate = (dateStr) => {
+    if (!dateStr || isNaN(new Date(dateStr))) {
+      return 'Không xác định';
+    }
+    return new Date(dateStr).toLocaleString('vi-VN', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  };
   const getProgress = () => {
     const percent = (Number(campaign?.current_amount) / Number(campaign?.goal_amount || 1)) * 100;
     return Math.min(100, percent).toFixed(1);
@@ -276,7 +282,7 @@ const formatDate = (dateStr) => {
     } catch { }
     return { user_id: null, role: null, charity_id: null };
   }, []);
-  
+
 
   const isOwner = useMemo(() => {
     if (!campaign) return false;
@@ -479,6 +485,102 @@ const formatDate = (dateStr) => {
     }
   };
 
+  useEffect(() => {
+    const fetchCampaign = async () => {
+      try {
+        const data = await campaignService.getCampaignById(id);
+        setCampaign(data);
+      } catch (err) {
+        console.error('Lỗi lấy chi tiết chiến dịch:', err);
+      }
+    };
+    if (id) {
+      fetchCampaign();
+    }
+  }, [id]);
+
+  const fetchStatementData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [donationsRes, activitiesRes] = await Promise.all([
+        axios.get(`${API_ORIGIN}/donations/history`, { params: { campaign_id: id } }),
+        axios.get(`${API_ORIGIN}/campaigns/${id}/updates`),
+      ]);
+
+      const incomeTransactions = (donationsRes.data.data || []).map(tx => ({
+        ...tx,
+        type: 'income',
+        amount: tx.amount,
+        date: tx.date || new Date().toISOString(),
+        content: `Ủng hộ ${tx.amount.toLocaleString()} VND từ ${tx.sender || 'Ẩn danh'}`,
+      }));
+
+      const expenseTransactions = (activitiesRes.data.updates || []).map(tx => ({
+        ...tx,
+        type: 'expense',
+        amount: -(tx.spent_amount || 0),
+        date: tx.date || new Date().toISOString(),
+        content: `Chi cho hoạt động: ${tx.content}`,
+      }));
+
+      const combinedTransactions = [...incomeTransactions, ...expenseTransactions];
+
+      combinedTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      setTransactions(combinedTransactions);
+
+    } catch (err) {
+      console.error("Failed to fetch statement data:", err);
+      setError("Không thể tải dữ liệu sao kê. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      fetchStatementData();
+    }
+  }, [id]);
+
+  const getFilteredTransactions = () => {
+    let filteredByTab = transactions;
+    switch (filter) {
+      case "income":
+        filteredByTab = transactions.filter((tx) => tx.type === "income");
+        break;
+      case "expense":
+        filteredByTab = transactions.filter((tx) => tx.type === "expense");
+        break;
+      default:
+        break;
+    }
+
+    if (searchTerm.trim() === "") {
+      return filteredByTab;
+    }
+
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+    return filteredByTab.filter(tx =>
+      (tx.content && tx.content.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (tx.id && String(tx.id).toLowerCase().includes(lowerCaseSearchTerm))
+    );
+  };
+
+  const filteredTransactions = getFilteredTransactions();
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentItems = filteredTransactions.slice(indexOfFirst, indexOfLast);
+
+  const calculateTotals = () => {
+    const income = transactions.filter((tx) => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+    const expense = transactions.filter((tx) => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+    return { income, expense };
+  };
+
+  const { income: filteredIncome, expense: filteredExpense } = calculateTotals();
+
   if (loading) return <div className="py-10 text-center">Đang tải chiến dịch...</div>;
   if (!campaign) return <div className="py-10 text-center text-red-500">Không tìm thấy chiến dịch.</div>;
 
@@ -613,8 +715,8 @@ const formatDate = (dateStr) => {
               </button>
             </div>
             <button
-            onClick={handleReportClick}
-            className="flex justify-center items-center gap-2 w-full py-2 text-sm font-semibold text-gray-500 rounded-lg border hover:bg-gray-100">
+              onClick={handleReportClick}
+              className="flex justify-center items-center gap-2 w-full py-2 text-sm font-semibold text-gray-500 rounded-lg border hover:bg-gray-100">
               <span role="img" aria-label="flag">🚩</span>
               Báo cáo chiến dịch gây quỹ
             </button>
@@ -653,6 +755,12 @@ const formatDate = (dateStr) => {
           className={`px-6 py-2 rounded-t-lg ${activeTab === 'donations' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
         >
           Danh sách ủng hộ
+        </button>
+        <button
+          onClick={() => setActiveTab('saoke')}
+          className={`px-6 py-2 rounded-t-lg ${activeTab === 'saoke' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+        >
+          Danh sách Sao Kê
         </button>
         <button
           onClick={() => setActiveTab('chat')}
@@ -918,64 +1026,183 @@ const formatDate = (dateStr) => {
           </div>
         )}
 
-          {activeTab === 'donations' && (
-            <div className="py-8">
-              {loading && <p className="text-center text-gray-600">Đang tải...</p>}
-              {error && <p className="text-center text-red-500">{error}</p>}
-              {!loading && !error && donationHistory.length === 0 && (
-                <p className="text-center text-gray-600">Chưa có quyên góp nào.</p>
-              )}
-              {!loading && !error && donationHistory.length > 0 && (
-                <>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm text-gray-700">
-                      <thead className="bg-gray-100">
-                        <tr>
-                          <th className="px-4 py-2 text-left">Tên</th>
-                          <th className="px-4 py-2 text-left">Email</th>
-                          <th className="px-4 py-2 text-left">Lời chúc</th>
-                          <th className="px-4 py-2 text-left">Số tiền</th>
-                          <th className="px-4 py-2 text-left">Thời gian</th>
+        {activeTab === 'donations' && (
+          <div className="py-8">
+            {loading && <p className="text-center text-gray-600">Đang tải...</p>}
+            {error && <p className="text-center text-red-500">{error}</p>}
+            {!loading && !error && donationHistory.length === 0 && (
+              <p className="text-center text-gray-600">Chưa có quyên góp nào.</p>
+            )}
+            {!loading && !error && donationHistory.length > 0 && (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-gray-700">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Tên</th>
+                        <th className="px-4 py-2 text-left">Email</th>
+                        <th className="px-4 py-2 text-left">Lời chúc</th>
+                        <th className="px-4 py-2 text-left">Số tiền</th>
+                        <th className="px-4 py-2 text-left">Thời gian</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {donationHistory.map((donation, index) => (
+                        <tr key={index} className="border-t border-gray-300">
+                          <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.name || 'Ẩn danh')}</td>
+                          <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.email || 'Ẩn danh')}</td>
+                          <td className="px-4 py-2">{donation.message || ''}</td>
+                          <td className="px-4 py-2">{formatCurrency(donation.amount)}</td>
+                          <td className="px-4 py-2">{formatDate(donation.created_at)}</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {donationHistory.map((donation, index) => (
-                          <tr key={index} className="border-t border-gray-300">
-                            <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.name || 'Ẩn danh')}</td>
-                            <td className="px-4 py-2">{donation.anonymous ? 'Ẩn danh' : (donation.email || 'Ẩn danh')}</td>
-                            <td className="px-4 py-2">{donation.message || ''}</td>
-                            <td className="px-4 py-2">{formatCurrency(donation.amount)}</td>
-                            <td className="px-4 py-2">{formatDate(donation.created_at)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
-                  <div className="flex justify-center mt-4 space-x-2">
-                    <button
-                      onClick={() => handlePageChange(page - 1)}
-                      className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
-                      disabled={page === 1}
-                    >
-                      Trước
-                    </button>
-                    <span className="flex items-center text-gray-600">
-                      Trang {page} / {totalPages}
-                    </span>
-                    <button
-                      onClick={() => handlePageChange(page + 1)}
-                      className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
-                      disabled={page === totalPages}
-                    >
-                      Sau
-                    </button>
-                  </div>
-                </>
-              )}
+                <div className="flex justify-center mt-4 space-x-2">
+                  <button
+                    onClick={() => handlePageChange(page - 1)}
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                    disabled={page === 1}
+                  >
+                    Trước
+                  </button>
+                  <span className="flex items-center text-gray-600">
+                    Trang {page} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => handlePageChange(page + 1)}
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                    disabled={page === totalPages}
+                  >
+                    Sau
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+        {/* ===== Tab Sao Kê ===== */}
+        {activeTab === 'saoke' && (
+          <div className="flex flex-col min-h-screen bg-white px-6 py-8">
+            <div className="text-center mb-6">
+              <h2 className="text-lg font-semibold text-red-600">
+                Sao kê chiến dịch: {campaign ? campaign.title : id}
+              </h2>
+              <p>
+                TỔNG THU:{" "}
+                <span className="text-green-600 font-bold">
+                  +{filteredIncome.toLocaleString()} VND
+                </span>{" "}
+                / TỔNG CHI:{" "}
+                <span className="text-red-600 font-bold">-{filteredExpense.toLocaleString()} VND</span>
+              </p>
+              <p>
+                Số dư:{" "}
+                <span className={`font-bold ${filteredIncome - filteredExpense >= 0 ? 'text-green-700' : 'text-red-600'}`}>
+                  {filteredIncome - filteredExpense >= 0 ? "+" : ""}{(filteredIncome - filteredExpense).toLocaleString()} VND
+                </span>
+              </p>
             </div>
-          )}
 
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setFilter('all');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${filter === 'all' ? 'bg-violet-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  Tất cả
+                </button>
+                <button
+                  onClick={() => {
+                    setFilter('income');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${filter === 'income' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  Tiền thu
+                </button>
+                <button
+                  onClick={() => {
+                    setFilter('expense');
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-lg font-semibold transition-colors ${filter === 'expense' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+                >
+                  Tiền chi
+                </button>
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Tìm kiếm giao dịch..."
+                className="px-4 py-2 border rounded-lg w-1/3"
+              />
+            </div>
+
+            <div className="overflow-x-auto border rounded">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-gray-100 border-b">
+                  <tr>
+                    <th className="px-4 py-2">Mã giao dịch</th>
+                    <th className="px-4 py-2">Người chuyển/nhận</th>
+                    <th className="px-4 py-2">Ngày chuyển</th>
+                    <th className="px-4 py-2">Số tiền (VND)</th>
+                    <th className="px-4 py-2">Nội dung</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItems.map((tx) => (
+                    <tr key={tx.id} className="border-b hover:bg-gray-50">
+                      <td className="px-4 py-2">{tx.id}</td>
+                      <td className="px-4 py-2">{tx.created_by || 'Không rõ'}</td>
+                      <td className="px-4 py-2">
+                        {new Date(tx.date).toLocaleString('vi-VN')}
+                      </td>
+                      <td
+                        className={`px-4 py-2 font-semibold ${tx.amount > 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                      >
+                        {tx.amount > 0 ? "+" : ""}
+                        {tx.amount.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2">{tx.content}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+                {/* Pagination */}
+                <div className="flex justify-center mt-4 space-x-2">
+                  <button
+                    onClick={() => handleActPageChange(actPage - 1)}
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                    disabled={actPage === 1}
+                  >
+                    Trước
+                  </button>
+                  <span className="flex items-center text-gray-600">
+                    Trang {actPage} / {actTotalPages}
+                  </span>
+                  <button
+                    onClick={() => handleActPageChange(actPage + 1)}
+                    className="px-4 py-2 text-gray-700 rounded-md border border-gray-300 disabled:opacity-50"
+                    disabled={actPage === actTotalPages}
+                  >
+                    Sau
+                  </button>
+                </div>
+          </div>
+        )}
         {/* ===== Tab Chat ===== */}
         {activeTab === 'chat' && (
           <div className="py-8">
