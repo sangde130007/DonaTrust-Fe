@@ -323,7 +323,7 @@ const AdminReportedCampaigns = () => {
                   Người báo cáo
                 </Th>
                 <Th>Lý do</Th>
-                <Th>Evidence</Th>
+                <Th>Bằng chứng</Th>
                 <Th
                   onClick={() => toggleSort("status")}
                   active={sortBy === "status"}
