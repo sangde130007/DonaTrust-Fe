@@ -11,10 +11,13 @@ const API_ORIGIN = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const resolveImageUrl = (p) => {
   if (!p) return '';
-  if (p.startsWith('http')) return p;
-  if (p.startsWith('/uploads')) return `${API_ORIGIN}${p}`;
-  return `${API_ORIGIN}/public/images/${p}`;
-};
+  let url = String(p).trim().replace(/\\/g, '/');
+  if (/^https?:\/\//i.test(url)) return url;
+  url = url.replace(/^[A-Za-z]:\/.*?(\/Uploads\/)/, '/Uploads/');
+  if (!url.startsWith('/')) url = '/' + url;
+  if (url.startsWith('/Uploads/')) return `${API_ORIGIN}${url}`;
+  return url;
+};;
 
 const MAX_UPDATE_IMAGES = 10;
 const MAX_IMG_MB = 10;

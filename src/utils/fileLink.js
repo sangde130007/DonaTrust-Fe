@@ -9,13 +9,13 @@ export const toAbsoluteFileUrl = (u) => {
   if (!u) return '';
   let s = String(u).trim().replace(/\\/g, '/');
 
-  // full http(s)
+  // Full URL (including Cloudinary URLs)
   if (/^https?:\/\//i.test(s)) return s;
 
-  // bắt đầu bằng /uploads -> gắn origin
+  // Legacy local paths (for backward compatibility)
   if (s.startsWith('/uploads/')) return `${API_ORIGIN}${s}`;
 
-  // tên file trơ -> coi như nằm trong /uploads
+  // Relative paths - assume they need API origin
   if (!s.startsWith('/')) s = `/uploads/${s}`;
 
   return `${API_ORIGIN}${s}`;
